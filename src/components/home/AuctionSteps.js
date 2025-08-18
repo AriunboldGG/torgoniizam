@@ -111,7 +111,7 @@ export default function AuctionSteps() {
         <div className="relative">
           {/* Steps Container */}
           <div className="flex justify-center gap-6 lg:gap-8">
-            {steps.map((step, index) => (
+            {steps.map((step) => (
               <div key={step.id} className="flex flex-col items-center">
                 {/* Step Icon */}
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 ${

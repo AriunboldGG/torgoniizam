@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function AuctionsPage() {
-  const [auctions, setAuctions] = useState(mockAuctions);
+  const [auctions] = useState(mockAuctions);
   const [filteredAuctions, setFilteredAuctions] = useState(mockAuctions);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilters, setActiveFilters] = useState([]);

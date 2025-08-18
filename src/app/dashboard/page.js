@@ -3,7 +3,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 
 export default function DashboardPage() {
   // Mock user data
@@ -66,7 +65,7 @@ export default function DashboardPage() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Dashboard</h1>
-          <p className="text-slate-600">Welcome back! Here's what's happening with your auctions.</p>
+          <p className="text-slate-600">Welcome back! Here&apos;s what&apos;s happening with your auctions.</p>
         </div>
 
         {/* Stats Grid */}

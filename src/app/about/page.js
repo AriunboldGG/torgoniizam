@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 
 export default function About() {
   return (
@@ -80,7 +79,7 @@ export default function About() {
                 <div className="text-6xl mb-4">🎯</div>
                 <h3 className="text-2xl font-bold mb-4">Эрхэм зорилго</h3>
                 <p className="text-lg opacity-90">
-                  "Хэрэглэгчдийн итгэлийг хүлээж, шударга, ил тод дуудлага худалдааг хийх"
+                  &ldquo;Хэрэглэгчдийн итгэлийг хүлээж, шударга, ил тод дуудлага худалдааг хийх&rdquo;
                 </p>
               </div>
             </div>
