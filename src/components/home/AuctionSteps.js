@@ -163,8 +163,8 @@ export default function AuctionSteps() {
           {/* Horizontal Connection Lines */}
           <div className="mt-8 flex justify-center">
             <div className="flex gap-6 lg:gap-8">
-              {steps.slice(0, -1).map((_, index) => (
-                <div key={index} className="w-8 h-px border-t border-dashed border-gray-500 opacity-50"></div>
+              {steps.slice(0, -1).map((_, i) => (
+                <div key={i} className="w-8 h-px border-t border-dashed border-gray-500 opacity-50"></div>
               ))}
             </div>
           </div>

@@ -7,12 +7,10 @@ import { Separator } from "@/components/ui/separator";
 
 export default function AuctionCard({ auction }) {
   const {
-    id,
     title,
     description,
     currentBid,
     endTime,
-    image,
     bidders,
     category,
     startingBid,
