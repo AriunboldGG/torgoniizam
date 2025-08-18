@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -19,7 +20,7 @@ export default function Header() {
           <div className="flex justify-between items-center h-20">
             {/* Logo and Brand */}
             <div className="flex items-center space-x-4">
-              <img src="/svg/header/main-logo.svg" alt="Logo" className="w-[100px] h-[64px]" />
+              <Image src="/svg/header/main-logo.svg" alt="Logo" width={100} height={64} className="w-[100px] h-[64px]" />
             </div>
 
             {/* Desktop Navigation */}
@@ -52,9 +53,11 @@ export default function Header() {
                   }}
                 >
                   <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">ДУУДЛАГА ХУДАЛДАА</span>
-                  <img 
+                  <Image 
                     src="/svg/header/dropdown-header.svg" 
                     alt="Dropdown" 
+                    width={12}
+                    height={12}
                     className={`w-3 h-3 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
                   />
                 </button>
@@ -128,7 +131,7 @@ export default function Header() {
                     letterSpacing: '2.4%',
                   }}
                 >
-                  <img src="/svg/header/signIn.svg" alt="Plus" className="w-4 h-4 mr-2" />
+                  <Image src="/svg/header/signIn.svg" alt="Plus" width={16} height={16} className="w-4 h-4 mr-2" />
                   <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">БҮРТГҮҮЛЭХ</span>
                 </Button>
               </Link>
@@ -143,7 +146,7 @@ export default function Header() {
                     letterSpacing: '2.4%',
                   }}
                 >
-                  <img src="/svg/header/login.svg" alt="Arrow" className="w-4 h-4" />
+                  <Image src="/svg/header/login.svg" alt="Arrow" width={16} height={16} className="w-4 h-4" />
                   <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">НЭВТРЭХ</span>
                 </Button>
               </Link>
@@ -247,7 +250,7 @@ export default function Header() {
                       letterSpacing: '2.4%',
                     }}
                   >
-                    <img src="/svg/header/signIn.svg" alt="Plus" className="w-4 h-4 mr-2" />
+                    <Image src="/svg/header/signIn.svg" alt="Plus" width={16} height={16} className="w-4 h-4 mr-2" />
                     <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">БҮРТГҮҮЛЭХ</span>
                   </Button>
                 </Link>
@@ -262,7 +265,7 @@ export default function Header() {
                       letterSpacing: '2.4%',
                     }}
                   >
-                    <img src="/svg/header/login.svg" alt="Arrow" className="w-4 h-4" />
+                    <Image src="/svg/header/login.svg" alt="Arrow" width={16} height={16} className="w-4 h-4" />
                     <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">НЭВТРЭХ</span>
                   </Button>
                 </Link>

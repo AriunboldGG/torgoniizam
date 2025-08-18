@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function LiveAuctionSlider() {
   const scrollContainerRef = useRef(null);
@@ -159,7 +160,7 @@ export default function LiveAuctionSlider() {
               letterSpacing: '2.4%',
             }}
           >
-            <img src="/svg/see-all.svg" alt="See All" className="w-4 h-4 mr-2" />
+            <Image src="/svg/see-all.svg" alt="See All" width={16} height={16} className="w-4 h-4 mr-2" />
             <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
               Бүгдийг үзэх
             </span>
@@ -170,11 +171,11 @@ export default function LiveAuctionSlider() {
         <div className="relative">
           {/* Navigation Arrows */}
           <button onClick={scrollLeft} className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
-            <img src="/svg/left.svg" alt="Previous" className="w-6 h-6" />
+            <Image src="/svg/left.svg" alt="Previous" width={24} height={24} className="w-6 h-6" />
           </button>
           
           <button onClick={scrollRight} className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
-            <img src="/svg/right.svg" alt="Next" className="w-6 h-6" />
+            <Image src="/svg/right.svg" alt="Next" width={24} height={24} className="w-6 h-6" />
           </button>
 
           {/* Horizontal Scrollable Cards Row */}
@@ -184,9 +185,11 @@ export default function LiveAuctionSlider() {
                 <CardContent className="p-0">
                   {/* Product Image with Timer Overlay */}
                   <div className="relative">
-                    <img 
+                    <Image 
                       src={auction.image} 
                       alt={auction.title}
+                      width={300}
+                      height={192}
                       className="w-full h-48 object-cover"
                     />
                     {/* Timer Overlay */}
@@ -224,9 +227,11 @@ export default function LiveAuctionSlider() {
                       <button 
                         className={`${auction.buttonColor} w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity`}
                       >
-                        <img 
+                        <Image 
                           src="/svg/bid.svg" 
                           alt="Bid" 
+                          width={20}
+                          height={20}
                           className={`w-5 h-5 ${auction.buttonColor === 'bg-black' ? 'filter invert' : ''}`}
                         />
                       </button>

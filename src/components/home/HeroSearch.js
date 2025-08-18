@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function HeroSearch() {
   return (
@@ -6,9 +7,11 @@ export default function HeroSearch() {
       {/* Background with SVG pattern */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-          <img 
+          <Image 
             src="/svg/search-background.svg" 
             alt="Search Background Pattern" 
+            width={1200}
+            height={320}
             className="opacity-100 w-full object-cover rounded-2xl"
             style={{ height: '320px' }}
           />
@@ -76,9 +79,11 @@ export default function HeroSearch() {
                   >
                     Бүх ангилал
                   </span>
-                  <img 
+                  <Image 
                     src="/svg/dropdown-search.svg" 
                     alt="Dropdown" 
+                    width={16}
+                    height={16}
                     className="w-4 h-4"
                   />
                 </div>
@@ -95,9 +100,11 @@ export default function HeroSearch() {
                   fontWeight: 700
                 }}
               >
-                <img 
+                <Image 
                   src="/svg/search.svg" 
                   alt="Search" 
+                  width={24}
+                  height={24}
                   className="w-6 h-6"
                 />
               </Button>

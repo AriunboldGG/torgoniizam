@@ -1,5 +1,7 @@
 "use client"
 
+import Image from "next/image";
+
 export default function AuctionSteps() {
   const steps = [
     {
@@ -71,10 +73,11 @@ export default function AuctionSteps() {
     <section className="relative py-20 overflow-hidden">
       {/* Background SVG Pattern */}
       <div className="absolute inset-0">
-        <img 
+        <Image 
           src="/svg/steps-back.svg" 
           alt="Steps Background Pattern" 
-          className="w-full h-full object-cover opacity-100"
+          fill
+          className="object-cover opacity-100"
         />
       </div>
 
@@ -83,9 +86,11 @@ export default function AuctionSteps() {
         {/* Logo and Title */}
         <div className="mb-16">
           <div className="flex justify-center mb-8">
-            <img 
+            <Image 
               src="/svg/white-logo.svg" 
               alt="Logo" 
+              width={208}
+              height={108}
               style={{ width: '208px', height: '108px' }}
             />
           </div>
@@ -114,9 +119,11 @@ export default function AuctionSteps() {
                     ? 'bg-orange-500' 
                     : 'bg-gray-700 border-2 border-gray-500'
                 }`}>
-                  <img 
+                  <Image 
                     src={step.icon} 
                     alt={`Step ${step.id}`}
+                    width={28}
+                    height={28}
                     className="w-7 h-7"
                   />
                 </div>
