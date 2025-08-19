@@ -4,10 +4,21 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { useUser } from "@/contexts/UserContext";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { user, logout } = useUser();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    setIsUserMenuOpen(false);
+    router.push("/");
+  };
 
   return (
     <header className="relative">
@@ -120,36 +131,74 @@ export default function Header() {
 
             {/* Desktop User Actions */}
             <div className="hidden md:flex items-center space-x-4">
-              {/* Registration */}
-              <Link href="/auth/signup">
-                <Button 
-                  variant="outline"
-                  className="bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white px-6 py-3 rounded-lg transition-all duration-200 font-bold uppercase"
-                  style={{
-                    fontFamily: 'TT Firs Neue Variable',
-                    fontWeight: 700,
-                    letterSpacing: '2.4%',
-                  }}
-                >
-                  <Image src="/svg/header/signIn.svg" alt="Plus" width={16} height={16} className="w-4 h-4 mr-2" />
-                  <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">БҮРТГҮҮЛЭХ</span>
-                </Button>
-              </Link>
+              {user ? (
+                /* Logged in user - show user menu */
+                <div className="relative">
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center space-x-3 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors"
+                  >
+                    <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">{user.avatar}</span>
+                    </div>
+                    <span className="font-medium text-gray-900">{user.fullName}</span>
+                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
 
-              {/* Login */}
-              <Link href="/auth/login">
-                <Button 
-                  className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors font-bold uppercase"
-                  style={{
-                    fontFamily: 'TT Firs Neue Variable',
-                    fontWeight: 700,
-                    letterSpacing: '2.4%',
-                  }}
-                >
-                  <Image src="/svg/header/login.svg" alt="Arrow" width={16} height={16} className="w-4 h-4" />
-                  <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">НЭВТРЭХ</span>
-                </Button>
-              </Link>
+                  {/* User Dropdown Menu */}
+                  {isUserMenuOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                      <Link href="/my-account">
+                        <div className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
+                          <span className="text-sm font-medium text-gray-700">Миний профайл</span>
+                        </div>
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <span className="text-sm font-medium text-gray-700">Гарах</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Not logged in - show auth buttons */
+                <>
+                  {/* Registration */}
+                  <Link href="/auth/signup">
+                    <Button 
+                      variant="outline"
+                      className="bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white px-6 py-3 rounded-lg transition-all duration-200 font-bold uppercase"
+                      style={{
+                        fontFamily: 'TT Firs Neue Variable',
+                        fontWeight: 700,
+                        letterSpacing: '2.4%',
+                      }}
+                    >
+                      <Image src="/svg/header/signIn.svg" alt="Plus" width={16} height={16} className="w-4 h-4 mr-2" />
+                      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">БҮРТГҮҮЛЭХ</span>
+                    </Button>
+                  </Link>
+
+                  {/* Login */}
+                  <Link href="/auth/login">
+                    <Button 
+                      className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors font-bold uppercase"
+                      style={{
+                        fontFamily: 'TT Firs Neue Variable',
+                        fontWeight: 700,
+                        letterSpacing: '2.4%',
+                      }}
+                    >
+                      <Image src="/svg/header/login.svg" alt="Arrow" width={16} height={16} className="w-4 h-4" />
+                      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">НЭВТРЭХ</span>
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -239,36 +288,70 @@ export default function Header() {
 
               {/* Mobile User Actions */}
               <div className="space-y-3 pt-4 border-t border-gray-200">
-                {/* Registration */}
-                <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button 
-                    variant="outline"
-                    className="w-full bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white py-3 rounded-lg transition-all duration-200 font-bold uppercase"
-                    style={{
-                      fontFamily: 'TT Firs Neue Variable',
-                      fontWeight: 700,
-                      letterSpacing: '2.4%',
-                    }}
-                  >
-                    <Image src="/svg/header/signIn.svg" alt="Plus" width={16} height={16} className="w-4 h-4 mr-2" />
-                    <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">БҮРТГҮҮЛЭХ</span>
-                  </Button>
-                </Link>
+                {user ? (
+                  /* Logged in user - show user info and logout */
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3 px-4 py-3 bg-gray-50 rounded-lg">
+                      <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-base">{user.avatar}</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{user.fullName}</p>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                      </div>
+                    </div>
+                    
+                    <Link href="/my-account" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button 
+                        variant="outline"
+                        className="w-full bg-white text-gray-700 hover:bg-gray-50 py-3 rounded-lg transition-colors font-medium"
+                      >
+                        Миний профайл
+                      </Button>
+                    </Link>
 
-                {/* Login */}
-                <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button 
-                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors font-bold uppercase"
-                    style={{
-                      fontFamily: 'TT Firs Neue Variable',
-                      fontWeight: 700,
-                      letterSpacing: '2.4%',
-                    }}
-                  >
-                    <Image src="/svg/header/login.svg" alt="Arrow" width={16} height={16} className="w-4 h-4" />
-                    <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">НЭВТРЭХ</span>
-                  </Button>
-                </Link>
+                    <Button 
+                      onClick={handleLogout}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg transition-colors font-medium"
+                    >
+                      Гарах
+                    </Button>
+                  </div>
+                ) : (
+                  /* Not logged in - show auth buttons */
+                  <>
+                    {/* Registration */}
+                    <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button 
+                        variant="outline"
+                        className="w-full bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white py-3 rounded-lg transition-all duration-200 font-bold uppercase"
+                        style={{
+                          fontFamily: 'TT Firs Neue Variable',
+                          fontWeight: 700,
+                          letterSpacing: '2.4%',
+                        }}
+                      >
+                        <Image src="/svg/header/signIn.svg" alt="Plus" width={16} height={16} className="w-4 h-4 mr-2" />
+                        <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">БҮРТГҮҮЛЭХ</span>
+                      </Button>
+                    </Link>
+
+                    {/* Login */}
+                    <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button 
+                        className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors font-bold uppercase"
+                        style={{
+                          fontFamily: 'TT Firs Neue Variable',
+                          fontWeight: 700,
+                          letterSpacing: '2.4%',
+                        }}
+                      >
+                        <Image src="/svg/header/login.svg" alt="Arrow" width={16} height={16} className="w-4 h-4" />
+                        <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">НЭВТРЭХ</span>
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           )}

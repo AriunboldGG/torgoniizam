@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 
-export default function LiveAuctionSlider() {
+export default function CompletedAuctionSection() {
   const scrollContainerRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -38,96 +38,86 @@ export default function LiveAuctionSlider() {
     }
   }, []);
 
-  const liveAuctions = [
+  const completedAuctions = [
     {
       id: 1,
-      image: "/images/live1.png",
-      category: "Автомашин",
-      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-      lastPrice: "53,400,000₮",
-      timer: "2 : 32 : 58 : 14",
-      buttonColor: "bg-black"
+      image: "/images/end1.png",
+      category: "Гар утас, таблет",
+      title: "САМСУНГ ГАЛАКСИ S24 - ХАМГИЙН ШИНЭ МОДЕЛЬ",
+      finalPrice: "1,400,000₮",
+      status: "ДУУССАН"
     },
     {
       id: 2,
-      image: "/images/live2.png",
+      image: "/images/end2.png",
       category: "Цахилгаан бараа",
-      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-      lastPrice: "480,000₮",
-      timer: "2 : 18 : 52 : 14",
-      buttonColor: "bg-orange-500"
+      title: "СОНИ БРАВИЯ - 4K ХАМГИЙН САЙН КАЧЕСТЬТЭЙ",
+      finalPrice: "480,000₮",
+      status: "ДУУССАН"
     },
     {
       id: 3,
-      image: "/images/live3.png",
-      category: "Компьютер",
-      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-      lastPrice: "820,000₮",
-      timer: "0 : 04 : 16 : 02",
-      buttonColor: "bg-black"
+      image: "/images/end3.png",
+      category: "Үнэт эдлэл",
+      title: "ДАМАСКУС ГАН - ХУУЧИН АРТИЗАНЫ ГАРТ ХИЙСЭН",
+      finalPrice: "1,280,000₮",
+      status: "ДУУССАН"
     },
     {
       id: 4,
-      image: "/images/live4.png",
-      category: "Үнэт эдлэл",
-      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-      lastPrice: "1,280,000₮",
-      timer: "1 : 20 : 49 : 72",
-      buttonColor: "bg-black"
+      image: "/images/end4.png",
+      category: "Автомашин",
+      title: "ФОРД БРОНКО - ХАМГИЙН ХҮЧИРХЭГ SUV",
+      finalPrice: "820,000₮",
+      status: "ДУУССАН"
     },
     {
       id: 5,
-      image: "/images/live1.png",
-      category: "Автомашин",
-      title: "ТОЙОТА ЛЭНД КРУЗЕР - ДЭЛГҮҮРИЙН ХАМГИЙН САЙН СОНГОЛТ",
-      lastPrice: "45,800,000₮",
-      timer: "3 : 15 : 42 : 30",
-      buttonColor: "bg-black"
+      image: "/images/end1.png",
+      category: "Компьютер",
+      title: "ЭППЛ МАКБУК ПРО M3 - ХҮЧИРХЭГ ПРОЦЕССОРТОЙ",
+      finalPrice: "3,680,000₮",
+      status: "ДУУССАН"
     },
     {
       id: 6,
-      image: "/images/live2.png",
-      category: "Цахилгаан бараа",
-      title: "САМСУНГ ГАЛАКСИ S24 - ХАМГИЙН ШИНЭ МОДЕЛЬ",
-      lastPrice: "2,450,000₮",
-      timer: "1 : 45 : 23 : 18",
-      buttonColor: "bg-orange-500"
+      image: "/images/end2.png",
+      category: "Үнэт эдлэл",
+      title: "БРИЛЛИАНТ ЭРГЭНЭ - 5 КАРАТЫН ЧИСТЭЙ ТАЛСТ",
+      finalPrice: "2,450,000₮",
+      status: "ДУУССАН"
     },
     {
       id: 7,
-      image: "/images/live3.png",
-      category: "Компьютер",
-      title: "ЭППЛ МАКБУК ПРО M3 - ХҮЧИРХЭГ ПРОЦЕССОРТОЙ",
-      lastPrice: "3,680,000₮",
-      timer: "0 : 52 : 18 : 45",
-      buttonColor: "bg-black"
+      image: "/images/end3.png",
+      category: "Автомашин",
+      title: "ТОЙОТА ЛЭНД КРУЗЕР - ДЭЛГҮҮРИЙН ХАМГИЙН САЙН СОНГОЛТ",
+      finalPrice: "45,800,000₮",
+      status: "ДУУССАН"
     },
     {
       id: 8,
-      image: "/images/live4.png",
-      category: "Үнэт эдлэл",
-      title: "ДАМАСКУС ГАН - ХУУЧИН АРТИЗАНЫ ГАРТ ХИЙСЭН",
-      lastPrice: "890,000₮",
-      timer: "4 : 12 : 35 : 22",
-      buttonColor: "bg-black"
+      image: "/images/end4.png",
+      category: "Цахилгаан бараа",
+      title: "СОНИ ПЛЕЙСТЕЙШН 5 - ГЭМТЭЛГҮЙ БАЙГУУЛЛАГА",
+      finalPrice: "1,750,000₮",
+      status: "ДУУССАН"
     },
     {
       id: 9,
-      image: "/images/live1.png",
-      category: "Автомашин",
-      title: "ХОНДА ЦИВИК - ЭДИЙН ЗАСГИЙН ХЭМНЭЛТТЭЙ",
-      lastPrice: "28,900,000₮",
-      timer: "2 : 08 : 15 : 40",
-      buttonColor: "bg-orange-500"
+      image: "/images/end1.png",
+      category: "Үнэт эдлэл",
+      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
+      finalPrice: "890,000₮",
+      status: "ДУУССАН"
     },
     {
       id: 10,
-      image: "/images/live2.png",
-      category: "Цахилгаан бараа",
-      title: "СОНИ ПЛЕЙСТЕЙШН 5 - ГЭМТЭЛГҮЙ БАЙГУУЛЛАГА",
-      lastPrice: "1,750,000₮",
-      timer: "0 : 38 : 52 : 15",
-      buttonColor: "bg-black"
+      image: "/images/end2.png",
+      category: "Компьютер",
+      title: "ГЭЙМИНГ КОМПЬЮТЕР - RTX 4090 ГРАФИК КАРТТАЙ",
+      finalPrice: "4,200,000₮",
+      status: "ДУУССАН"
     }
   ];
 
@@ -146,7 +136,7 @@ export default function LiveAuctionSlider() {
               }}
             >
               <span className="text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile xl:text-xl-mobile 2xl:text-2xl-mobile 3xl:text-3xl-mobile 4xl:text-4xl-mobile 5xl:text-5xl-mobile">
-                ЯВАГДАЖ БУЙ ДУУДЛАГА ХУДАЛДАА
+                ДУУССАН ДУУДЛАГА ХУДАЛДАА
               </span>
             </h2>
           </div>
@@ -180,14 +170,14 @@ export default function LiveAuctionSlider() {
 
           {/* Horizontal Scrollable Cards Row */}
           <div ref={scrollContainerRef} className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-            {liveAuctions.map((auction) => (
+            {completedAuctions.map((auction) => (
               <Card 
                 key={auction.id} 
                 className="min-w-[300px] max-w-[300px] overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex-shrink-0 cursor-pointer"
                 onClick={() => window.location.href = `/auction/${auction.id}`}
               >
                 <CardContent className="p-0">
-                  {/* Product Image with Timer Overlay */}
+                  {/* Product Image with Status Badge */}
                   <div className="relative">
                     <Image 
                       src={auction.image} 
@@ -196,9 +186,9 @@ export default function LiveAuctionSlider() {
                       height={192}
                       className="w-full h-48 object-cover"
                     />
-                    {/* Timer Overlay */}
-                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg">
-                      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm font-bold">{auction.timer}</span>
+                    {/* Status Badge */}
+                    <div className="absolute top-2 right-2 bg-black text-white px-3 py-1 rounded-lg">
+                      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm font-bold">{auction.status}</span>
                     </div>
                   </div>
 
@@ -222,23 +212,8 @@ export default function LiveAuctionSlider() {
                     
                     {/* Price Section */}
                     <div className="mb-4">
-                      <p className="text-gray-500 text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm mb-1">Сүүлийн үнэ</p>
-                      <p className="text-red-600 font-bold text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile">{auction.lastPrice}</p>
-                    </div>
-                    
-                    {/* Bid Button */}
-                    <div className="flex justify-end">
-                      <button 
-                        className={`${auction.buttonColor} w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity`}
-                      >
-                        <Image 
-                          src="/svg/bid.svg" 
-                          alt="Bid" 
-                          width={20}
-                          height={20}
-                          className={`w-5 h-5 ${auction.buttonColor === 'bg-black' ? 'filter invert' : ''}`}
-                        />
-                      </button>
+                      <p className="text-gray-500 text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm mb-1">Сүүлийн үнэ:</p>
+                      <p className="text-orange-500 font-bold text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile">{auction.finalPrice}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -260,4 +235,4 @@ export default function LiveAuctionSlider() {
       </div>
     </section>
   );
-} 
+}

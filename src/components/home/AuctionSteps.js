@@ -109,8 +109,8 @@ export default function AuctionSteps() {
 
         {/* Steps Flow */}
         <div className="relative">
-          {/* Steps Container */}
-          <div className="flex justify-center gap-6 lg:gap-8">
+          {/* Steps Container - Responsive Layout */}
+          <div className="hidden lg:flex justify-center gap-6 lg:gap-8">
             {steps.map((step) => (
               <div key={step.id} className="flex flex-col items-center">
                 {/* Step Icon */}
@@ -135,10 +135,12 @@ export default function AuctionSteps() {
                     style={{
                       fontFamily: 'TT Firs Neue Variable',
                       fontWeight: 700,
+                      fontSize: '8px',
+                      lineHeight: '12px',
                       letterSpacing: '2.4%',
                     }}
                   >
-                    <span className="text-xs-mobile sm:text-sm-mobile md:text-sm">
+                    <span>
                       {step.badge}
                     </span>
                   </span>
@@ -146,13 +148,16 @@ export default function AuctionSteps() {
 
                 {/* Step Title */}
                 <h3 
-                  className="text-white font-bold text-center max-w-[120px] leading-tight uppercase"
+                  className="text-white text-center uppercase"
                   style={{
                     fontFamily: 'TT Firs Neue Variable',
-                    fontWeight: 700,
+                    fontWeight: 600,
+                    fontSize: '12px',
+                    lineHeight: '18px',
+                    letterSpacing: '2.4%',
                   }}
                 >
-                  <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-base">
+                  <span>
                     {step.title}
                   </span>
                 </h3>
@@ -160,13 +165,65 @@ export default function AuctionSteps() {
             ))}
           </div>
 
-          {/* Horizontal Connection Lines */}
-          <div className="mt-8 flex justify-center">
-            <div className="flex gap-6 lg:gap-8">
-              {steps.slice(0, -1).map((_, i) => (
-                <div key={i} className="w-8 h-px border-t border-dashed border-gray-500 opacity-50"></div>
-              ))}
-            </div>
+          {/* Mobile/Tablet Scrollable Layout */}
+          <div className="lg:hidden flex overflow-x-auto gap-4 sm:gap-6 pb-4 px-2 sm:px-4">
+            {steps.map((step) => (
+              <div key={step.id} className="flex flex-col items-center flex-shrink-0 min-w-[120px] sm:min-w-[140px]">
+                {/* Step Icon */}
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mb-3 sm:mb-4 ${
+                  step.isActive 
+                    ? 'bg-orange-500' 
+                    : 'bg-gray-700 border-2 border-gray-500'
+                }`}>
+                  <Image 
+                    src={step.icon} 
+                    alt={`Step ${step.id}`}
+                    width={24}
+                    height={24}
+                    className="w-6 h-6 sm:w-7 sm:h-7"
+                  />
+                </div>
+
+                {/* Step Badge */}
+                <div className="bg-orange-500 text-white px-2 py-1 sm:px-3 rounded-lg mb-2 sm:mb-3">
+                  <span 
+                    className="font-bold uppercase"
+                    style={{
+                      fontFamily: 'TT Firs Neue Variable',
+                      fontWeight: 700,
+                      fontSize: '8px',
+                      lineHeight: '12px',
+                      letterSpacing: '2.4%',
+                    }}
+                  >
+                    <span>
+                      {step.badge}
+                    </span>
+                  </span>
+                </div>
+
+                {/* Step Title */}
+                <h3 
+                  className="text-white text-center uppercase"
+                  style={{
+                    fontFamily: 'TT Firs Neue Variable',
+                    fontWeight: 600,
+                    fontSize: '12px',
+                    lineHeight: '18px',
+                    letterSpacing: '2.4%',
+                  }}
+                >
+                  <span>
+                    {step.title}
+                  </span>
+                </h3>
+              </div>
+            ))}
+          </div>
+
+          {/* Scroll indicator - Only show on mobile/tablet */}
+          <div className="lg:hidden flex justify-center mt-4">
+            <div className="w-16 h-1 bg-gray-600 rounded-full opacity-50"></div>
           </div>
         </div>
       </div>
