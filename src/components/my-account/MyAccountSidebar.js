@@ -2,17 +2,10 @@
 
 import { useRouter } from "next/navigation"
 import { useUser } from "@/contexts/UserContext"
+import Image from "next/image"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
+  SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
 export function MyAccountSidebar() {
@@ -25,32 +18,11 @@ export function MyAccountSidebar() {
   }
 
   const menuItems = [
-    {
-      title: "ХУВИЙН МЭДЭЭЛЭЛ",
-      url: "/my-account",
-      icon: "/svg/my-info.svg",
-      active: true
-    },
-    {
-      title: "ХЭТЭВЧ",
-      url: "/my-account/wallet",
-      icon: "/svg/wallet.svg"
-    },
-    {
-      title: "ДУУДЛАГА ХУДАЛДАА",
-      url: "/my-account/auctions",
-      icon: "/svg/bid1.svg"
-    },
-    {
-      title: "ТОХИРГОО",
-      url: "/my-account/settings",
-      icon: "/svg/settings.svg"
-    },
-    {
-      title: "СИСТЕМЭЭС ГАРАХ",
-      action: handleLogout,
-      icon: "/svg/logout.svg"
-    }
+    { title: "ХУВИЙН МЭДЭЭЛЭЛ", url: "/my-account", icon: "/svg/my-info.svg", active: true },
+    { title: "ХЭТЭВЧ", url: "/my-account/wallet", icon: "/svg/wallet.svg" },
+    { title: "ДУУДЛАГА ХУДАЛДАА", url: "/my-account/auctions", icon: "/svg/bid1.svg" },
+    { title: "ТОХИРГОО", url: "/my-account/settings", icon: "/svg/settings.svg" },
+    { title: "СИСТЕМЭЭС ГАРАХ", action: handleLogout, icon: "/svg/logout.svg" }
   ]
 
   return (
@@ -61,12 +33,11 @@ export function MyAccountSidebar() {
             <span className="text-white font-bold text-lg">{user?.avatar || "БА"}</span>
           </div>
           <div>
-            <p className="font-semibold">{user?.fullName || "tester"}</p>
+            <p className="font-semibold">{user?.fullName || "Б.АЛТАНЗУЛ"}</p>
             <p className="text-sm text-gray-500">Хэрэглэгч</p>
           </div>
         </div>
       </SidebarHeader>
-      
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Хэрэглэгчийн цэс</SidebarGroupLabel>
@@ -74,21 +45,15 @@ export function MyAccountSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    className={item.active ? "bg-orange-500 text-white" : ""}
-                  >
+                  <SidebarMenuButton asChild className={item.active ? "bg-orange-500 text-white" : ""}>
                     {item.action ? (
-                      <button 
-                        onClick={item.action}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 w-full text-left"
-                      >
-                        <img src={item.icon} alt="" className="w-5 h-5" />
+                      <button onClick={item.action} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 w-full text-left">
+                        <Image src={item.icon} alt="" width={20} height={20} className="w-5 h-5" />
                         <span className="font-medium">{item.title}</span>
                       </button>
                     ) : (
                       <a href={item.url} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
-                        <img src={item.icon} alt="" className="w-5 h-5" />
+                        <Image src={item.icon} alt="" width={20} height={20} className="w-5 h-5" />
                         <span className="font-medium">{item.title}</span>
                       </a>
                     )}
@@ -99,7 +64,6 @@ export function MyAccountSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      
       <SidebarFooter className="border-t p-4">
         <div className="text-center text-sm text-gray-500">
           <p>ТОРГОНЫ ЗАМ</p>

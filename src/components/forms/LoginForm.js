@@ -29,7 +29,7 @@ export function LoginForm() {
       } else {
         setError(result.error)
       }
-    } catch (err) {
+    } catch {
       setError("Системийн алдаа гарлаа. Дахин оролдоно уу.")
     } finally {
       setIsLoading(false)
