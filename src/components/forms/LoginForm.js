@@ -112,7 +112,7 @@ export function LoginForm() {
           <p className="font-semibold text-gray-700 mb-1">Хэрэглэгч 1:</p>
           <p>Имэйл: <strong>test@example.com</strong></p>
           <p>Нууц үг: <strong>password123</strong></p>
-          <p className="text-xs text-gray-500 mt-1">Б.АЛТАНЗУЛ (Ариунболд Ганбат)</p>
+          <p className="text-xs text-gray-500 mt-1">Ариунболд (Ариунболд Ганбат)</p>
         </div>
         
         <div className="bg-gray-50 p-3 rounded-md">
