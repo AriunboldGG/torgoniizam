@@ -1,12 +1,11 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react"
+import { Card, CardContent, CardTitle } from "@/components/ui/card"
+import Image from "next/image"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
 
 export default function TodayAuctions() {
   const [currentPage, setCurrentPage] = useState(1);

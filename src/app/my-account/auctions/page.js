@@ -1,11 +1,8 @@
 "use client"
 
-import { useUser } from "@/contexts/UserContext"
 import Image from "next/image"
 
 export default function AuctionsPage() {
-  const { user } = useUser()
-
   const participatedAuctions = [
     {
       id: 1,

@@ -1,11 +1,8 @@
 "use client"
 
-import { useUser } from "@/contexts/UserContext"
 import Image from "next/image"
 
 export default function WalletPage() {
-  const { user } = useUser()
-
   const transactions = [
     {
       id: 1,

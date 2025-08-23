@@ -1,10 +1,8 @@
 "use client"
 
-import { useUser } from "@/contexts/UserContext"
 import { useState } from "react"
 
 export default function SettingsPage() {
-  const { user } = useUser()
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
 
   return (

@@ -4,6 +4,7 @@ import { useState, use } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link"
 
 export default function AuctionItemPage({ params }) {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -224,9 +225,9 @@ export default function AuctionItemPage({ params }) {
           {/* Breadcrumb */}
           <div className="mb-6">
             <nav className="flex items-center space-x-2 text-sm text-gray-500">
-              <a href="/" className="hover:text-[#FF4405]">Эхлэл</a>
+              <Link href="/" className="hover:text-[#FF4405]">Эхлэл</Link>
               <span>/</span>
-              <a href="/auctions/today" className="hover:text-[#FF4405]">Дуудлага худалдаа</a>
+              <Link href="/auctions/today" className="hover:text-[#FF4405]">Дуудлага худалдаа</Link>
               <span>/</span>
               <span className="text-gray-900">{auctionItem.title}</span>
             </nav>

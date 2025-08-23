@@ -250,160 +250,180 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Full Screen */}
           {isMobileMenuOpen && (
-            <div className="md:hidden border-t border-gray-200 py-4 space-y-4">
-              {/* Mobile Navigation */}
-              <nav className="space-y-4">
-                {/* Home Page */}
-                <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className={`px-4 py-2 rounded-full text-center font-bold transition-colors uppercase cursor-pointer ${
-                    isActivePage("/") 
-                      ? "bg-[#FF4405] text-white" 
-                      : "bg-white text-gray-700"
-                  }`}
-                    style={{
-                      fontFamily: 'TT Firs Neue Variable',
-                      fontWeight: 700,
-                      letterSpacing: '2.4%',
-                    }}
-                  >
-                    <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">ЭХЛЭЛ</span>
-                  </div>
-                </Link>
-
-                {/* Auction Links */}
-                <div className="space-y-2">
-                  <Link href="/auctions/today" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors rounded-lg ${
-                      isActivePage("/auctions/today") ? "bg-orange-50" : ""
-                    }`}>
-                      <span 
-                        className={`font-bold uppercase ${
-                          isActivePage("/auctions/today") 
-                            ? "text-[#FF4405]" 
-                            : "text-gray-700"
-                        }`}
-                        style={{
-                          fontFamily: 'TT Firs Neue Variable',
-                          fontWeight: 700,
-                          letterSpacing: '2.4%',
-                        }}
-                      >
-                        <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
-                          Өнөөдөр болох дуудлага худалдаа
-                        </span>
-                      </span>
-                    </div>
-                  </Link>
-                  <Link href="/auctions/pending" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors rounded-lg ${
-                      isActivePage("/auctions/pending") ? "bg-orange-50" : ""
-                    }`}>
-                      <span 
-                        className={`font-bold uppercase ${
-                          isActivePage("/auctions/pending") 
-                            ? "text-[#FF4405]" 
-                            : "text-gray-700"
-                        }`}
-                        style={{
-                          fontFamily: 'TT Firs Neue Variable',
-                          fontWeight: 700,
-                          letterSpacing: '2.4%',
-                        }}
-                      >
-                        <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
-                          Хүлээгдэж буй дуудлага худалдаа
-                        </span>
-                      </span>
-                    </div>
-                  </Link>
+            <div className="md:hidden fixed inset-0 bg-white z-50 overflow-y-auto">
+              {/* Mobile Menu Header */}
+              <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
+                <div className="flex items-center space-x-4">
+                  <Image src="/svg/header/main-logo.svg" alt="Logo" width={80} height={50} className="w-[80px] h-[50px]" />
+                  <span className="text-lg font-bold text-gray-900">Цэс</span>
                 </div>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  aria-label="Close mobile menu"
+                >
+                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
 
-                {/* About Page */}
-                <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className={`px-4 py-2 rounded-lg text-center font-bold transition-colors uppercase cursor-pointer ${
-                    isActivePage("/about") 
-                      ? "bg-[#FF4405] text-white" 
-                      : "bg-white text-gray-700"
-                  }`}
-                    style={{
-                      fontFamily: 'TT Firs Neue Variable',
-                      fontWeight: 700,
-                      letterSpacing: '2.4%',
-                    }}
-                  >
-                    <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">ТАНИЛЦУУЛГА</span>
-                  </div>
-                </Link>
-              </nav>
-
-              {/* Mobile User Actions */}
-              <div className="space-y-3 pt-4 border-t border-gray-200">
-                {user ? (
-                  /* Logged in user - show user info and logout */
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3 px-4 py-3 bg-gray-50 rounded-lg">
-                      <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-base">{user.avatar}</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{user.fullName}</p>
-                        <p className="text-sm text-gray-500">{user.email}</p>
-                      </div>
-                    </div>
-                    
-                    <Link href="/my-account" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button 
-                        variant="outline"
-                        className="w-full bg-white text-gray-700 hover:bg-gray-50 py-3 rounded-lg transition-colors font-medium"
-                      >
-                        Миний профайл
-                      </Button>
-                    </Link>
-
-                    <Button 
-                      onClick={handleLogout}
-                      className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg transition-colors font-medium"
+              {/* Mobile Menu Content */}
+              <div className="px-4 py-6 space-y-6">
+                {/* Mobile Navigation */}
+                <nav className="space-y-4">
+                  {/* Home Page */}
+                  <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
+                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer ${
+                      isActivePage("/") 
+                        ? "bg-[#FF4405] text-white" 
+                        : "bg-white text-gray-700 border border-gray-200"
+                    }`}
+                      style={{
+                        fontFamily: 'TT Firs Neue Variable',
+                        fontWeight: 700,
+                        letterSpacing: '2.4%',
+                      }}
                     >
-                      Гарах
-                    </Button>
-                  </div>
-                ) : (
-                  /* Not logged in - show auth buttons */
-                  <>
-                    {/* Registration */}
-                    <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button 
-                        variant="outline"
-                        className="w-full bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white py-3 rounded-lg transition-all duration-200 font-bold uppercase"
-                        style={{
-                          fontFamily: 'TT Firs Neue Variable',
-                          fontWeight: 700,
-                          letterSpacing: '2.4%',
-                        }}
-                      >
-                        <Image src="/svg/header/signIn.svg" alt="Plus" width={16} height={16} className="w-4 h-4 mr-2" />
-                        <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">БҮРТГҮҮЛЭХ</span>
-                      </Button>
-                    </Link>
+                      <span className="text-sm">ЭХЛЭЛ</span>
+                    </div>
+                  </Link>
 
-                    {/* Login */}
-                    <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button 
-                        className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors font-bold uppercase"
-                        style={{
-                          fontFamily: 'TT Firs Neue Variable',
-                          fontWeight: 700,
-                          letterSpacing: '2.4%',
-                        }}
-                      >
-                        <Image src="/svg/header/login.svg" alt="Arrow" width={16} height={16} className="w-4 h-4" />
-                        <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">НЭВТРЭХ</span>
-                      </Button>
+                  {/* Auction Links */}
+                  <div className="space-y-3">
+                    <Link href="/auctions/today" onClick={() => setIsMobileMenuOpen(false)}>
+                      <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border ${
+                        isActivePage("/auctions/today") ? "bg-orange-50 border-orange-200" : "border-gray-200"
+                      }`}>
+                        <span 
+                          className={`font-bold uppercase ${
+                            isActivePage("/auctions/today") 
+                              ? "text-[#FF4405]" 
+                              : "text-gray-700"
+                          }`}
+                          style={{
+                            fontFamily: 'TT Firs Neue Variable',
+                            fontWeight: 700,
+                            letterSpacing: '2.4%',
+                          }}
+                        >
+                          <span className="text-sm">
+                            Өнөөдөр болох дуудлага худалдаа
+                          </span>
+                        </span>
+                      </div>
                     </Link>
-                  </>
-                )}
+                    <Link href="/auctions/pending" onClick={() => setIsMobileMenuOpen(false)}>
+                      <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border ${
+                        isActivePage("/auctions/pending") ? "bg-orange-50 border-orange-200" : "border-gray-200"
+                      }`}>
+                        <span 
+                          className={`font-bold uppercase ${
+                            isActivePage("/auctions/pending") 
+                              ? "text-[#FF4405]" 
+                              : "text-gray-700"
+                          }`}
+                          style={{
+                            fontFamily: 'TT Firs Neue Variable',
+                            fontWeight: 700,
+                            letterSpacing: '2.4%',
+                          }}
+                        >
+                          <span className="text-sm">
+                            Хүлээгдэж буй дуудлага худалдаа
+                          </span>
+                        </span>
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* About Page */}
+                  <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>
+                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer ${
+                      isActivePage("/about") 
+                        ? "bg-[#FF4405] text-white" 
+                        : "bg-white text-gray-700 border border-gray-200"
+                    }`}
+                      style={{
+                        fontFamily: 'TT Firs Neue Variable',
+                        fontWeight: 700,
+                        letterSpacing: '2.4%',
+                      }}
+                    >
+                      <span className="text-sm">ТАНИЛЦУУЛГА</span>
+                    </div>
+                  </Link>
+                </nav>
+
+                {/* Mobile User Actions */}
+                <div className="space-y-4 pt-6 border-t border-gray-200">
+                  {user ? (
+                    /* Logged in user - show user info and logout */
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-4 px-6 py-4 bg-gray-50 rounded-full">
+                        <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-lg">{user.avatar}</span>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900 text-lg">{user.fullName}</p>
+                          <p className="text-sm text-gray-500">{user.email}</p>
+                        </div>
+                      </div>
+                      
+                      <Link href="/my-account" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button 
+                          variant="outline"
+                          className="w-full bg-white text-gray-700 hover:bg-gray-50 py-4 rounded-full transition-colors font-medium text-base border-2"
+                        >
+                          Миний профайл
+                        </Button>
+                      </Link>
+
+                      <Button 
+                        onClick={handleLogout}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-full transition-colors font-medium text-base"
+                      >
+                        Гарах
+                      </Button>
+                    </div>
+                  ) : (
+                    /* Not logged in - show auth buttons */
+                    <>
+                      {/* Registration */}
+                      <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button 
+                          variant="outline"
+                          className="w-full bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white py-4 rounded-full transition-all duration-200 font-bold uppercase border-2 border-[#FF4405]"
+                          style={{
+                            fontFamily: 'TT Firs Neue Variable',
+                            fontWeight: 700,
+                            letterSpacing: '2.4%',
+                          }}
+                        >
+                          <Image src="/svg/header/signIn.svg" alt="Plus" width={20} height={20} className="w-5 h-5 mr-3" />
+                          <span className="text-base">БҮРТГҮҮЛЭХ</span>
+                        </Button>
+                      </Link>
+
+                      {/* Login */}
+                      <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button 
+                          className="w-full bg-gray-900 hover:bg-gray-800 text-white py-4 rounded-full flex items-center justify-center space-x-3 transition-colors font-bold uppercase text-base"
+                          style={{
+                            fontFamily: 'TT Firs Neue Variable',
+                            fontWeight: 700,
+                            letterSpacing: '2.4%',
+                          }}
+                        >
+                          <Image src="/svg/header/login.svg" alt="Arrow" width={20} height={20} className="w-5 h-5" />
+                          <span>НЭВТРЭХ</span>
+                        </Button>
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           )}
