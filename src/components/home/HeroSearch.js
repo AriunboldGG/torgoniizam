@@ -94,19 +94,13 @@ export default function HeroSearch() {
             <div className="ml-4">
               <Button 
                 size="lg"
-                className="w-16 h-16 rounded-full bg-orange-500 hover:bg-orange-600 shadow-lg"
+                className="w-16 h-16 rounded-full bg-orange-500 hover:bg-orange-600 shadow-lg flex items-center justify-center"
                 style={{
                   fontFamily: 'TT Firs Neue Variable',
                   fontWeight: 700
                 }}
               >
-                <Image 
-                  src="/svg/search.svg" 
-                  alt="Search" 
-                  width={24}
-                  height={24}
-                  className="w-6 h-6"
-                />
+                <span className="text-white text-2xl">🔍</span>
               </Button>
             </div>
           </div>
