@@ -218,3 +218,6 @@
     @apply bg-background text-foreground;
   }
 }
+.search {
+  background-color: white;
+}

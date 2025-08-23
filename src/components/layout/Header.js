@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { useUser } from "@/contexts/UserContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -13,11 +13,24 @@ export default function Header() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user, logout } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Close dropdowns when navigating to a new page
+  useEffect(() => {
+    setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
+    setIsUserMenuOpen(false);
+  }, [pathname]);
 
   const handleLogout = () => {
     logout();
     setIsUserMenuOpen(false);
     router.push("/");
+  };
+
+  // Check if current page is active
+  const isActivePage = (path) => {
+    return pathname === path;
   };
 
   return (
@@ -38,8 +51,12 @@ export default function Header() {
             <nav className="hidden md:flex items-center space-x-10">
               {/* Home Page */}
               <Link href="/">
-                <Button 
-                  className="bg-[#FF4405] hover:bg-[#E63D04] text-white px-8 py-3 rounded-lg font-bold transition-colors uppercase"
+                <div 
+                  className={`px-6 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer ${
+                    isActivePage("/") 
+                      ? "bg-[#FF4405] text-white" 
+                      : "bg-white text-gray-700"
+                  }`}
                   style={{
                     fontFamily: 'TT Firs Neue Variable',
                     fontWeight: 700,
@@ -49,14 +66,18 @@ export default function Header() {
                   <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
                     ЭХЛЭЛ
                   </span>
-                </Button>
+                </div>
               </Link>
 
               {/* Auction Dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center space-x-2 text-gray-900 hover:text-gray-700 transition-colors font-bold uppercase"
+                  className={`flex items-center space-x-2 transition-colors font-bold uppercase px-6 py-3 rounded-full ${
+                    isActivePage("/auctions/today") || isActivePage("/auctions/pending")
+                      ? "bg-[#FF4405] text-white"
+                      : "text-gray-900 hover:text-gray-700"
+                  }`}
                   style={{
                     fontFamily: 'TT Firs Neue Variable',
                     fontWeight: 700,
@@ -69,22 +90,29 @@ export default function Header() {
                     alt="Dropdown" 
                     width={12}
                     height={12}
-                    className={`w-3 h-3 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                    className={`w-3 h-3 transition-transform ${isDropdownOpen ? 'rotate-180' : ''} ${
+                      isActivePage("/auctions/today") || isActivePage("/auctions/pending") ? "invert" : ""
+                    }`}
                   />
                 </button>
 
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
                   <div className="absolute top-full left-0 mt-3 w-72 bg-white rounded-lg shadow-xl border border-gray-200 py-3 z-50">
-                    <Link href="/auctions/today">
-                      <div className="px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors">
+                    <Link href="/auctions/today" onClick={() => setIsDropdownOpen(false)}>
+                      <div className={`px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
+                        isActivePage("/auctions/today") ? "bg-orange-50" : ""
+                      }`}>
                         <span 
-                          className="font-bold uppercase"
+                          className={`font-bold uppercase transition-colors ${
+                            isActivePage("/auctions/today") 
+                              ? "text-[#FF4405]" 
+                              : "text-gray-700 hover:text-[#FF4405]"
+                          }`}
                           style={{
                             fontFamily: 'TT Firs Neue Variable',
                             fontWeight: 700,
                             letterSpacing: '2.4%',
-                            color: '#FF4405'
                           }}
                         >
                           <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
@@ -93,15 +121,20 @@ export default function Header() {
                         </span>
                       </div>
                     </Link>
-                    <Link href="/auctions/pending">
-                      <div className="px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors">
+                    <Link href="/auctions/pending" onClick={() => setIsDropdownOpen(false)}>
+                      <div className={`px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
+                        isActivePage("/auctions/pending") ? "bg-orange-50" : ""
+                      }`}>
                         <span 
-                          className="font-bold uppercase"
+                          className={`font-bold uppercase transition-colors ${
+                            isActivePage("/auctions/pending") 
+                              ? "text-[#FF4405]" 
+                              : "text-gray-700 hover:text-[#FF4405]"
+                          }`}
                           style={{
                             fontFamily: 'TT Firs Neue Variable',
                             fontWeight: 700,
                             letterSpacing: '2.4%',
-                            color: '#111827'
                           }}
                         >
                           <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
@@ -116,8 +149,12 @@ export default function Header() {
 
               {/* About Page */}
               <Link href="/about">
-                <span 
-                  className="text-gray-900 hover:text-gray-700 transition-colors cursor-pointer font-bold uppercase"
+                <div 
+                  className={`px-5 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer ${
+                    isActivePage("/about") 
+                      ? "bg-[#FF4405] text-white" 
+                      : "bg-white text-gray-700"
+                  }`}
                   style={{
                     fontFamily: 'TT Firs Neue Variable',
                     fontWeight: 700,
@@ -125,7 +162,7 @@ export default function Header() {
                   }}
                 >
                   <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">ТАНИЛЦУУЛГА</span>
-                </span>
+                </div>
               </Link>
             </nav>
 
@@ -220,7 +257,11 @@ export default function Header() {
               <nav className="space-y-4">
                 {/* Home Page */}
                 <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className="px-4 py-3 bg-[#FF4405] text-white rounded-lg text-center font-bold transition-colors uppercase"
+                  <div className={`px-4 py-2 rounded-full text-center font-bold transition-colors uppercase cursor-pointer ${
+                    isActivePage("/") 
+                      ? "bg-[#FF4405] text-white" 
+                      : "bg-white text-gray-700"
+                  }`}
                     style={{
                       fontFamily: 'TT Firs Neue Variable',
                       fontWeight: 700,
@@ -234,14 +275,19 @@ export default function Header() {
                 {/* Auction Links */}
                 <div className="space-y-2">
                   <Link href="/auctions/today" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors rounded-lg">
+                    <div className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors rounded-lg ${
+                      isActivePage("/auctions/today") ? "bg-orange-50" : ""
+                    }`}>
                       <span 
-                        className="font-bold uppercase"
+                        className={`font-bold uppercase ${
+                          isActivePage("/auctions/today") 
+                            ? "text-[#FF4405]" 
+                            : "text-gray-700"
+                        }`}
                         style={{
                           fontFamily: 'TT Firs Neue Variable',
                           fontWeight: 700,
                           letterSpacing: '2.4%',
-                          color: '#FF4405'
                         }}
                       >
                         <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
@@ -251,14 +297,19 @@ export default function Header() {
                     </div>
                   </Link>
                   <Link href="/auctions/pending" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors rounded-lg">
+                    <div className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors rounded-lg ${
+                      isActivePage("/auctions/pending") ? "bg-orange-50" : ""
+                    }`}>
                       <span 
-                        className="font-bold uppercase"
+                        className={`font-bold uppercase ${
+                          isActivePage("/auctions/pending") 
+                            ? "text-[#FF4405]" 
+                            : "text-gray-700"
+                        }`}
                         style={{
                           fontFamily: 'TT Firs Neue Variable',
                           fontWeight: 700,
                           letterSpacing: '2.4%',
-                          color: '#111827'
                         }}
                       >
                         <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
@@ -271,17 +322,18 @@ export default function Header() {
 
                 {/* About Page */}
                 <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors rounded-lg">
-                    <span 
-                      className="font-bold uppercase"
-                      style={{
-                        fontFamily: 'TT Firs Neue Variable',
-                        fontWeight: 700,
-                        letterSpacing: '2.4%',
-                      }}
-                    >
-                      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">ТАНИЛЦУУЛГА</span>
-                    </span>
+                  <div className={`px-4 py-2 rounded-lg text-center font-bold transition-colors uppercase cursor-pointer ${
+                    isActivePage("/about") 
+                      ? "bg-[#FF4405] text-white" 
+                      : "bg-white text-gray-700"
+                  }`}
+                    style={{
+                      fontFamily: 'TT Firs Neue Variable',
+                      fontWeight: 700,
+                      letterSpacing: '2.4%',
+                    }}
+                  >
+                    <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">ТАНИЛЦУУЛГА</span>
                   </div>
                 </Link>
               </nav>
