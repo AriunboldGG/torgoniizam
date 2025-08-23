@@ -1,16 +1,13 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useUser } from "@/contexts/UserContext"
 import Image from "next/image"
-import {
-  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
-  SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
-} from "@/components/ui/sidebar"
 
 export function MyAccountSidebar() {
   const { user, logout } = useUser()
   const router = useRouter()
+  const pathname = usePathname()
 
   const handleLogout = () => {
     logout()
@@ -18,102 +15,102 @@ export function MyAccountSidebar() {
   }
 
   const menuItems = [
-    { title: "ХУВИЙН МЭДЭЭЛЭЛ", url: "/my-account", icon: "/svg/my-info.svg", active: true },
-    { title: "ХЭТЭВЧ", url: "/my-account/wallet", icon: "/svg/wallet.svg" },
-    { title: "ДУУДЛАГА ХУДАЛДАА", url: "/my-account/auctions", icon: "/svg/bid1.svg" },
-    { title: "ТОХИРГОО", url: "/my-account/settings", icon: "/svg/settings.svg" },
-    { title: "СИСТЕМЭЭС ГАРАХ", action: handleLogout, icon: "/svg/logout.svg" }
+    { title: "Хувийн мэдээлэл", url: "/my-account", icon: "/svg/my-info.svg" },
+    { title: "Хэтэвч", url: "/my-account/wallet", icon: "/svg/wallet.svg" },
+    { title: "Дуудлага худалдаа", url: "/my-account/auctions", icon: "/svg/bid1.svg" },
+    { title: "Тохиргоо", url: "/my-account/settings", icon: "/svg/settings.svg" },
+    { title: "Системээс гарах", action: handleLogout, icon: "/svg/logout.svg" }
   ]
 
+  const isActive = (url) => {
+    if (url === "/my-account" && pathname === "/my-account") return true
+    if (url === "/my-account/wallet" && pathname === "/my-account/wallet") return true
+    if (url === "/my-account/auctions" && pathname === "/my-account/auctions") return true
+    if (url === "/my-account/settings" && pathname === "/my-account/settings") return true
+    return false
+  }
+
   return (
-    <Sidebar className="w-80 border-r bg-white">
-      <SidebarHeader className="border-b p-6">
+    <div className="w-full lg:w-80 bg-white border-r border-gray-200 h-full overflow-y-auto">
+      {/* Header */}
+      <div className="p-4 lg:p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-orange-500 flex items-center justify-center">
-            <span className="text-white font-bold text-xl">{user?.avatar || "ГБ"}</span>
+          <div className="h-10 w-10 lg:h-12 lg:w-12 rounded-full bg-orange-500 flex items-center justify-center">
+            <span className="text-white font-bold text-lg lg:text-xl">{user?.avatar || "ГБ"}</span>
           </div>
           <div>
-            <p className="font-semibold text-gray-900">{user?.fullName || "B.GALHUU"}</p>
-            <p className="text-sm text-gray-500">Хэрэглэгч</p>
+            <p className="font-semibold text-gray-900 text-sm lg:text-base">{user?.fullName || "B.АЛТАНЗУЛ"}</p>
+            <p className="text-xs lg:text-sm text-gray-500">Хэрэглэгч</p>
           </div>
         </div>
-      </SidebarHeader>
-      <SidebarContent className="p-4">
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-2 py-3 text-sm font-medium text-gray-700 mb-2">
-            Хэрэглэгчийн цэс
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-2">
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    className={`w-full h-12 transition-all duration-200 ${
-                      item.active 
-                        ? "bg-orange-500 text-white shadow-sm" 
+      </div>
+
+      {/* Menu */}
+      <div className="p-3 lg:p-4">
+        <div className="space-y-1 lg:space-y-2">
+          {menuItems.map((item) => {
+            const active = isActive(item.url)
+            return (
+              <div key={item.title}>
+                {item.action ? (
+                  <button
+                    onClick={item.action}
+                    className={`w-full flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-left transition-colors text-sm lg:text-base ${
+                      active 
+                        ? "bg-orange-500 text-white" 
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    {item.action ? (
-                      <button 
-                        onClick={item.action} 
-                        className={`flex items-center gap-3 px-4 h-12 rounded-lg w-full text-left transition-colors ${
-                          item.active 
-                            ? "text-white" 
-                            : "hover:text-gray-900"
-                        }`}
-                      >
-                        <Image 
-                          src={item.icon} 
-                          alt="" 
-                          width={20} 
-                          height={20} 
-                          className={`w-5 h-5 ${
-                            item.active ? "filter brightness-0 invert" : ""
-                          }`}
-                        />
-                        <span className="font-medium">{item.title}</span>
-                      </button>
-                    ) : (
-                      <a 
-                        href={item.url} 
-                        className={`flex items-center gap-3 px-4 h-12 rounded-lg transition-colors ${
-                          item.active 
-                            ? "text-white" 
-                            : "hover:text-gray-900"
-                        }`}
-                      >
-                        <Image 
-                          src={item.icon} 
-                          alt="" 
-                          width={20} 
-                          height={20} 
-                          className={`w-5 h-5 ${
-                            item.active ? "filter brightness-0 invert" : ""
-                          }`}
-                        />
-                        <span className="font-medium">{item.title}</span>
-                      </a>
-                    )}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter className="border-t p-6">
-        <div className="text-center text-sm text-gray-500 space-y-2">
-          <div className="flex items-center justify-center mb-3">
-            <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-600 font-bold text-sm">N</span>
+                    <Image 
+                      src={item.icon} 
+                      alt="" 
+                      width={18} 
+                      height={18} 
+                      className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${
+                        active ? "filter brightness-0 invert" : ""
+                      }`}
+                    />
+                    <span className="font-medium truncate">{item.title}</span>
+                  </button>
+                ) : (
+                  <a
+                    href={item.url}
+                    className={`w-full flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-left transition-colors text-sm lg:text-base ${
+                      active 
+                        ? "bg-orange-500 text-white" 
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    <Image 
+                      src={item.icon} 
+                      alt="" 
+                      width={18} 
+                      height={18} 
+                      className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${
+                        active ? "filter brightness-0 invert" : ""
+                      }`}
+                    />
+                    <span className="font-medium truncate">{item.title}</span>
+                  </a>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="p-4 lg:p-6 border-t border-gray-200 mt-auto">
+        <div className="text-center text-xs lg:text-sm text-gray-500 space-y-2">
+          <div className="flex items-center justify-center mb-2 lg:mb-3">
+            <div className="h-6 w-6 lg:h-8 lg:w-8 rounded-full bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-600 font-bold text-xs lg:text-sm">N</span>
             </div>
           </div>
           <p className="font-medium">ТОРГОНЫ ЗАМ</p>
-          <p>Дуудлага худалдааны систем</p>
+          <p className="text-xs lg:text-sm">Дуудлага худалдааны систем</p>
         </div>
-      </SidebarFooter>
-    </Sidebar>
+      </div>
+    </div>
   )
 }
