@@ -92,7 +92,7 @@ export default function CompletedAuctionSection() {
       id: 7,
       image: "/images/end3.png",
       category: "Автомашин",
-      title: "ТОЙОТА ЛЭНД КРУЗЕР - ДЭЛГҮҮРИЙН ХАМГИЙН САЙН СОНГОЛТ",
+      title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
       finalPrice: "45,800,000₮",
       status: "ДУУССАН"
     },

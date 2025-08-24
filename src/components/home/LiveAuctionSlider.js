@@ -80,7 +80,7 @@ export default function LiveAuctionSlider() {
       id: 5,
       image: "/images/live1.png",
       category: "Автомашин",
-      title: "ТОЙОТА ЛЭНД КРУЗЕР - ДЭЛГҮҮРИЙН ХАМГИЙН САЙН СОНГОЛТ",
+      title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
       lastPrice: "45,800,000₮",
       timer: "3 : 15 : 42 : 30",
       buttonColor: "bg-black"

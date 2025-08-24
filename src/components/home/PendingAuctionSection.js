@@ -80,7 +80,7 @@ export default function PendingAuctionSection() {
       id: 5,
       image: "/images/pending1.png",
       category: "Автомашин",
-      title: "ТОЙОТА ЛЭНД КРУЗЕР - ДЭЛГҮҮРИЙН ХАМГИЙН САЙН СОНГОЛТ",
+      title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
       startingPrice: "45,800,000₮",
       timer: "3 : 15 : 42 : 30",
       status: "ТУН УДАХГҮЙ"

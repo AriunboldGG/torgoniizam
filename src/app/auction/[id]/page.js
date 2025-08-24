@@ -139,12 +139,12 @@ export default function AuctionItemPage({ params }) {
       "5": {
         id: "5",
         category: "Автомашин",
-        title: "ТОЙОТА ЛЭНД КРУЗЕР - ДЭЛГҮҮРИЙН ХАМГИЙН САЙН СОНГОЛТ",
+        title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
         startingPrice: "45,800,000₮",
         lastPrice: "48,200,000₮",
         mainImage: "/images/pending1.png",
         countdown: { days: 3, hours: 15, minutes: 42, seconds: 30 },
-        description: "Тойота Лэнд Крузер, дэлгүүрийн хамгийн сайн сонголт. Хүчирхэг, найдвартай, тохилог SUV.",
+        description: "Тойота Лэнд Крузер, Борлуулагчийн хамгийн сайн сонголт. Хүчирхэг, найдвартай, тохилог SUV.",
         specifications: [
           { label: "Үйлдвэрлэсэн он", value: "2024" },
           { label: "Импортлогдсон он", value: "2025" },
