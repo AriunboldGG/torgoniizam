@@ -348,7 +348,7 @@ export default function WalletPage() {
                        ) : (
                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 xs-mobile:p-4 text-center">
                            <p className="text-yellow-700 text-sm">
-                             Холбогдсон данс байхгүй байна. Эхлээд "ДАНС ХОЛБОХ" товчийг дарж дансаа холбоно уу.
+                             Холбогдсон данс байхгүй байна. Эхлээд &ldquo;ДАНС ХОЛБОХ&rdquo; товчийг дарж дансаа холбоно уу.
                            </p>
                          </div>
                        )}
