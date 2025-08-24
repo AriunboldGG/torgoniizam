@@ -170,6 +170,21 @@ export default function Header() {
 
             {/* Desktop User Actions */}
             <div className="hidden md:flex items-center space-x-4">
+              {/* Notification Icon */}
+              <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors bg-gray-100 hover:bg-gray-200 rounded-lg">
+                <Image 
+                  src="/svg/notif.svg" 
+                  alt="Notifications" 
+                  width={20} 
+                  height={20} 
+                  className="w-5 h-5"
+                />
+                {/* Notification Badge */}
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  3
+                </span>
+              </button>
+              
               {user ? (
                 /* Logged in user - show user menu */
                 <div className="relative">
@@ -363,6 +378,24 @@ export default function Header() {
 
                 {/* Mobile User Actions */}
                 <div className="pt-2 sm:pt-6 border-t border-gray-200" style={{ marginBottom: '10px' }}>
+                  {/* Mobile Notification Icon */}
+                  <div className="px-4 py-3 mb-2 sm:mb-4">
+                    <button className="relative flex items-center space-x-3 w-full p-3 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
+                      <Image 
+                        src="/svg/notif.svg" 
+                        alt="Notifications" 
+                        width={20} 
+                        height={20} 
+                        className="w-5 h-5 text-gray-600"
+                      />
+                      <span className="font-medium text-gray-700">Мэдэгдэл</span>
+                      {/* Notification Badge */}
+                      <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        3
+                      </span>
+                    </button>
+                  </div>
+                  
                   {user ? (
                     /* Logged in user - show user info and logout */
                     <div style={{ marginBottom: '10px' }}>

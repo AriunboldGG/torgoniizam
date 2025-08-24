@@ -108,7 +108,7 @@ export default function TodayAuctions() {
             Өнөөдөр болох дуудлага худалдаа
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Өнөөдрийн онцгой дуудлага худалдаануудыг үзээрэй. Удахгүй эхлэх болсон үнэ цэнэтэй бараануудыг алдахгүйгээр байна.
+            Өнөөдрийн онцгой дуудлага худалдаануудыг үзээрэй.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Badge variant="secondary" className="px-4 py-2 text-lg">
