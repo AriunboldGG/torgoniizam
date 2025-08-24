@@ -67,7 +67,7 @@ export default function WalletPage() {
     { value: "capitron-bank", label: "Капитрон Банк" },
     { value: "bogd-bank", label: "Богд Банк" },
     { value: "arig-bank", label: "Ариг Банк" },
-    { value: "xac-bank", label: "ХАК Банк" }
+    { value: "xac-bank", label: "ХАС Банк" }
   ]
 
   const connectedAccounts = [
