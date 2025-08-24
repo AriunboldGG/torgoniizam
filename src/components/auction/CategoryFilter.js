@@ -452,8 +452,8 @@ export default function CategoryFilter() {
     }
   ]
 
-  // Set car category as selected by default
-  const [selectedCategory, setSelectedCategory] = useState(categories[0])
+  // No category selected by default - subcategories will be closed
+  const [selectedCategory, setSelectedCategory] = useState(null)
 
   const handleCategoryClick = (category) => {
     if (selectedCategory?.id === category.id) {
@@ -473,7 +473,7 @@ export default function CategoryFilter() {
       <div className="bg-white p-6 rounded-lg shadow-sm border">
         
         {/* Main Categories */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4 lg:gap-5 mb-4 sm:mb-6">
           {categories.map((category) => (
             <div
               key={category.id}
@@ -483,7 +483,7 @@ export default function CategoryFilter() {
               onClick={() => handleCategoryClick(category)}
             >
               <div 
-                className={`relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-200 ${
+                className={`relative w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full flex items-center justify-center transition-all duration-200 ${
                   selectedCategory?.id === category.id 
                     ? 'bg-[#131316]' 
                     : 'bg-[#F4F4F5] hover:bg-[#131316]'
@@ -494,13 +494,13 @@ export default function CategoryFilter() {
                   alt={category.name}
                   width={40}
                   height={40}
-                  className={`w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 transition-all duration-200 ${
+                  className={`w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 transition-all duration-200 ${
                     selectedCategory?.id === category.id 
                       ? 'filter brightness-0 invert saturate-0' 
                       : ''
                   }`}
                 />
-                <div className={`absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                <div className={`absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                   selectedCategory?.id === category.id 
                     ? 'bg-white text-[#131316]' 
                     : 'bg-[#131316] text-white'
@@ -508,7 +508,7 @@ export default function CategoryFilter() {
                   {category.count}
                 </div>
               </div>
-              <span className={`text-xs sm:text-sm font-medium mt-2 text-center transition-colors duration-200 ${
+              <span className={`text-xs sm:text-sm font-medium mt-1 sm:mt-2 text-center transition-colors duration-200 ${
                 selectedCategory?.id === category.id 
                   ? 'text-[#131316]' 
                   : 'text-gray-700'
@@ -521,25 +521,25 @@ export default function CategoryFilter() {
 
         {/* Subcategories */}
         {selectedCategory && (
-          <div className="border-t pt-4 sm:pt-6">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+          <div className="border-t pt-3 sm:pt-4 md:pt-6">
+            <div className="flex items-center gap-2 mb-2 sm:mb-3 md:mb-4">
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               <h4 className="text-sm sm:text-base text-blue-600 font-medium">
                 {selectedCategory.name} - ({selectedCategory.subcategories.length} дэд ангилал)
               </h4>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 sm:gap-2 md:gap-3">
               {selectedCategory.subcategories.map((subcategory, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-2 cursor-pointer p-2 sm:p-3 rounded-lg transition-all duration-200 hover:text-[#FF4405]"
+                  className="flex items-center gap-1 sm:gap-2 cursor-pointer p-1.5 sm:p-2 md:p-3 rounded-lg transition-all duration-200 hover:text-[#FF4405]"
                   onClick={() => handleSubcategoryClick(subcategory)}
                 >
-                  <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                  <span className="text-lg sm:text-xl flex-shrink-0">{subcategory.icon}</span>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                  <span className="text-base sm:text-lg md:text-xl flex-shrink-0">{subcategory.icon}</span>
                   <div className="flex-1 min-w-0">
                     <span className="text-xs sm:text-sm text-blue-600 font-medium break-words leading-tight">{subcategory.name}</span>
-                    <div className="text-xs text-gray-500 mt-1">{subcategory.count} items</div>
+                    <div className="text-xs text-gray-500 mt-0.5 sm:mt-1">{subcategory.count} items</div>
                   </div>
                 </div>
               ))}

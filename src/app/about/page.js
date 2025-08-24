@@ -54,7 +54,7 @@ export default function About() {
                 Бидний эрхэм зорилго
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                Монголын хүмүүст дэлхийн стандартад нийцсэн, найдвартай онлайн дуудлага худалдааны платформыг бүрдүүлж, 
+               Дэлхийн стандартад нийцсэн, найдвартай онлайн дуудлага худалдааны платформыг бүрдүүлж, 
                 эдийн засгийн хөгжилд хувь нэмрээ оруулах.
               </p>
               <p className="text-lg text-gray-600 mb-8">
@@ -200,7 +200,7 @@ export default function About() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-4xl font-bold text-[#FF4405] mb-2">10,000+</div>
+              <div className="text-4xl font-bold text-[#FF4405] mb-2">100+</div>
               <div className="text-gray-600">Идэвхтэй хэрэглэгч</div>
             </div>
             <div className="text-center">
@@ -208,62 +208,13 @@ export default function About() {
               <div className="text-gray-600">Амжилттай дуудлага</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-[#FF4405] mb-2">₮50M+</div>
+              <div className="text-4xl font-bold text-[#FF4405] mb-2">₮M+</div>
               <div className="text-gray-600">Нийт борлуулалт</div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-[#FF4405] mb-2">99.9%</div>
               <div className="text-gray-600">Хэрэглэгчийн сэтгэл ханамж</div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 
-            className="text-3xl font-bold text-gray-900 mb-6"
-            style={{
-              fontFamily: 'TT Firs Neue Variable',
-              fontWeight: 700,
-              letterSpacing: '2.4%',
-              textTransform: 'uppercase'
-            }}
-          >
-            Холбоо барих
-          </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Асуулт, санал хүсэлтээ бидэнд илгээгээрэй
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button 
-              variant="outline"
-              size="lg"
-              className="px-8 py-3 border-2 border-[#FF4405] text-[#FF4405] hover:bg-[#FF4405] hover:text-white"
-              style={{
-                fontFamily: 'TT Firs Neue Variable',
-                fontWeight: 700,
-                fontSize: '16px',
-                letterSpacing: '2.4%',
-                textTransform: 'uppercase'
-              }}
-            >
-              📧 Имэйл илгээх
-            </Button>
-            <Button 
-              size="lg"
-              className="px-8 py-3 bg-[#FF4405] hover:bg-[#E63D04] text-white"
-              style={{
-                fontFamily: 'TT Firs Neue Variable',
-                fontWeight: 700,
-                fontSize: '16px',
-                letterSpacing: '2.4%',
-                textTransform: 'uppercase'
-              }}
-            >
-              📞 Дуудах
-            </Button>
           </div>
         </div>
       </section>

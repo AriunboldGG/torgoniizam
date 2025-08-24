@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function HeroSearch() {
   return (
-    <section className="relative py-20 overflow-hidden">
+    <section className="relative overflow-hidden" style={{ paddingTop: '7rem', paddingBottom: '5rem' }}>
       {/* Background with SVG pattern */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">

@@ -44,7 +44,9 @@ export default function Header() {
           <div className="flex justify-between items-center h-20">
             {/* Logo and Brand */}
             <div className="flex items-center space-x-4">
-              <Image src="/svg/header/main-logo.svg" alt="Logo" width={100} height={64} className="w-[100px] h-[64px]" />
+              <Link href="/">
+                <Image src="/svg/header/main-logo.svg" alt="Logo" width={100} height={64} className="w-[100px] h-[64px] cursor-pointer hover:opacity-80 transition-opacity" />
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
@@ -256,7 +258,9 @@ export default function Header() {
               {/* Mobile Menu Header */}
               <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
                 <div className="flex items-center space-x-4">
-                  <Image src="/svg/header/main-logo.svg" alt="Logo" width={80} height={50} className="w-[80px] h-[50px]" />
+                  <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Image src="/svg/header/main-logo.svg" alt="Logo" width={80} height={50} className="w-[80px] h-[50px] cursor-pointer hover:opacity-80 transition-opacity" />
+                  </Link>
                   <span className="text-lg font-bold text-gray-900">Цэс</span>
                 </div>
                 <button
@@ -271,12 +275,12 @@ export default function Header() {
               </div>
 
               {/* Mobile Menu Content */}
-              <div className="px-4 py-6 space-y-6">
+              <div className="px-4 py-4" style={{ marginBottom: '10px' }}>
                 {/* Mobile Navigation */}
-                <nav className="space-y-4">
+                <nav style={{ marginBottom: '10px' }}>
                   {/* Home Page */}
                   <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer ${
+                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 ${
                       isActivePage("/") 
                         ? "bg-[#FF4405] text-white" 
                         : "bg-white text-gray-700 border border-gray-200"
@@ -292,9 +296,9 @@ export default function Header() {
                   </Link>
 
                   {/* Auction Links */}
-                  <div className="space-y-3">
+                  <div>
                     <Link href="/auctions/today" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border ${
+                      <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border mb-2 sm:mb-3 ${
                         isActivePage("/auctions/today") ? "bg-orange-50 border-orange-200" : "border-gray-200"
                       }`}>
                         <span 
@@ -316,7 +320,7 @@ export default function Header() {
                       </div>
                     </Link>
                     <Link href="/auctions/pending" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border ${
+                      <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border mb-2 sm:mb-3 ${
                         isActivePage("/auctions/pending") ? "bg-orange-50 border-orange-200" : "border-gray-200"
                       }`}>
                         <span 
@@ -341,7 +345,7 @@ export default function Header() {
 
                   {/* About Page */}
                   <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer ${
+                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 ${
                       isActivePage("/about") 
                         ? "bg-[#FF4405] text-white" 
                         : "bg-white text-gray-700 border border-gray-200"
@@ -358,24 +362,24 @@ export default function Header() {
                 </nav>
 
                 {/* Mobile User Actions */}
-                <div className="space-y-4 pt-6 border-t border-gray-200">
+                <div className="pt-2 sm:pt-6 border-t border-gray-200" style={{ marginBottom: '10px' }}>
                   {user ? (
                     /* Logged in user - show user info and logout */
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-4 px-6 py-4 bg-gray-50 rounded-full">
-                        <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">{user.avatar}</span>
+                    <div style={{ marginBottom: '10px' }}>
+                      <div className="flex items-center space-x-3 px-4 py-3 bg-gray-50 rounded-full mb-2 sm:mb-4">
+                        <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-base">{user.avatar}</span>
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900 text-lg">{user.fullName}</p>
-                          <p className="text-sm text-gray-500">{user.email}</p>
+                          <p className="font-semibold text-gray-900 text-base">{user.fullName}</p>
+                          <p className="text-xs text-gray-500">{user.email}</p>
                         </div>
                       </div>
                       
                       <Link href="/my-account" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button 
                           variant="outline"
-                          className="w-full bg-white text-gray-700 hover:bg-gray-50 py-4 rounded-full transition-colors font-medium text-base border-2"
+                          className="w-full bg-white text-gray-700 hover:bg-gray-50 py-3 rounded-full transition-colors font-medium text-sm border-2 mb-2 sm:mb-4"
                         >
                           Миний профайл
                         </Button>
@@ -383,7 +387,7 @@ export default function Header() {
 
                       <Button 
                         onClick={handleLogout}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-full transition-colors font-medium text-base"
+                        className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-full transition-colors font-medium text-sm"
                       >
                         Гарах
                       </Button>
@@ -395,29 +399,29 @@ export default function Header() {
                       <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button 
                           variant="outline"
-                          className="w-full bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white py-4 rounded-full transition-all duration-200 font-bold uppercase border-2 border-[#FF4405]"
+                          className="w-full bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white py-3 rounded-full transition-all duration-200 font-bold uppercase border-2 border-[#FF4405]"
                           style={{
                             fontFamily: 'TT Firs Neue Variable',
                             fontWeight: 700,
                             letterSpacing: '2.4%',
                           }}
                         >
-                          <Image src="/svg/header/signIn.svg" alt="Plus" width={20} height={20} className="w-5 h-5 mr-3" />
-                          <span className="text-base">БҮРТГҮҮЛЭХ</span>
+                          <Image src="/svg/header/signIn.svg" alt="Plus" width={20} height={20} className="w-4 h-4 mr-2" />
+                          <span className="text-sm">БҮРТГҮҮЛЭХ</span>
                         </Button>
                       </Link>
 
                       {/* Login */}
                       <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button 
-                          className="w-full bg-gray-900 hover:bg-gray-800 text-white py-4 rounded-full flex items-center justify-center space-x-3 transition-colors font-bold uppercase text-base"
+                          className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-full flex items-center justify-center space-x-2 transition-colors font-bold uppercase text-sm"
                           style={{
                             fontFamily: 'TT Firs Neue Variable',
                             fontWeight: 700,
                             letterSpacing: '2.4%',
                           }}
                         >
-                          <Image src="/svg/header/login.svg" alt="Arrow" width={20} height={20} className="w-5 h-5" />
+                          <Image src="/svg/header/login.svg" alt="Arrow" width={20} height={20} className="w-4 h-4" />
                           <span>НЭВТРЭХ</span>
                         </Button>
                       </Link>
