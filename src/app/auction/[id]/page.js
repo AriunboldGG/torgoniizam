@@ -220,52 +220,52 @@ export default function AuctionItemPage({ params }) {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section with Background */}
-      <div className="relative bg-gradient-to-br from-slate-50 to-slate-100 py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative bg-gradient-to-br from-slate-50 to-slate-100 py-4 xs-mobile:py-6 sm:py-8 lg:py-12">
+        <div className="max-w-full sm:max-w-2xl lg:max-w-4xl xl:max-w-7xl mx-auto px-3 xs-mobile:px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
-          <div className="mb-6">
-            <nav className="flex items-center space-x-2 text-sm text-gray-500">
-              <Link href="/" className="hover:text-[#FF4405]">Эхлэл</Link>
+          <div className="mb-4 xs-mobile:mb-6">
+            <nav className="flex items-center space-x-1 xs-mobile:space-x-2 text-xs xs-mobile:text-sm text-gray-500 overflow-x-auto">
+              <Link href="/" className="hover:text-[#FF4405] whitespace-nowrap">Эхлэл</Link>
               <span>/</span>
-              <Link href="/auctions/today" className="hover:text-[#FF4405]">Дуудлага худалдаа</Link>
+              <Link href="/auctions/today" className="hover:text-[#FF4405] whitespace-nowrap">Дуудлага худалдаа</Link>
               <span>/</span>
-              <span className="text-gray-900">{auctionItem.title}</span>
+              <span className="text-gray-900 truncate max-w-[120px] xs-mobile:max-w-[200px] sm:max-w-none">{auctionItem.title}</span>
             </nav>
           </div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xs-mobile:gap-6 sm:gap-8 lg:gap-12">
             
             {/* Left Column - Image Gallery */}
-            <div className="space-y-4">
+            <div className="space-y-3 xs-mobile:space-y-4">
               {/* Main Image */}
-              <div className="relative bg-white rounded-2xl overflow-hidden shadow-lg">
+              <div className="relative bg-white rounded-xl xs-mobile:rounded-2xl overflow-hidden shadow-lg">
                 <Image 
                   src={auctionItem.images[selectedImage]} 
                   alt={auctionItem.title}
                   width={600}
                   height={600}
-                  className="w-full h-96 lg:h-[500px] object-cover"
+                  className="w-full h-64 xs-mobile:h-80 sm:h-96 lg:h-[500px] object-cover"
                 />
                 
                 {/* Orange Badge */}
-                <div className="absolute top-4 right-4 bg-[#FF4405] text-white px-4 py-2 rounded-full text-sm font-bold">
+                <div className="absolute top-2 xs-mobile:top-4 right-2 xs-mobile:right-4 bg-[#FF4405] text-white px-2 xs-mobile:px-4 py-1 xs-mobile:py-2 rounded-full text-xs xs-mobile:text-sm font-bold">
                   ТУН УДАХГҮЙ
                 </div>
                 
                 {/* Countdown Timer Overlay */}
-                <div className="absolute bottom-4 left-4 bg-black bg-opacity-80 text-white px-4 py-2 rounded-full text-sm font-bold">
+                <div className="absolute bottom-2 xs-mobile:bottom-4 left-2 xs-mobile:left-4 bg-black bg-opacity-80 text-white px-2 xs-mobile:px-4 py-1 xs-mobile:py-2 rounded-full text-xs xs-mobile:text-sm font-bold">
                   {auctionItem.countdown.days}д {auctionItem.countdown.hours}ц {auctionItem.countdown.minutes}м {auctionItem.countdown.seconds}с
                 </div>
               </div>
               
               {/* Thumbnail Gallery */}
-              <div className="flex space-x-3 overflow-x-auto pb-2">
+              <div className="flex space-x-2 xs-mobile:space-x-3 overflow-x-auto pb-2">
                 {auctionItem.images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all duration-200 ${
+                    className={`w-16 h-16 xs-mobile:w-20 xs-mobile:h-20 rounded-lg xs-mobile:rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all duration-200 ${
                       selectedImage === index ? 'border-[#FF4405] scale-105' : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -282,14 +282,14 @@ export default function AuctionItemPage({ params }) {
             </div>
 
             {/* Right Column - Product Details */}
-            <div className="space-y-6">
+            <div className="space-y-4 xs-mobile:space-y-6">
               {/* Category and Title */}
               <div>
-                <div className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium mb-3">
+                <div className="inline-block bg-blue-50 text-blue-700 px-2 xs-mobile:px-3 py-1 rounded-full text-xs xs-mobile:text-sm font-medium mb-2 xs-mobile:mb-3">
                   {auctionItem.category}
                 </div>
                 <h1 
-                  className="text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight mb-4"
+                  className="text-xl xs-mobile:text-2xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 leading-tight mb-3 xs-mobile:mb-4"
                   style={{
                     fontFamily: 'TT Firs Neue Variable',
                     fontWeight: 700,
@@ -298,45 +298,45 @@ export default function AuctionItemPage({ params }) {
                 >
                   {auctionItem.title}
                 </h1>
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <p className="text-gray-600 text-base xs-mobile:text-lg leading-relaxed">
                   {auctionItem.description}
                 </p>
               </div>
 
               {/* Pricing Section */}
-              <div className="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl border border-orange-100">
-                <div className="grid grid-cols-2 gap-6">
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 xs-mobile:p-6 rounded-xl xs-mobile:rounded-2xl border border-orange-100">
+                <div className="grid grid-cols-2 gap-4 xs-mobile:gap-6">
                   <div>
-                    <p className="text-gray-600 text-sm mb-2">Эхлэх үнэ</p>
-                    <p className="text-gray-700 font-bold text-2xl">{auctionItem.startingPrice}</p>
+                    <p className="text-gray-600 text-xs xs-mobile:text-sm mb-2">Эхлэх үнэ</p>
+                    <p className="text-gray-700 font-bold text-lg xs-mobile:text-xl sm:text-2xl">{auctionItem.startingPrice}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600 text-sm mb-2">Сүүлийн үнэ</p>
-                    <p className="text-[#FF4405] font-bold text-2xl">{auctionItem.lastPrice}</p>
+                    <p className="text-gray-600 text-xs xs-mobile:text-sm mb-2">Сүүлийн үнэ</p>
+                    <p className="text-[#FF4405] font-bold text-lg xs-mobile:text-xl sm:text-2xl">{auctionItem.lastPrice}</p>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
-                <Button className="w-full bg-[#FF4405] hover:bg-[#E63D04] text-white py-4 rounded-xl text-lg font-bold transition-all duration-200">
-                  <Image src="/svg/timer.svg" alt="Timer" width={20} height={20} className="w-5 h-5 mr-3" />
+              <div className="space-y-2 xs-mobile:space-y-3">
+                <Button className="w-full bg-[#FF4405] hover:bg-[#E63D04] text-white py-3 xs-mobile:py-4 rounded-lg xs-mobile:rounded-xl text-base xs-mobile:text-lg font-bold transition-all duration-200">
+                  <Image src="/svg/timer.svg" alt="Timer" width={20} height={20} className="w-4 h-4 xs-mobile:w-5 xs-mobile:h-5 mr-2 xs-mobile:mr-3" />
                   ҮНИЙН САНАЛ ИЛГЭЭХ
                 </Button>
-                <Button variant="outline" className="w-full bg-white text-gray-700 hover:bg-gray-50 py-4 rounded-xl text-lg font-bold border-2 border-gray-200 transition-all duration-200">
+                <Button variant="outline" className="w-full bg-white text-gray-700 hover:bg-gray-50 py-3 xs-mobile:py-4 rounded-lg xs-mobile:rounded-xl text-base xs-mobile:text-lg font-bold border-2 border-gray-200 transition-all duration-200">
                   ДЭНЧИН БАЙРШУУЛАХ
                 </Button>
               </div>
 
               {/* Quick Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-gray-50 rounded-xl">
-                  <div className="text-2xl font-bold text-[#FF4405] mb-1">{auctionItem.bids.length}</div>
-                  <div className="text-sm text-gray-600">Санал</div>
+              <div className="grid grid-cols-2 gap-3 xs-mobile:gap-4">
+                <div className="text-center p-3 xs-mobile:p-4 bg-gray-50 rounded-lg xs-mobile:rounded-xl">
+                  <div className="text-xl xs-mobile:text-2xl font-bold text-[#FF4405] mb-1">{auctionItem.bids.length}</div>
+                  <div className="text-xs xs-mobile:text-sm text-gray-600">Санал</div>
                 </div>
-                <div className="text-center p-4 bg-gray-50 rounded-xl">
-                  <div className="text-2xl font-bold text-[#FF4405] mb-1">{auctionItem.specifications.length}</div>
-                  <div className="text-sm text-gray-600">Техникийн үзүүлэлт</div>
+                <div className="text-center p-3 xs-mobile:p-4 bg-gray-50 rounded-lg xs-mobile:rounded-xl">
+                  <div className="text-xl xs-mobile:text-2xl font-bold text-[#FF4405] mb-1">{auctionItem.specifications.length}</div>
+                  <div className="text-xs xs-mobile:text-sm text-gray-600">Техникийн үзүүлэлт</div>
                 </div>
               </div>
             </div>
@@ -345,21 +345,21 @@ export default function AuctionItemPage({ params }) {
       </div>
 
       {/* Bottom Section - Specifications and Bids */}
-      <div className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="py-8 xs-mobile:py-10 sm:py-12 bg-white">
+        <div className="max-w-full sm:max-w-2xl lg:max-w-4xl xl:max-w-7xl mx-auto px-3 xs-mobile:px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xs-mobile:gap-8">
             
             {/* Specifications */}
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6" style={{
+              <h3 className="text-xl xs-mobile:text-2xl font-bold text-gray-900 mb-4 xs-mobile:mb-6" style={{
                 fontFamily: 'TT Firs Neue Variable',
                 fontWeight: 700,
                 letterSpacing: '2.4%',
               }}>
                 Техникийн үзүүлэлтүүд
               </h3>
-              <Card className="border-0 shadow-lg rounded-2xl">
-                <CardContent className="p-6">
+              <Card className="border-0 shadow-lg rounded-xl xs-mobile:rounded-2xl">
+                <CardContent className="p-4 xs-mobile:p-6">
                   <div className="space-y-4">
                     {auctionItem.specifications.map((spec, index) => (
                       <div key={index} className="flex justify-between py-3 border-b border-gray-100 last:border-b-0">
@@ -374,15 +374,15 @@ export default function AuctionItemPage({ params }) {
 
             {/* Bids */}
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6" style={{
+              <h3 className="text-xl xs-mobile:text-2xl font-bold text-gray-900 mb-4 xs-mobile:mb-6" style={{
                 fontFamily: 'TT Firs Neue Variable',
                 fontWeight: 700,
                 letterSpacing: '2.4%',
               }}>
                 Оролцогчдын үнийн саналууд
               </h3>
-              <Card className="border-0 shadow-lg rounded-2xl">
-                <CardContent className="p-6">
+              <Card className="border-0 shadow-lg rounded-xl xs-mobile:rounded-2xl">
+                <CardContent className="p-4 xs-mobile:p-6">
                   <div className="space-y-4">
                     {auctionItem.bids.map((bid) => (
                       <div key={bid.id} className="flex items-center space-x-4 py-3 border-b border-gray-100 last:border-b-0">

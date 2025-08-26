@@ -62,7 +62,7 @@ export default function WalletPage() {
   const banks = [
     { value: "khan-bank", label: "Хаан Банк" },
     { value: "golomt-bank", label: "Голомт Банк" },
-    { value: "tushin-bank", label: "Төшин Банк" },
+    { value: "m-bank", label: "M Банк" },
     { value: "state-bank", label: "Төрийн Банк" },
     { value: "capitron-bank", label: "Капитрон Банк" },
     { value: "bogd-bank", label: "Богд Банк" },
@@ -165,12 +165,12 @@ export default function WalletPage() {
   ]
 
   return (
-    <div className="p-4 lg:p-6">
-      <div className="mx-auto max-w-4xl">
+    <div className="p-3 xs-mobile:p-4 lg:p-6">
+      <div className="mx-auto max-w-full sm:max-w-2xl lg:max-w-4xl">
         <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6 lg:mb-8 text-center">ТАНЫ ПРОФАЙЛ</h1>
         
         {/* Wallet Summary Card */}
-        <div className="bg-gradient-to-r from-orange-400 to-red-500 rounded-2xl p-6 lg:p-8 mb-6 lg:mb-8 shadow-lg">
+        <div className="bg-gradient-to-r from-orange-400 to-red-500 rounded-2xl p-4 xs-mobile:p-6 lg:p-8 mb-6 lg:mb-8 shadow-lg">
           <div className="text-center text-white">
             {/* Logo */}
             <div className="flex justify-center mb-4">
@@ -193,7 +193,7 @@ export default function WalletPage() {
             <div className="text-3xl lg:text-5xl font-bold mb-6 lg:mb-8">840,000₮</div>
             
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center">
+            <div className="flex flex-col gap-3 lg:gap-4 justify-center">
                              <Dialog open={isRechargeDialogOpen} onOpenChange={setIsRechargeDialogOpen}>
                  <DialogTrigger asChild>
                    <button className="bg-gray-800 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
@@ -201,15 +201,15 @@ export default function WalletPage() {
                      <span>Цэнэглэх</span>
                    </button>
                  </DialogTrigger>
-                 <DialogContent className="sm:max-w-[500px] p-3 xs-mobile:p-4 sm:p-6">
-                   <DialogHeader>
+                 <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col p-3 xs-mobile:p-4 sm:p-6">
+                   <DialogHeader className="flex-shrink-0">
                      <div className="flex items-center justify-between">
                        <DialogTitle className="text-xl font-bold text-gray-900">ХЭТЭВЧ ЦЭНЭГЛЭХ</DialogTitle>
                        
                      </div>
                    </DialogHeader>
                    
-                   <div className="grid gap-4 xs-mobile:gap-6 py-3 xs-mobile:py-4">
+                   <div className="flex-1 overflow-y-auto grid gap-4 xs-mobile:gap-6 py-3 xs-mobile:py-4">
                      {/* Important Notice */}
                      <div className="bg-red-50 border border-red-200 rounded-lg p-3 xs-mobile:p-4">
                        <div className="flex items-start gap-3">
@@ -244,7 +244,7 @@ export default function WalletPage() {
                            className="text-orange-500 hover:text-orange-600 p-1"
                          >
                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                             <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                             <path d="M8 3a1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
                              <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
                            </svg>
                          </button>
@@ -261,7 +261,7 @@ export default function WalletPage() {
                            className="text-orange-500 hover:text-orange-600 p-1"
                          >
                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                             <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                             <path d="M8 3a1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
                              <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
                            </svg>
                          </button>
@@ -278,7 +278,7 @@ export default function WalletPage() {
                            className="text-orange-500 hover:text-orange-600 p-1"
                          >
                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                             <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                             <path d="M8 3a1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
                              <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
                            </svg>
                          </button>
@@ -286,7 +286,7 @@ export default function WalletPage() {
                      </div>
                    </div>
                    
-                   <DialogFooter className="flex justify-end">
+                   <DialogFooter className="flex-shrink-0 flex justify-end pt-4">
                      <Button 
                        variant="outline"
                        onClick={() => setIsRechargeDialogOpen(false)}
@@ -305,15 +305,15 @@ export default function WalletPage() {
                      <span>Таталт хийх</span>
                    </button>
                  </DialogTrigger>
-                 <DialogContent className="sm:max-w-[500px] p-3 xs-mobile:p-4 sm:p-6">
-                   <DialogHeader>
+                 <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col p-3 xs-mobile:p-4 sm:p-6">
+                   <DialogHeader className="flex-shrink-0">
                      <div className="flex items-center justify-between">
                        <DialogTitle className="text-xl font-bold text-gray-900">ТАТАЛТ ХИЙХ</DialogTitle>
                        
                      </div>
                    </DialogHeader>
                    
-                   <div className="grid gap-4 xs-mobile:gap-6 py-3 xs-mobile:py-4">
+                   <div className="flex-1 overflow-y-auto grid gap-4 xs-mobile:gap-6 py-3 xs-mobile:py-4">
                      {/* Wallet Balance */}
                      <div className="bg-gray-50 rounded-lg p-3 xs-mobile:p-4">
                        <Label className="text-sm font-medium text-gray-700 mb-2 block">Хэтэвчний үлдэгдэл</Label>
@@ -385,7 +385,7 @@ export default function WalletPage() {
                      </div>
                    </div>
                    
-                                       <DialogFooter className="flex justify-end">
+                   <DialogFooter className="flex-shrink-0 flex justify-end pt-4">
                       <Button 
                         onClick={handleWithdraw}
                         className="bg-orange-500 hover:bg-orange-600 text-white px-6 xs-mobile:px-8"
@@ -403,15 +403,15 @@ export default function WalletPage() {
                     <span>Данс холбох</span>
                   </button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px] p-3 xs-mobile:p-4 sm:p-6">
-                  <DialogHeader>
+                <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-hidden flex flex-col p-3 xs-mobile:p-4 sm:p-6">
+                  <DialogHeader className="flex-shrink-0">
                     <DialogTitle className="text-xl font-bold text-gray-900">ДАНС ХОЛБОХ</DialogTitle>
                     <DialogDescription className="text-gray-600">
                       Банкны дансаа холбохын тулд мэдээллээ оруулна уу
                     </DialogDescription>
                   </DialogHeader>
                   
-                  <div className="grid gap-3 xs-mobile:gap-4 py-3 xs-mobile:py-4">
+                  <div className="flex-1 overflow-y-auto grid gap-3 xs-mobile:gap-4 py-3 xs-mobile:py-4">
                                          <div className="grid gap-2">
                        <Label htmlFor="bank" className="text-sm font-medium text-gray-700">Банк</Label>
                        <Select value={selectedBank} onValueChange={setSelectedBank}>
@@ -450,7 +450,7 @@ export default function WalletPage() {
                     </div>
                   </div>
                   
-                  <DialogFooter className="flex gap-3">
+                  <DialogFooter className="flex-shrink-0 flex gap-3 pt-4">
                     <DialogClose asChild>
                       <Button variant="outline" className="flex-1">
                         БУЦАХ
@@ -470,12 +470,12 @@ export default function WalletPage() {
         </div>
 
         {/* Transaction History */}
-        <div className="bg-white rounded-lg shadow-sm border p-4 lg:p-6">
+        <div className="bg-white rounded-lg shadow-sm border p-3 xs-mobile:p-4 lg:p-6">
           <h2 className="text-lg lg:text-xl font-semibold text-gray-900 mb-4 lg:mb-6">ГҮЙЛГЭЭНИЙ мэдээлэл</h2>
           
-          <div className="space-y-3 lg:space-y-4">
+          <div className="space-y-2 xs-mobile:space-y-3 lg:space-y-4">
             {transactions.map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between p-3 lg:p-4 border border-gray-200 rounded-lg">
+              <div key={transaction.id} className="flex items-center justify-between p-2 xs-mobile:p-3 lg:p-4 border border-gray-200 rounded-lg">
                 <div className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
                   {/* Transaction Icon */}
                   <div className={`w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
