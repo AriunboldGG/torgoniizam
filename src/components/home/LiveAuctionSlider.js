@@ -140,11 +140,7 @@ export default function LiveAuctionSlider() {
           <div className="flex items-center space-x-3">
             <div className="w-1 h-8 bg-orange-500 rounded-full"></div>
             <h2 
-              className="text-gray-900 font-bold uppercase"
-              style={{
-                fontFamily: 'TT Firs Neue Variable',
-                fontWeight: 700,
-              }}
+              className="text-gray-900 font-bold uppercase font-tt-firs-neue-variable"
             >
               <span className="text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile xl:text-xl-mobile 2xl:text-2xl-mobile 3xl:text-3xl-mobile 4xl:text-4xl-mobile 5xl:text-5xl-mobile">
                 ЯВАГДАЖ БУЙ ДУУДЛАГА ХУДАЛДАА
@@ -155,12 +151,7 @@ export default function LiveAuctionSlider() {
           <Link href="/auctions/live-auctions" target="_blank" rel="noopener noreferrer">
             <Button 
               variant="outline"
-              className="bg-white text-gray-900 hover:bg-gray-50 px-6 py-3 rounded-lg border border-gray-200 uppercase"
-              style={{
-                fontFamily: 'TT Firs Neue Variable',
-                fontWeight: 700,
-                letterSpacing: '2.4%',
-              }}
+              className="bg-white text-gray-600 hover:bg-gray-50 px-6 py-3 rounded-lg border border-gray-200 font-tt-firs-neue-variable font-medium text-base leading-6"
             >
               <Image src="/svg/see-all.svg" alt="See All" width={16} height={16} className="w-4 h-4 mr-2" />
               <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
@@ -173,11 +164,11 @@ export default function LiveAuctionSlider() {
         {/* Slider Container */}
         <div className="relative">
           {/* Desktop Navigation Arrows */}
-          <button onClick={scrollLeft} className="absolute top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors hidden lg:flex" style={{ width: '44px', height: '44px', left: '-22px' }}>
+          <button onClick={scrollLeft} className="absolute top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors hidden lg:flex" style={{ width: '44px', height: '44px', left: '-70px' }}>
             <Image src="/svg/left.svg" alt="Previous" width={6} height={12} style={{ width: '6px', height: '12px' }} />
           </button>
           
-          <button onClick={scrollRight} className="absolute top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors hidden lg:flex" style={{ width: '44px', height: '44px', right: '-22px' }}>
+          <button onClick={scrollRight} className="absolute top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors hidden lg:flex" style={{ width: '44px', height: '44px', right: '-70px' }}>
             <Image src="/svg/right.svg" alt="Next" width={6} height={12} style={{ width: '6px', height: '12px' }} />
           </button>
 
@@ -212,11 +203,7 @@ export default function LiveAuctionSlider() {
                     
                     {/* Title */}
                     <h3 
-                      className="text-gray-900 font-bold mb-3 leading-tight"
-                      style={{
-                        fontFamily: 'TT Firs Neue Variable',
-                        fontWeight: 700,
-                      }}
+                      className="text-gray-900 font-bold mb-3 leading-tight font-tt-firs-neue-variable"
                     >
                       <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
                         {auction.title}

@@ -122,6 +122,10 @@ module.exports = {
   				ring: 'hsl(var(--sidebar-ring))'
   			}
   		},
+  		fontFamily: {
+  			'tt-firs-neue': ['TT Firs Neue', 'sans-serif'],
+  			'tt-firs-neue-variable': ['TT Firs Neue Variable', 'TT Firs Neue', 'sans-serif'],
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

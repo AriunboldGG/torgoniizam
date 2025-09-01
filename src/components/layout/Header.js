@@ -54,16 +54,11 @@ export default function Header() {
               {/* Home Page */}
               <Link href="/">
                 <div 
-                  className={`px-6 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer ${
+                  className={`px-6 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer font-tt-firs-neue-variable tracking-[2.4%] ${
                     isActivePage("/") 
                       ? "bg-[#FF4405] text-white" 
                       : "bg-white text-gray-700"
                   }`}
-                  style={{
-                    fontFamily: 'TT Firs Neue Variable',
-                    fontWeight: 700,
-                    letterSpacing: '2.4%',
-                  }}
                 >
                   <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
                     ЭХЛЭЛ
@@ -75,16 +70,11 @@ export default function Header() {
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className={`flex items-center space-x-2 transition-colors font-bold uppercase px-6 py-3 rounded-full ${
+                  className={`flex items-center space-x-2 transition-colors font-bold uppercase px-6 py-3 rounded-full font-tt-firs-neue-variable tracking-[2.4%] ${
                     isActivePage("/auctions/today") || isActivePage("/auctions/pending")
                       ? "bg-[#FF4405] text-white"
                       : "text-gray-900 hover:text-gray-700"
                   }`}
-                  style={{
-                    fontFamily: 'TT Firs Neue Variable',
-                    fontWeight: 700,
-                    letterSpacing: '2.4%',
-                  }}
                 >
                   <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">ДУУДЛАГА ХУДАЛДАА</span>
                   <Image 
@@ -106,16 +96,11 @@ export default function Header() {
                         isActivePage("/auctions/today") ? "bg-orange-50" : ""
                       }`}>
                         <span 
-                          className={`font-bold uppercase transition-colors ${
+                          className={`font-bold uppercase transition-colors font-tt-firs-neue-variable tracking-[2.4%] ${
                             isActivePage("/auctions/today") 
                               ? "text-[#FF4405]" 
                               : "text-gray-700 hover:text-[#FF4405]"
                           }`}
-                          style={{
-                            fontFamily: 'TT Firs Neue Variable',
-                            fontWeight: 700,
-                            letterSpacing: '2.4%',
-                          }}
                         >
                           <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
                             Өнөөдөр болох дуудлага худалдаа
@@ -128,16 +113,11 @@ export default function Header() {
                         isActivePage("/auctions/pending") ? "bg-orange-50" : ""
                       }`}>
                         <span 
-                          className={`font-bold uppercase transition-colors ${
+                          className={`font-bold uppercase transition-colors font-tt-firs-neue-variable tracking-[2.4%] ${
                             isActivePage("/auctions/pending") 
                               ? "text-[#FF4405]" 
                               : "text-gray-700 hover:text-[#FF4405]"
                           }`}
-                          style={{
-                            fontFamily: 'TT Firs Neue Variable',
-                            fontWeight: 700,
-                            letterSpacing: '2.4%',
-                          }}
                         >
                           <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
                             Хүлээгдэж буй дуудлага худалдаа
@@ -152,16 +132,11 @@ export default function Header() {
               {/* About Page */}
               <Link href="/about">
                 <div 
-                  className={`px-5 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer ${
+                  className={`px-5 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer font-tt-firs-neue-variable tracking-[2.4%] ${
                     isActivePage("/about") 
                       ? "bg-[#FF4405] text-white" 
                       : "bg-white text-gray-700"
                   }`}
-                  style={{
-                    fontFamily: 'TT Firs Neue Variable',
-                    fontWeight: 700,
-                    letterSpacing: '2.4%',
-                  }}
                 >
                   <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">ТАНИЛЦУУЛГА</span>
                 </div>
@@ -225,12 +200,7 @@ export default function Header() {
                   <Link href="/auth/signup">
                     <Button 
                       variant="outline"
-                      className="bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white px-6 py-3 rounded-lg transition-all duration-200 font-bold uppercase"
-                      style={{
-                        fontFamily: 'TT Firs Neue Variable',
-                        fontWeight: 700,
-                        letterSpacing: '2.4%',
-                      }}
+                      className="bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white px-6 py-3 rounded-lg transition-all duration-200 font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%]"
                     >
                       <Image src="/svg/header/signIn.svg" alt="Plus" width={16} height={16} className="w-4 h-4 mr-2" />
                       <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">БҮРТГҮҮЛЭХ</span>
@@ -240,12 +210,7 @@ export default function Header() {
                   {/* Login */}
                   <Link href="/auth/login">
                     <Button 
-                      className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors font-bold uppercase"
-                      style={{
-                        fontFamily: 'TT Firs Neue Variable',
-                        fontWeight: 700,
-                        letterSpacing: '2.4%',
-                      }}
+                      className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%]"
                     >
                       <Image src="/svg/header/login.svg" alt="Arrow" width={16} height={16} className="w-4 h-4" />
                       <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">НЭВТРЭХ</span>
@@ -295,16 +260,11 @@ export default function Header() {
                 <nav style={{ marginBottom: '10px' }}>
                   {/* Home Page */}
                   <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 ${
+                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 font-tt-firs-neue-variable tracking-[2.4%] ${
                       isActivePage("/") 
                         ? "bg-[#FF4405] text-white" 
                         : "bg-white text-gray-700 border border-gray-200"
                     }`}
-                      style={{
-                        fontFamily: 'TT Firs Neue Variable',
-                        fontWeight: 700,
-                        letterSpacing: '2.4%',
-                      }}
                     >
                       <span className="text-sm">ЭХЛЭЛ</span>
                     </div>
@@ -317,16 +277,11 @@ export default function Header() {
                         isActivePage("/auctions/today") ? "bg-orange-50 border-orange-200" : "border-gray-200"
                       }`}>
                         <span 
-                          className={`font-bold uppercase ${
+                          className={`font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%] ${
                             isActivePage("/auctions/today") 
                               ? "text-[#FF4405]" 
                               : "text-gray-700"
                           }`}
-                          style={{
-                            fontFamily: 'TT Firs Neue Variable',
-                            fontWeight: 700,
-                            letterSpacing: '2.4%',
-                          }}
                         >
                           <span className="text-sm">
                             Өнөөдөр болох дуудлага худалдаа
@@ -339,16 +294,11 @@ export default function Header() {
                         isActivePage("/auctions/pending") ? "bg-orange-50 border-orange-200" : "border-gray-200"
                       }`}>
                         <span 
-                          className={`font-bold uppercase ${
+                          className={`font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%] ${
                             isActivePage("/auctions/pending") 
                               ? "text-[#FF4405]" 
                               : "text-gray-700"
                           }`}
-                          style={{
-                            fontFamily: 'TT Firs Neue Variable',
-                            fontWeight: 700,
-                            letterSpacing: '2.4%',
-                          }}
                         >
                           <span className="text-sm">
                             Хүлээгдэж буй дуудлага худалдаа
@@ -360,16 +310,11 @@ export default function Header() {
 
                   {/* About Page */}
                   <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 ${
+                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 font-tt-firs-neue-variable tracking-[2.4%] ${
                       isActivePage("/about") 
                         ? "bg-[#FF4405] text-white" 
                         : "bg-white text-gray-700 border border-gray-200"
                     }`}
-                      style={{
-                        fontFamily: 'TT Firs Neue Variable',
-                        fontWeight: 700,
-                        letterSpacing: '2.4%',
-                      }}
                     >
                       <span className="text-sm">ТАНИЛЦУУЛГА</span>
                     </div>
@@ -432,12 +377,7 @@ export default function Header() {
                       <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button 
                           variant="outline"
-                          className="w-full bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white py-3 rounded-full transition-all duration-200 font-bold uppercase border-2 border-[#FF4405]"
-                          style={{
-                            fontFamily: 'TT Firs Neue Variable',
-                            fontWeight: 700,
-                            letterSpacing: '2.4%',
-                          }}
+                          className="w-full bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white py-3 rounded-full transition-all duration-200 font-bold uppercase border-2 border-[#FF4405] font-tt-firs-neue-variable tracking-[2.4%] mb-3"
                         >
                           <Image src="/svg/header/signIn.svg" alt="Plus" width={20} height={20} className="w-4 h-4 mr-2" />
                           <span className="text-sm">БҮРТГҮҮЛЭХ</span>
@@ -447,12 +387,7 @@ export default function Header() {
                       {/* Login */}
                       <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
                         <Button 
-                          className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-full flex items-center justify-center space-x-2 transition-colors font-bold uppercase text-sm"
-                          style={{
-                            fontFamily: 'TT Firs Neue Variable',
-                            fontWeight: 700,
-                            letterSpacing: '2.4%',
-                          }}
+                          className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-full flex items-center justify-center space-x-2 transition-colors font-bold uppercase text-sm font-tt-firs-neue-variable tracking-[2.4%]"
                         >
                           <Image src="/svg/header/login.svg" alt="Arrow" width={20} height={20} className="w-4 h-4" />
                           <span>НЭВТРЭХ</span>

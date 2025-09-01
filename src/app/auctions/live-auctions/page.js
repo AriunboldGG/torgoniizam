@@ -159,11 +159,7 @@ export default function LiveAuctionsPage() {
             <div className="flex items-center space-x-3">
               <div className="w-1 h-8 bg-orange-500 rounded-full"></div>
               <h1 
-                className="text-2xl sm:text-3xl font-bold text-gray-900 uppercase"
-                style={{
-                  fontFamily: 'TT Firs Neue Variable',
-                  fontWeight: 700,
-                }}
+                className="text-2xl sm:text-3xl font-bold text-gray-900 uppercase font-tt-firs-neue-variable"
               >
                 ЯВАГДАЖ БУЙ ДУУДЛАГА ХУДАЛДАА
               </h1>
@@ -255,7 +251,7 @@ export default function LiveAuctionsPage() {
                   <Button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white">
                     🎯 Санал өгөх
                   </Button>
-                  <Button variant="outline" className="px-4">
+                  <Button variant="outline" className="px-4 font-tt-firs-neue-variable font-medium text-base leading-6 text-gray-600 hover:bg-gray-50">
                     👁️ Дэлгэрэнгүй
                   </Button>
                 </div>

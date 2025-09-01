@@ -95,11 +95,7 @@ export default function AuctionSteps() {
             />
           </div>
           <h2 
-            className="text-white font-bold uppercase"
-            style={{
-              fontFamily: 'TT Firs Neue Variable',
-              fontWeight: 700,
-            }}
+            className="text-white font-bold uppercase font-tt-firs-neue-variable"
           >
             <span className="text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile xl:text-xl-mobile 2xl:text-2xl-mobile 3xl:text-3xl-mobile 4xl:text-4xl-mobile 5xl:text-5xl-mobile">
               ДУУДЛАГА ХУДАЛДААНД ОРОЛЦОХ АЛХАМ
@@ -131,14 +127,8 @@ export default function AuctionSteps() {
                 {/* Step Badge */}
                 <div className="bg-orange-500 text-white px-3 py-1 rounded-lg mb-3">
                   <span 
-                    className="font-bold uppercase"
-                    style={{
-                      fontFamily: 'TT Firs Neue Variable',
-                      fontWeight: 700,
-                      fontSize: '8px',
-                      lineHeight: '12px',
-                      letterSpacing: '2.4%',
-                    }}
+                    className="font-bold uppercase font-tt-firs-neue-variable leading-3"
+                    style={{ fontSize: '8px' }}
                   >
                     <span>
                       {step.badge}
@@ -148,14 +138,8 @@ export default function AuctionSteps() {
 
                 {/* Step Title */}
                 <h3 
-                  className="text-white text-center uppercase"
-                  style={{
-                    fontFamily: 'TT Firs Neue Variable',
-                    fontWeight: 600,
-                    fontSize: '12px',
-                    lineHeight: '18px',
-                    letterSpacing: '2.4%',
-                  }}
+                  className="text-white text-center uppercase font-tt-firs-neue-variable font-semibold leading-3"
+                  style={{ fontSize: '8px' }}
                 >
                   <span>
                     {step.title}
@@ -187,14 +171,8 @@ export default function AuctionSteps() {
                 {/* Step Badge */}
                 <div className="bg-orange-500 text-white px-2 py-1 sm:px-3 rounded-lg mb-2 sm:mb-3">
                   <span 
-                    className="font-bold uppercase"
-                    style={{
-                      fontFamily: 'TT Firs Neue Variable',
-                      fontWeight: 700,
-                      fontSize: '8px',
-                      lineHeight: '12px',
-                      letterSpacing: '2.4%',
-                    }}
+                    className="font-bold uppercase font-tt-firs-neue-variable leading-3"
+                    style={{ fontSize: '8px' }}
                   >
                     <span>
                       {step.badge}
@@ -204,14 +182,8 @@ export default function AuctionSteps() {
 
                 {/* Step Title */}
                 <h3 
-                  className="text-white text-center uppercase"
-                  style={{
-                    fontFamily: 'TT Firs Neue Variable',
-                    fontWeight: 600,
-                    fontSize: '12px',
-                    lineHeight: '18px',
-                    letterSpacing: '2.4%',
-                  }}
+                  className="text-white text-center uppercase font-tt-firs-neue-variable font-semibold leading-3"
+                  style={{ fontSize: '8px' }}
                 >
                   <span>
                     {step.title}

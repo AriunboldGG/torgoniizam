@@ -19,11 +19,7 @@ export default function Footer() {
           
           {/* Logo Text */}
           <h3 
-            className="font-bold mb-3 sm:mb-4 uppercase"
-            style={{
-              fontFamily: 'TT Firs Neue Variable',
-              fontWeight: 700,
-            }}
+            className="font-bold mb-3 sm:mb-4 uppercase font-tt-firs-neue-variable"
           >
             <span className="text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile xl:text-xl-mobile 2xl:text-2xl-mobile">
               
@@ -32,11 +28,7 @@ export default function Footer() {
           
           {/* Main Title/Slogan */}
           <h4 
-            className="font-semibold mb-6 sm:mb-8 uppercase"
-            style={{
-              fontFamily: 'TT Firs Neue Variable',
-              fontWeight: 600,
-            }}
+            className="font-semibold mb-6 sm:mb-8 uppercase font-tt-firs-neue-variable"
           >
             <span className="text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile xl:text-xl-mobile">
               ДУУДЛАГА ХУДАЛДААНЫ ВЕБСАЙТ

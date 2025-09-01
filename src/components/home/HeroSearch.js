@@ -11,9 +11,9 @@ export default function HeroSearch() {
             src="/svg/search-background.svg" 
             alt="Search Background Pattern" 
             width={1200}
-            height={320}
+            height={220}
             className="opacity-100 w-full object-cover rounded-2xl"
-            style={{ height: '320px' }}
+            style={{ height: '220px' }}
           />
         </div>
       </div>
@@ -23,22 +23,14 @@ export default function HeroSearch() {
         {/* Main Heading */}
         <div className="mb-6">
           <h1 
-            className="text-white mb-6 leading-tight font-bold uppercase"
-            style={{
-              fontFamily: 'TT Firs Neue Variable',
-              fontWeight: 700,
-            }}
+            className="text-white mb-6 leading-tight font-bold uppercase font-tt-firs-neue-variable"
           >
             <span className="text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile xl:text-xl-mobile 2xl:text-2xl-mobile 3xl:text-3xl-mobile 4xl:text-4xl-mobile 5xl:text-5xl-mobile">
               ХҮССЭН БҮХНЭЭ ДУУДЛАГА
             </span>
           </h1>
           <h2 
-            className="text-white leading-tight font-bold uppercase"
-            style={{
-              fontFamily: 'TT Firs Neue Variable',
-              fontWeight: 700,
-            }}
+            className="text-white leading-tight font-bold uppercase font-tt-firs-neue-variable"
           >
             <span className="text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile xl:text-xl-mobile 2xl:text-2xl-mobile 3xl:text-3xl-mobile 4xl:text-4xl-mobile 5xl:text-5xl-mobile">
               ХУДАЛДААНААС
@@ -57,11 +49,7 @@ export default function HeroSearch() {
                   <input
                     type="text"
                     placeholder="Барааны нэрээр хайх ..."
-                    className="w-full text-gray-700 placeholder-gray-400 focus:outline-none text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile"
-                    style={{
-                      fontFamily: 'TT Firs Neue Variable',
-                      fontWeight: 500
-                    }}
+                    className="w-full text-gray-700 placeholder-gray-400 focus:outline-none text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile font-tt-firs-neue-variable font-medium"
                   />
                 </div>
                 
@@ -71,11 +59,7 @@ export default function HeroSearch() {
                 {/* Category Dropdown */}
                 <div className="px-6 py-4 flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-r-full transition-colors">
                   <span 
-                    className="text-gray-600 text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile"
-                    style={{
-                      fontFamily: 'TT Firs Neue Variable',
-                      fontWeight: 500
-                    }}
+                    className="text-gray-600 text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile font-tt-firs-neue-variable font-medium"
                   >
                     Бүх ангилал
                   </span>
@@ -94,11 +78,7 @@ export default function HeroSearch() {
             <div className="ml-4">
               <Button 
                 size="lg"
-                className="w-16 h-16 rounded-full bg-orange-500 hover:bg-orange-600 shadow-lg flex items-center justify-center"
-                style={{
-                  fontFamily: 'TT Firs Neue Variable',
-                  fontWeight: 700
-                }}
+                className="w-16 h-16 rounded-full bg-orange-500 hover:bg-orange-600 shadow-lg flex items-center justify-center font-tt-firs-neue-variable font-bold"
               >
                 <span className="text-white text-2xl">🔍</span>
               </Button>

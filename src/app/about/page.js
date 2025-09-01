@@ -9,19 +9,15 @@ export default function About() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto text-center">
           <h1 
-            className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"
-            style={{
-              fontFamily: 'TT Firs Neue Variable',
-              fontWeight: 700,
-              lineHeight: '1.2',
-              letterSpacing: '2.4%',
-              textTransform: 'uppercase'
-            }}
+            className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 font-tt-firs-neue-variable tracking-[2.4%] uppercase"
           >
             ТАНИЛЦУУЛГА
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Монголын анхны онлайн дуудлага худалдааны платформ. Бид танд найдвартай, шударга, аюулгүй дуудлага худалдааны үйлчилгээг санал болгож байна.
+          Монголын хамгийн анхны дуудлага худалдааны torgoniizam.mn-д тавтай морилно уу. Манай цахим хуудас нь зээлийн барьцаанд хураагдсан эд зүйлсийг онлайн дуудлага худалдааны хэлбэрээр борлуулдаг юм . 
+torgoniizam.mn сайтын тусламжтайгаар та хүссэн бараа бүтээгдэхүүнээ хоёрдогч зах зээлд ченжийн гар дамжилгүйгээр худалдаж авахаас гадна, зах зээлийн бодит үнээр эсвэл түүнээс ч бага үнээр ялагч болж авах боломжтой.
+Баярлалаа, таныг хүндэтгэсэн Монголын анхны онлайн нээлттэй дуудлага худалдааны сайт Хонжоо.мн 
+
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Badge variant="secondary" className="px-4 py-2 text-lg">
@@ -43,13 +39,7 @@ export default function About() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 
-                className="text-3xl font-bold text-gray-900 mb-6"
-                style={{
-                  fontFamily: 'TT Firs Neue Variable',
-                  fontWeight: 700,
-                  letterSpacing: '2.4%',
-                  textTransform: 'uppercase'
-                }}
+                className="text-3xl font-bold text-gray-900 mb-6 font-tt-firs-neue-variable tracking-[2.4%] uppercase"
               >
                 Бидний эрхэм зорилго
               </h2>
@@ -62,14 +52,7 @@ export default function About() {
                 хэрэглэгчдийнхээ хэрэгцээг хангахад анхаардаг.
               </p>
               <Button 
-                className="bg-[#FF4405] hover:bg-[#E63D04] text-white px-8 py-3 rounded-lg"
-                style={{
-                  fontFamily: 'TT Firs Neue Variable',
-                  fontWeight: 700,
-                  fontSize: '16px',
-                  letterSpacing: '2.4%',
-                  textTransform: 'uppercase'
-                }}
+                className="bg-[#FF4405] hover:bg-[#E63D04] text-white px-8 py-3 rounded-lg font-tt-firs-neue-variable font-medium text-base leading-6"
               >
                 Дэлгэрэнгүй мэдэх
               </Button>
@@ -92,13 +75,7 @@ export default function About() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 
-              className="text-3xl font-bold text-gray-900 mb-4"
-              style={{
-                fontFamily: 'TT Firs Neue Variable',
-                fontWeight: 700,
-                letterSpacing: '2.4%',
-                textTransform: 'uppercase'
-              }}
+              className="text-3xl font-bold text-gray-900 mb-4 font-tt-firs-neue-variable tracking-[2.4%] uppercase"
             >
               Бидний үнэт зүйлс
             </h2>

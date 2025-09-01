@@ -96,14 +96,7 @@ export default function TodayAuctions() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto text-center">
           <h1 
-            className="text-4xl md:text-5xl font-bold text-[#FF4405] mb-6"
-            style={{
-              fontFamily: 'TT Firs Neue Variable',
-              fontWeight: 700,
-              lineHeight: '1.2',
-              letterSpacing: '2.4%',
-              textTransform: 'uppercase'
-            }}
+            className="text-4xl md:text-5xl font-bold text-[#FF4405] mb-6 font-tt-firs-neue-variable tracking-[2.4%] uppercase"
           >
             Өнөөдөр болох дуудлага худалдаа
           </h1>
@@ -128,13 +121,7 @@ export default function TodayAuctions() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
             <div className="flex items-center space-x-4">
               <h2 
-                className="text-2xl font-bold text-gray-900"
-                style={{
-                  fontFamily: 'TT Firs Neue Variable',
-                  fontWeight: 700,
-                  letterSpacing: '2.4%',
-                  textTransform: 'uppercase'
-                }}
+                className="text-2xl font-bold text-gray-900 font-tt-firs-neue-variable tracking-[2.4%] uppercase"
               >
                 Дуудлага худалдаанууд
               </h2>

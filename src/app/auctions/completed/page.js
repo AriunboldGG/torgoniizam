@@ -131,11 +131,7 @@ export default function CompletedAuctionsPage() {
             <div className="flex items-center space-x-3">
               <div className="w-1 h-8 bg-green-500 rounded-full"></div>
               <h1 
-                className="text-2xl sm:text-3xl font-bold text-gray-900 uppercase"
-                style={{
-                  fontFamily: 'TT Firs Neue Variable',
-                  fontWeight: 700,
-                }}
+                className="text-2xl sm:text-3xl font-bold text-gray-900 uppercase font-tt-firs-neue-variable"
               >
                 ДУУССАН ДУУДЛАГА ХУДАЛДАА
               </h1>
@@ -233,7 +229,7 @@ export default function CompletedAuctionsPage() {
                   <Button className="flex-1 bg-green-500 hover:bg-green-600 text-white">
                     📊 Дэлгэрэнгүй
                   </Button>
-                  <Button variant="outline" className="px-4">
+                  <Button variant="outline" className="px-4 font-tt-firs-neue-variable font-medium text-base leading-6 text-gray-600 hover:bg-gray-50">
                     📋 Гэрээ
                   </Button>
                 </div>
@@ -244,7 +240,7 @@ export default function CompletedAuctionsPage() {
 
         {/* Load More */}
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="px-8 py-3">
+          <Button variant="outline" size="lg" className="px-8 py-3 font-tt-firs-neue-variable font-medium text-base leading-6 text-gray-600 hover:bg-gray-50">
             Дэлгэрэнгүй үзэх
           </Button>
         </div>
