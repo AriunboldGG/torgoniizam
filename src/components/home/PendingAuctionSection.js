@@ -172,13 +172,13 @@ export default function PendingAuctionSection() {
 
         {/* Slider Container */}
         <div className="relative">
-          {/* Navigation Arrows */}
-          <button onClick={scrollLeft} className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
-            <Image src="/svg/left.svg" alt="Previous" width={24} height={24} className="w-6 h-6" />
+          {/* Desktop Navigation Arrows */}
+          <button onClick={scrollLeft} className="absolute top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors hidden lg:flex" style={{ width: '44px', height: '44px', left: '-22px' }}>
+            <Image src="/svg/left.svg" alt="Previous" width={6} height={12} style={{ width: '6px', height: '12px' }} />
           </button>
           
-          <button onClick={scrollRight} className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
-            <Image src="/svg/right.svg" alt="Next" width={24} height={24} className="w-6 h-6" />
+          <button onClick={scrollRight} className="absolute top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors hidden lg:flex" style={{ width: '44px', height: '44px', right: '-22px' }}>
+            <Image src="/svg/right.svg" alt="Next" width={6} height={12} style={{ width: '6px', height: '12px' }} />
           </button>
 
           {/* Horizontal Scrollable Cards Row */}
