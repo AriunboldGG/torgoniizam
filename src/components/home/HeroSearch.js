@@ -40,7 +40,44 @@ export default function HeroSearch() {
 
         {/* Search Bar */}
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center">
+          {/* Mobile Layout - Search Input Only */}
+          <div className="sm:hidden">
+            {/* Search Container */}
+            <div className="w-full search-container" style={{ marginRight: '10px' }}>
+              <div className="bg-white rounded-full shadow-lg flex items-center">
+                {/* Search Input */}
+                <div className="flex-1 px-4 py-3">
+                  <input
+                    type="text"
+                    placeholder="Барааны нэрээр хайх ..."
+                    className="w-full text-gray-700 placeholder-gray-400 focus:outline-none text-sm font-tt-firs-neue-variable font-medium"
+                  />
+                </div>
+                
+                {/* Separator */}
+                <div className="w-px h-6 bg-gray-300"></div>
+                
+                {/* Category Dropdown */}
+                <div className="px-4 py-3 flex items-center space-x-2 cursor-pointer hover:bg-gray-50 rounded-r-full transition-colors">
+                  <span 
+                    className="text-gray-600 text-sm font-tt-firs-neue-variable font-medium"
+                  >
+                    Бүх ангилал
+                  </span>
+                  <Image 
+                    src="/svg/dropdown-search.svg" 
+                    alt="Dropdown" 
+                    width={14}
+                    height={14}
+                    className="w-3.5 h-3.5"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Layout - Side by Side */}
+          <div className="hidden sm:flex items-center justify-center">
             {/* Search Container */}
             <div className="flex-1 max-w-3xl">
               <div className="bg-white rounded-full shadow-lg flex items-center">
@@ -77,10 +114,20 @@ export default function HeroSearch() {
             {/* Search Button */}
             <div className="ml-4">
               <Button 
-                size="lg"
-                className="w-16 h-16 rounded-full bg-orange-500 hover:bg-orange-600 shadow-lg flex items-center justify-center font-tt-firs-neue-variable font-bold"
+                className="rounded-full shadow-lg flex items-center justify-center font-tt-firs-neue-variable font-bold"
+                style={{ 
+                  width: '56px', 
+                  height: '56px',
+                  backgroundColor: '#FF4405'
+                }}
               >
-                <span className="text-white text-2xl">🔍</span>
+                <Image 
+                  src="/svg/search1.svg" 
+                  alt="Search" 
+                  width={21}
+                  height={21}
+                  className="w-[21px] h-[21px]"
+                />
               </Button>
             </div>
           </div>

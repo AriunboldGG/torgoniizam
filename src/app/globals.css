@@ -223,3 +223,6 @@
 .search {
   background-color: white;
 }
+.search-container {
+  padding: 0 10px;
+}

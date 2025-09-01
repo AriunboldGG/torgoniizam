@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -106,15 +107,21 @@ export default function Footer() {
           
           {/* Legal Links */}
           <div className="flex flex-wrap justify-center sm:justify-end gap-4 sm:gap-6 text-gray-400">
-            <a href="#" className="hover:text-white transition-colors text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
+            <Link 
+              href="/terms" 
+              className="hover:text-white transition-colors text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm"
+            >
               Үйлчилгээний нөхцөл
-            </a>
+            </Link>
             <a href="#" className="hover:text-white transition-colors text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
               Нууцлалын бодлого
             </a>
-            <a href="#" className="hover:text-white transition-colors text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
-              Холбоо барих
-            </a>
+            <Link 
+              href="/faq" 
+              className="hover:text-white transition-colors text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm"
+            >
+              Түгээмэл асуулт хариулт
+            </Link>
           </div>
         </div>
       </div>

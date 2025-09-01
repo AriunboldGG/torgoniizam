@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import ScrollToTop from "@/components/ui/scroll-to-top";
 import { UserProvider } from "@/contexts/UserContext";
 
 const geistSans = Geist({
@@ -31,6 +32,7 @@ export default function RootLayout({ children }) {
             {children}
           </main>
           <Footer />
+          <ScrollToTop />
         </UserProvider>
       </body>
     </html>

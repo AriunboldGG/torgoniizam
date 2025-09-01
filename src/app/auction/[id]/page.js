@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, use, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,9 +50,6 @@ export default function AuctionItemPage({ params }) {
     // Force re-render by updating state
     setAuctionItem({ ...auctionItem });
   };
-  
-  // Unwrap params using React.use() as recommended by Next.js
-  const unwrappedParams = use(params);
   
   // Function to get auction data based on ID
   const getAuctionData = (id) => {
@@ -257,7 +254,7 @@ export default function AuctionItemPage({ params }) {
   };
 
   // Get auction data based on the ID from URL
-  const initialAuctionItem = getAuctionData(unwrappedParams.id);
+  const initialAuctionItem = getAuctionData(params.id);
   
   // Initialize auction item state
   useEffect(() => {
@@ -349,9 +346,9 @@ export default function AuctionItemPage({ params }) {
                 <div className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium mb-3">
                   {auctionItem.category}
                 </div>
-                                 <h1 
+                <h1 
                    className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-4 font-tt-firs-neue-variable tracking-[2.4%]"
-                 >
+                >
                   {auctionItem.title}
                 </h1>
                 <p className="text-gray-600 text-lg leading-relaxed">
@@ -359,14 +356,14 @@ export default function AuctionItemPage({ params }) {
                 </p>
               </div>
 
-                             {/* Pricing Section */}
+              {/* Pricing Section */}
                <div className="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl border border-orange-100">
                  <div className="grid grid-cols-2 gap-6">
-                   <div>
+                  <div>
                      <p className="text-gray-600 text-sm mb-2">Эхлэх үнэ</p>
                      <p className="text-gray-700 font-bold text-xl sm:text-2xl">{auctionItem.startingPrice}</p>
-                   </div>
-                   <div>
+                  </div>
+                  <div>
                      <p className="text-gray-600 text-sm mb-2">Сүүлийн үнэ</p>
                      <p className="text-[#FF4405] font-bold text-xl sm:text-2xl">{auctionItem.lastPrice}</p>
                    </div>
@@ -400,11 +397,11 @@ export default function AuctionItemPage({ params }) {
                        <div className="text-2xl font-bold text-black">{auctionItem.countdown.seconds}</div>
                        <div className="text-sm text-gray-600">СЕКУНД</div>
                      </div>
-                   </div>
-                 </div>
-               </div>
+                  </div>
+                </div>
+              </div>
 
-                                             {/* Action Buttons */}
+              {/* Action Buttons */}
                 <div className="space-y-4">
                   {!isUserLoggedIn && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
@@ -453,8 +450,8 @@ export default function AuctionItemPage({ params }) {
                        onClick={() => setShowBidDialog(true)}
                      >
                        <Image src="/svg/bid.svg" alt="Bid" width={20} height={20} className="w-5 h-5 mr-3" />
-                       ҮНИЙН САНАЛ ИЛГЭЭХ
-                     </Button>
+                  ҮНИЙН САНАЛ ИЛГЭЭХ
+                </Button>
                     
                                                               <Button 
                        variant="outline" 
@@ -466,8 +463,8 @@ export default function AuctionItemPage({ params }) {
                        disabled={!isUserLoggedIn}
                        onClick={() => setShowPledgeDialog(true)}
                      >
-                       ДЭНЧИН БАЙРШУУЛАХ
-                     </Button>
+                  ДЭНЧИН БАЙРШУУЛАХ
+                </Button>
                      
                                            <PledgeDialog
                         isOpen={showPledgeDialog}
@@ -484,8 +481,8 @@ export default function AuctionItemPage({ params }) {
                         isUserLoggedIn={isUserLoggedIn}
                         onBidConfirm={handleBidConfirm}
                       />
-                  </div>
-                  
+              </div>
+
                   {!isUserLoggedIn && (
                     <div className="text-center">
                       <Link href="/auth/login" className="text-[#FF4405] hover:text-[#E63D04] font-medium text-sm underline">
@@ -548,24 +545,81 @@ export default function AuctionItemPage({ params }) {
 
             {/* Bids */}
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 font-tt-firs-neue-variable tracking-[2.4%]">
+               <div className="flex items-center justify-between mb-6">
+                 <h3 className="text-2xl font-bold text-gray-900 font-tt-firs-neue-variable tracking-[2.4%]">
                 Оролцогчдын үнийн саналууд
               </h3>
-              <Card className="border-0 shadow-lg rounded-2xl">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    {auctionItem.bids.map((bid) => (
-                      <div key={bid.id} className="flex items-center space-x-4 py-3 border-b border-gray-100 last:border-b-0">
-                        <div className="w-8 h-8 bg-[#FF4405] rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-sm font-bold">{bid.id}</span>
+                 <div className="flex items-center space-x-2">
+                   <div className="w-3 h-3 bg-[#FF4405] rounded-full animate-pulse"></div>
+                   <span className="text-sm text-gray-500 font-medium">Идэвхтэй</span>
+                 </div>
+               </div>
+               <Card className="border-0 shadow-xl rounded-2xl overflow-hidden bg-gradient-to-br from-white to-gray-50">
+                 <CardContent className="p-0">
+                   <div className="bg-gradient-to-r from-[#FF4405] to-[#E63D04] px-6 py-4">
+                     <div className="flex items-center justify-between text-white">
+                       <h4 className="font-bold text-lg font-tt-firs-neue-variable">Нийт {auctionItem.bids.length} оролцогч</h4>
+                       <div className="flex items-center space-x-2">
+                         <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                         <span className="text-sm font-medium">Шинэчлэгдэж байна</span>
+                       </div>
+                     </div>
+                   </div>
+                   <div className="p-6">
+                     <div className="space-y-3">
+                       {auctionItem.bids.map((bid, index) => (
+                         <div 
+                           key={bid.id} 
+                           className={`flex items-center space-x-4 p-4 rounded-xl transition-all duration-200 hover:shadow-md ${
+                             index === 0 
+                               ? 'bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200' 
+                               : 'bg-white border border-gray-100 hover:border-gray-200'
+                           }`}
+                         >
+                           <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                             index === 0 
+                               ? 'bg-gradient-to-r from-[#FF4405] to-[#E63D04] shadow-lg' 
+                               : 'bg-gray-100'
+                           }`}>
+                             <span className={`text-sm font-bold ${
+                               index === 0 ? 'text-white' : 'text-gray-600'
+                             }`}>
+                               {bid.id}
+                             </span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 truncate">{bid.email}</p>
-                          <p className="text-sm text-gray-500">{bid.date}</p>
+                             <p className={`font-medium truncate ${
+                               index === 0 ? 'text-gray-900' : 'text-gray-700'
+                             }`}>
+                               {bid.email}
+                             </p>
+                             <p className="text-sm text-gray-500 flex items-center space-x-2">
+                               <span>{bid.date}</span>
+                               {index === 0 && (
+                                 <>
+                                   <span className="w-1 h-1 bg-[#FF4405] rounded-full"></span>
+                                   <span className="text-[#FF4405] font-medium text-xs">Хамгийн өндөр үнэ</span>
+                                 </>
+                               )}
+                             </p>
+                           </div>
+                           <div className="text-right flex-shrink-0">
+                             <span className={`font-bold text-lg ${
+                               index === 0 ? 'text-[#FF4405]' : 'text-gray-700'
+                             }`}>
+                               {bid.amount}
+                             </span>
+                             {index === 0 && (
+                               <div className="mt-1">
+                                 <span className="text-xs text-[#FF4405] font-medium bg-orange-100 px-2 py-1 rounded-full">
+                                   🏆 Тэргүүлэгч
+                                 </span>
+                               </div>
+                             )}
                         </div>
-                        <span className="font-bold text-lg text-[#FF4405] flex-shrink-0">{bid.amount}</span>
                       </div>
                     ))}
+                     </div>
                   </div>
                 </CardContent>
               </Card>
