@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link"
 import PledgeDialog from "@/components/ui/pledge-dialog"
 import BidDialog from "@/components/ui/bid-dialog"
+import ImageZoom from "@/components/ui/image-zoom"
 
 // Mock user authentication - in real app this would come from context/state management
 const isUserLoggedIn = true; // Set to true to simulate logged-in user
@@ -17,11 +18,13 @@ const isUserLoggedIn = true; // Set to true to simulate logged-in user
 
 
 export default function AuctionItemPage({ params }) {
+  const unwrappedParams = use(params);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showPledgeDialog, setShowPledgeDialog] = useState(false);
   const [showBidDialog, setShowBidDialog] = useState(false);
   const [hasUserPledged, setHasUserPledged] = useState(false); // State to track pledge status
   const [auctionItem, setAuctionItem] = useState(null); // State to track auction item
+  const [showImageZoom, setShowImageZoom] = useState(false); // State to control image zoom modal
   
   const handlePledgeConfirm = (pledgeAmount) => {
     // Handle pledge confirmation here
@@ -254,7 +257,7 @@ export default function AuctionItemPage({ params }) {
   };
 
   // Get auction data based on the ID from URL
-  const initialAuctionItem = getAuctionData(params.id);
+  const initialAuctionItem = getAuctionData(unwrappedParams.id);
   
   // Initialize auction item state
   useEffect(() => {
@@ -297,7 +300,10 @@ export default function AuctionItemPage({ params }) {
             {/* Left Column - Image Gallery */}
             <div className="space-y-4">
               {/* Main Image */}
-              <div className="relative bg-white rounded-xl overflow-hidden shadow-lg">
+              <div 
+                className="relative bg-white rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
+                onClick={() => setShowImageZoom(true)}
+              >
                 <Image 
                   src={auctionItem.images[selectedImage]} 
                   alt={auctionItem.title}
@@ -305,6 +311,15 @@ export default function AuctionItemPage({ params }) {
                   height={600}
                   className="w-full h-64 sm:h-80 lg:h-[500px] object-cover"
                 />
+                
+                {/* Zoom Icon Overlay */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                  <div className="opacity-0 hover:opacity-100 transition-opacity duration-300">
+                    <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                    </svg>
+                  </div>
+                </div>
                 
                 {/* Orange Badge */}
                 <div className="absolute top-4 right-4 bg-[#FF4405] text-white px-3 py-1 rounded-lg text-sm font-bold">
@@ -627,6 +642,15 @@ export default function AuctionItemPage({ params }) {
           </div>
         </div>
       </div>
+
+      {/* Image Zoom Modal */}
+      {showImageZoom && (
+        <ImageZoom
+          images={auctionItem.images}
+          currentImage={auctionItem.images[selectedImage]}
+          onClose={() => setShowImageZoom(false)}
+        />
+      )}
     </div>
   );
 }

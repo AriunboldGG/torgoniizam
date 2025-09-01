@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function CompletedAuctionsPage() {
   const [completedAuctions, setCompletedAuctions] = useState([]);
@@ -211,7 +212,7 @@ export default function CompletedAuctionsPage() {
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Саналчид:</span>
+                    <span className="text-gray-600 text-sm">Оролцож буй:</span>
                     <span className="text-blue-600 font-medium">
                       {auction.bidders} хүн
                     </span>
@@ -226,12 +227,11 @@ export default function CompletedAuctionsPage() {
 
                 {/* Action Buttons */}
                 <div className="flex space-x-3">
-                  <Button className="flex-1 bg-green-500 hover:bg-green-600 text-white">
-                    📊 Дэлгэрэнгүй
-                  </Button>
-                  <Button variant="outline" className="px-4 font-tt-firs-neue-variable font-medium text-base leading-6 text-gray-600 hover:bg-gray-50">
-                    📋 Гэрээ
-                  </Button>
+                  <Link href={`/auction/completed/${auction.id}`}>
+                    <Button className="flex-1 bg-green-500 hover:bg-green-600 text-white">
+                      📊 Дэлгэрэнгүй
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>

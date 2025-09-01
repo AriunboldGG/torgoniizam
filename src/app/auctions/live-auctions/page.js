@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LiveAuctionsPage() {
   const [liveAuctions, setLiveAuctions] = useState([]);
@@ -239,7 +240,7 @@ export default function LiveAuctionsPage() {
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600 text-sm">Саналчид:</span>
+                    <span className="text-gray-600 text-sm">Оролцож буй:</span>
                     <span className="text-blue-600 font-medium">
                       {auction.bidders} хүн
                     </span>
@@ -248,12 +249,11 @@ export default function LiveAuctionsPage() {
 
                 {/* Action Buttons */}
                 <div className="flex space-x-3">
-                  <Button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white">
-                    🎯 Санал өгөх
-                  </Button>
-                  <Button variant="outline" className="px-4 font-tt-firs-neue-variable font-medium text-base leading-6 text-gray-600 hover:bg-gray-50">
-                    👁️ Дэлгэрэнгүй
-                  </Button>
+                  <Link href={`/auction/${auction.id}`}>
+                    <Button variant="outline" className="px-4 font-tt-firs-neue-variable font-medium text-base leading-6 text-gray-600 hover:bg-gray-50">
+                      👁️ Дэлгэрэнгүй
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
