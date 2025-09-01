@@ -14,7 +14,6 @@ export default function BidDialog({
   isOpen, 
   onOpenChange, 
   auctionItem, 
-  isUserLoggedIn, 
   onBidConfirm 
 }) {
   const [bidAmount, setBidAmount] = useState('');

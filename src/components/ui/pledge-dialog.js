@@ -1,15 +1,12 @@
 "use client"
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 // Helper function to calculate pledge amount (10% of auction price)
@@ -25,7 +22,6 @@ export default function PledgeDialog({
   isOpen, 
   onOpenChange, 
   auctionItem, 
-  isUserLoggedIn, 
   onPledgeConfirm 
 }) {
   const handlePledgeConfirm = () => {
