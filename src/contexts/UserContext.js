@@ -63,7 +63,8 @@ export function UserProvider({ children }) {
     user,
     login,
     logout,
-    isLoading
+    isLoading,
+    isLoggedIn: !!user // Convert user to boolean - true if user exists, false if null
   }
 
   return (

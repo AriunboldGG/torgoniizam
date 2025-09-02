@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,6 +14,7 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useUser()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   async function onSubmit(event) {
     event.preventDefault()
@@ -24,8 +25,16 @@ export function LoginForm() {
       const result = login(email, password)
       
       if (result.success) {
-        // Redirect to my-account page
-        router.push("/my-account")
+        // Check if there's a redirect parameter
+        const redirectTo = searchParams.get('redirect')
+        
+        if (redirectTo) {
+          // Redirect to the specified page (e.g., auction page)
+          router.push(redirectTo)
+        } else {
+          // Default redirect to my-account page
+          router.push("/my-account")
+        }
       } else {
         setError(result.error)
       }

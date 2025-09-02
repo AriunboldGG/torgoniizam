@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,9 +8,127 @@ import Link from "next/link"
 import PledgeDialog from "@/components/ui/pledge-dialog"
 import BidDialog from "@/components/ui/bid-dialog"
 import ImageZoom from "@/components/ui/image-zoom"
+import { useUser } from "@/contexts/UserContext"
 
-// Mock user authentication - in real app this would come from context/state management
-const isUserLoggedIn = true; // Set to true to simulate logged-in user
+// Countdown Timer Component
+function CountdownTimer({ endTime, onEnd }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [isEnded, setIsEnded] = useState(false);
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date().getTime();
+      const end = new Date(endTime).getTime();
+      const difference = end - now;
+
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+        setTimeLeft({ days, hours, minutes, seconds });
+        setIsEnded(false);
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        setIsEnded(true);
+        if (onEnd) onEnd();
+      }
+    };
+
+    // Calculate immediately
+    calculateTimeLeft();
+
+    // Update every second
+    const timer = setInterval(calculateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, [endTime, onEnd]);
+
+  if (isEnded) {
+    return (
+      <div className="bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-bold">
+        Дууссан
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg text-sm font-bold">
+      {timeLeft.days}д {timeLeft.hours}ц {timeLeft.minutes}м {timeLeft.seconds}с
+    </div>
+  );
+}
+
+// Detailed Countdown Timer Component for main section
+function DetailedCountdownTimer({ endTime, onEnd }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [isEnded, setIsEnded] = useState(false);
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date().getTime();
+      const end = new Date(endTime).getTime();
+      const difference = end - now;
+
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+        setTimeLeft({ days, hours, minutes, seconds });
+        setIsEnded(false);
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        setIsEnded(true);
+        if (onEnd) onEnd();
+      }
+    };
+
+    // Calculate immediately
+    calculateTimeLeft();
+
+    // Update every second
+    const timer = setInterval(calculateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, [endTime, onEnd]);
+
+  if (isEnded) {
+    return (
+      <div className="text-center">
+        <div className="text-2xl font-bold text-red-600">ДУУССАН</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center space-x-4">
+      <div className="text-center">
+        <div className="text-2xl font-bold text-black">{timeLeft.days}</div>
+        <div className="text-sm text-gray-600">ӨДӨР</div>
+      </div>
+      <div className="text-2xl font-bold text-black">:</div>
+      <div className="text-center">
+        <div className="text-2xl font-bold text-black">{timeLeft.hours.toString().padStart(2, '0')}</div>
+        <div className="text-sm text-gray-600">ЦАГ</div>
+      </div>
+      <div className="text-2xl font-bold text-black">:</div>
+      <div className="text-center">
+        <div className="text-2xl font-bold text-black">{timeLeft.minutes.toString().padStart(2, '0')}</div>
+        <div className="text-sm text-gray-600">МИНУТ</div>
+      </div>
+      <div className="text-2xl font-bold text-black">:</div>
+      <div className="text-center">
+        <div className="text-2xl font-bold text-black">{timeLeft.seconds.toString().padStart(2, '0')}</div>
+        <div className="text-sm text-gray-600">СЕКУНД</div>
+      </div>
+    </div>
+  );
+}
+
+// Get real user authentication state from UserContext
 
 // Mock pledge status - in real app this would come from user's pledge data
 // const hasUserPledged = false; // Set to false to simulate user hasn't made pledge yet
@@ -19,6 +137,13 @@ const isUserLoggedIn = true; // Set to true to simulate logged-in user
 
 export default function AuctionItemPage({ params }) {
   const unwrappedParams = use(params);
+  const { user, isLoggedIn, isLoading } = useUser(); // Get real authentication state
+  
+  // Debug logging
+  console.log('Auction Page - User:', user);
+  console.log('Auction Page - isLoggedIn:', isLoggedIn);
+  console.log('Auction Page - isLoading:', isLoading);
+  
   const [selectedImage, setSelectedImage] = useState(0);
   const [showPledgeDialog, setShowPledgeDialog] = useState(false);
   const [showBidDialog, setShowBidDialog] = useState(false);
@@ -54,8 +179,9 @@ export default function AuctionItemPage({ params }) {
     setAuctionItem({ ...auctionItem });
   };
   
-  // Function to get auction data based on ID
-  const getAuctionData = (id) => {
+  // Function to get auction data based on ID - memoized to prevent regeneration
+  const auctionData = useMemo(() => {
+    const now = new Date();
     // Mock auction database - in real app this would come from API/database
     const auctionDatabase = {
       "1": {
@@ -65,7 +191,7 @@ export default function AuctionItemPage({ params }) {
         startingPrice: "53,400,000₮",
         lastPrice: "58,200,000₮",
         mainImage: "/images/pending1.png",
-        countdown: { days: 2, hours: 32, minutes: 58, seconds: 14 },
+        endTime: new Date(now.getTime() + (2 * 24 + 12) * 60 * 60 * 1000).toISOString(), // 2 days 12 hours from now
         description: "Хуучин артизаны гарт хийсэн, их гарт мөнгөн тоногтой эмээл. Нарийн хийцтэй, уран дархны урлагийн бүтээл.",
         specifications: [
           { label: "Материал", value: "Алт, мөнгө" },
@@ -95,7 +221,7 @@ export default function AuctionItemPage({ params }) {
         startingPrice: "480,000₮",
         lastPrice: "520,000₮",
         mainImage: "/images/pending2.png",
-        countdown: { days: 2, hours: 18, minutes: 52, seconds: 14 },
+        endTime: new Date(now.getTime() + (1 * 24 + 18) * 60 * 60 * 1000).toISOString(), // 1 day 18 hours from now
         description: "Самсунгийн хамгийн шинэ загвар, дээд зэргийн камертай, хурдтай процессортой ухаалаг утас.",
         specifications: [
           { label: "Загвар", value: "Galaxy S24" },
@@ -125,7 +251,7 @@ export default function AuctionItemPage({ params }) {
         startingPrice: "820,000₮",
         lastPrice: "890,000₮",
         mainImage: "/images/pending3.png",
-        countdown: { days: 0, hours: 4, minutes: 16, seconds: 2 },
+        endTime: new Date(now.getTime() + (4 * 60 + 16) * 60 * 1000).toISOString(), // 4 hours 16 minutes from now
         description: "Дамаскус гангаар хийсэн, хуучин артизаны гарт бүтсэн цэвэрхэн хутга. Уран дархны урлагийн бүтээл.",
         specifications: [
           { label: "Материал", value: "Дамаскус ган" },
@@ -155,7 +281,7 @@ export default function AuctionItemPage({ params }) {
         startingPrice: "1,280,000₮",
         lastPrice: "1,450,000₮",
         mainImage: "/images/pending4.png",
-        countdown: { days: 1, hours: 20, minutes: 49, seconds: 72 },
+        endTime: new Date(now.getTime() + (1 * 24 + 20) * 60 * 60 * 1000).toISOString(), // 1 day 20 hours from now
         description: "Apple M3 процессортой, хамгийн хүчирхэг MacBook Pro. График дизайн, видео засварт зориулсан.",
         specifications: [
           { label: "Загвар", value: "MacBook Pro M3" },
@@ -185,7 +311,7 @@ export default function AuctionItemPage({ params }) {
         startingPrice: "45,800,000₮",
         lastPrice: "48,200,000₮",
         mainImage: "/images/pending1.png",
-        countdown: { days: 3, hours: 15, minutes: 42, seconds: 30 },
+        endTime: new Date(now.getTime() + (3 * 24 + 15) * 60 * 60 * 1000).toISOString(), // 3 days 15 hours from now
         description: "Тойота Лэнд Крузер, Борлуулагчийн хамгийн сайн сонголт. Хүчирхэг, найдвартай, тохилог SUV.",
         specifications: [
           { label: "Үйлдвэрлэсэн он", value: "2024" },
@@ -214,14 +340,14 @@ export default function AuctionItemPage({ params }) {
     };
 
     // Return auction data or default data if not found
-    return auctionDatabase[id] || {
-      id: id,
+    return auctionDatabase[unwrappedParams.id] || {
+      id: unwrappedParams.id,
       category: "Автомашин",
       title: "TOYOTA LAND CRUISER 250",
       startingPrice: "48,200,000₮",
       lastPrice: "53,400,000₮",
       mainImage: "/images/end4.png",
-      countdown: { days: 12, hours: 4, minutes: 16, seconds: 2 },
+      endTime: new Date(now.getTime() + (12 * 24 + 4) * 60 * 60 * 1000).toISOString(), // 12 days 4 hours from now
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
       specifications: [
         { label: "Үйлдвэрлэсэн он", value: "2024" },
@@ -254,10 +380,10 @@ export default function AuctionItemPage({ params }) {
         { id: 1, email: "auction........@outlook.com", date: "2025.02.24", amount: "48,200,000₮" }
       ]
     };
-  };
+  }, [unwrappedParams.id]); // Include id in dependency array
 
   // Get auction data based on the ID from URL
-  const initialAuctionItem = getAuctionData(unwrappedParams.id);
+  const initialAuctionItem = auctionData;
   
   // Initialize auction item state
   useEffect(() => {
@@ -266,8 +392,16 @@ export default function AuctionItemPage({ params }) {
     }
   }, [auctionItem, initialAuctionItem]);
 
-  // Show loading if auction item is not loaded yet
-  if (!auctionItem) {
+  // Close dialogs if user is not logged in
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setShowPledgeDialog(false);
+      setShowBidDialog(false);
+    }
+  }, [isLoggedIn]);
+
+  // Show loading if auction item is not loaded yet or authentication is loading
+  if (!auctionItem || isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -327,8 +461,14 @@ export default function AuctionItemPage({ params }) {
                 </div>
                 
                 {/* Countdown Timer Overlay */}
-                <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg text-sm font-bold">
-                  {auctionItem.countdown.days}д {auctionItem.countdown.hours}ц {auctionItem.countdown.minutes}м {auctionItem.countdown.seconds}с
+                <div className="absolute bottom-4 left-4">
+                  <CountdownTimer 
+                    endTime={auctionItem.endTime} 
+                    onEnd={() => {
+                      console.log(`Auction ${auctionItem.id} has ended`);
+                      // You can add additional logic here when an auction ends
+                    }}
+                  />
                 </div>
               </div>
               
@@ -393,32 +533,20 @@ export default function AuctionItemPage({ params }) {
                      <span className="text-gray-700 font-medium">Дуудлага худалдаа дуусах хугацаа</span>
                    </div>
                    <div className="flex items-center space-x-4">
-                     <div className="text-center">
-                       <div className="text-2xl font-bold text-black">{auctionItem.countdown.days}</div>
-                       <div className="text-sm text-gray-600">ӨДӨР</div>
-                     </div>
-                     <div className="text-2xl font-bold text-black">:</div>
-                     <div className="text-center">
-                       <div className="text-2xl font-bold text-black">{auctionItem.countdown.hours}</div>
-                       <div className="text-sm text-gray-600">ЦАГ</div>
-                     </div>
-                     <div className="text-2xl font-bold text-black">:</div>
-                     <div className="text-center">
-                       <div className="text-2xl font-bold text-black">{auctionItem.countdown.minutes}</div>
-                       <div className="text-sm text-gray-600">МИНУТ</div>
-                     </div>
-                     <div className="text-2xl font-bold text-black">:</div>
-                     <div className="text-center">
-                       <div className="text-2xl font-bold text-black">{auctionItem.countdown.seconds}</div>
-                       <div className="text-sm text-gray-600">СЕКУНД</div>
-                     </div>
+                     <DetailedCountdownTimer 
+                       endTime={auctionItem.endTime} 
+                       onEnd={() => {
+                         console.log(`Auction ${auctionItem.id} has ended`);
+                         // You can add additional logic here when an auction ends
+                       }}
+                     />
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
                 <div className="space-y-4">
-                  {!isUserLoggedIn && (
+                  {!isLoggedIn && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
                       <div className="flex items-center space-x-3">
                         <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0">
@@ -436,7 +564,7 @@ export default function AuctionItemPage({ params }) {
                     </div>
                   )}
 
-                  {isUserLoggedIn && !hasUserPledged && (
+                  {isLoggedIn && !hasUserPledged && (
                     <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
                       <div className="flex items-center space-x-3">
                         <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
@@ -457,11 +585,11 @@ export default function AuctionItemPage({ params }) {
                                      <div className="grid grid-cols-2 gap-3">
                      <Button 
                        className={`py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-sm leading-6 tracking-[2.4%] uppercase ${
-                         isUserLoggedIn && hasUserPledged
+                         isLoggedIn && hasUserPledged
                            ? 'bg-[#FF4405] hover:bg-[#E63D04] text-white' 
                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                        }`}
-                       disabled={!isUserLoggedIn || !hasUserPledged}
+                       disabled={!isLoggedIn || !hasUserPledged}
                        onClick={() => setShowBidDialog(true)}
                      >
                        <Image src="/svg/bid.svg" alt="Bid" width={20} height={20} className="w-5 h-5 mr-3" />
@@ -471,21 +599,28 @@ export default function AuctionItemPage({ params }) {
                                                               <Button 
                        variant="outline" 
                        className={`py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-sm leading-6 tracking-[2.4%] uppercase ${
-                         isUserLoggedIn 
+                         isLoggedIn 
                            ? 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200' 
-                           : 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed'
+                           : 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
                        }`}
-                       disabled={!isUserLoggedIn}
-                       onClick={() => setShowPledgeDialog(true)}
+                       disabled={!isLoggedIn}
+                       onClick={() => {
+                         if (isLoggedIn) {
+                           setShowPledgeDialog(true);
+                         } else {
+                           // Prevent dialog from opening for non-logged users
+                           setShowPledgeDialog(false);
+                         }
+                       }}
                      >
-                  ДЭНЧИН БАЙРШУУЛАХ
+                  {!isLoggedIn ? 'НЭВТРЭХ ШААРДЛАГАТАЙ' : 'ДЭНЧИН БАЙРШУУЛАХ'}
                 </Button>
                      
                                            <PledgeDialog
-                        isOpen={showPledgeDialog}
+                        isOpen={showPledgeDialog && isLoggedIn}
                         onOpenChange={setShowPledgeDialog}
                         auctionItem={auctionItem}
-                        isUserLoggedIn={isUserLoggedIn}
+                        isLoggedIn={isLoggedIn}
                         onPledgeConfirm={handlePledgeConfirm}
                       />
                       
@@ -493,20 +628,20 @@ export default function AuctionItemPage({ params }) {
                         isOpen={showBidDialog}
                         onOpenChange={setShowBidDialog}
                         auctionItem={auctionItem}
-                        isUserLoggedIn={isUserLoggedIn}
+                        isLoggedIn={isLoggedIn}
                         onBidConfirm={handleBidConfirm}
                       />
               </div>
 
-                  {!isUserLoggedIn && (
+                  {!isLoggedIn && (
                     <div className="text-center">
-                      <Link href="/auth/login" className="text-[#FF4405] hover:text-[#E63D04] font-medium text-sm underline">
+                      <Link href={`/auth/login?redirect=${encodeURIComponent(`/auction/${unwrappedParams.id}`)}`} className="text-[#FF4405] hover:text-[#E63D04] font-medium text-sm underline">
                         Нэвтрэх эсвэл бүртгүүлэх
                       </Link>
                     </div>
                   )}
 
-                                                          {isUserLoggedIn && !hasUserPledged && (
+                                                          {isLoggedIn && !hasUserPledged && (
                        <div className="text-center">
                          <p className="text-gray-600 text-sm mb-2">
                            Дэнчин: {auctionItem.startingPrice} × 10% = {(parseInt(auctionItem.startingPrice.replace(/[^\d]/g, '')) * 0.1).toLocaleString() + '₮'}

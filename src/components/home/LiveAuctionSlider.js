@@ -2,9 +2,63 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+
+// Countdown Timer Component
+function CountdownTimer({ endTime, onEnd }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [isEnded, setIsEnded] = useState(false);
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date().getTime();
+      const end = new Date(endTime).getTime();
+      const difference = end - now;
+
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+        setTimeLeft({ days, hours, minutes, seconds });
+        setIsEnded(false);
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        setIsEnded(true);
+        if (onEnd) onEnd();
+      }
+    };
+
+    // Calculate immediately
+    calculateTimeLeft();
+
+    // Update every second
+    const timer = setInterval(calculateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, [endTime, onEnd]);
+
+  if (isEnded) {
+    return (
+      <div className="absolute bottom-2 left-2 bg-red-600 text-white px-3 py-1 rounded-lg">
+        <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm font-bold">
+          Дууссан
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg">
+      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm font-bold">
+        {timeLeft.days} : {timeLeft.hours.toString().padStart(2, '0')} : {timeLeft.minutes.toString().padStart(2, '0')} : {timeLeft.seconds.toString().padStart(2, '0')}
+      </span>
+    </div>
+  );
+}
 
 export default function LiveAuctionSlider() {
   const scrollContainerRef = useRef(null);
@@ -39,98 +93,102 @@ export default function LiveAuctionSlider() {
     }
   }, []);
 
-  const liveAuctions = [
-    {
-      id: 1,
-      image: "/images/live1.png",
-      category: "Автомашин",
-      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-      lastPrice: "53,400,000₮",
-      timer: "2 : 32 : 58 : 14",
-      buttonColor: "bg-black"
-    },
-    {
-      id: 2,
-      image: "/images/live2.png",
-      category: "Цахилгаан бараа",
-      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-      lastPrice: "480,000₮",
-      timer: "2 : 18 : 52 : 14",
-      buttonColor: "bg-black"
-    },
-    {
-      id: 3,
-      image: "/images/live3.png",
-      category: "Компьютер",
-      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-      lastPrice: "820,000₮",
-      timer: "0 : 04 : 16 : 02",
-      buttonColor: "bg-black"
-    },
-    {
-      id: 4,
-      image: "/images/live4.png",
-      category: "Үнэт эдлэл",
-      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-      lastPrice: "1,280,000₮",
-      timer: "1 : 20 : 49 : 72",
-      buttonColor: "bg-black"
-    },
-    {
-      id: 5,
-      image: "/images/live1.png",
-      category: "Автомашин",
-      title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
-      lastPrice: "45,800,000₮",
-      timer: "3 : 15 : 42 : 30",
-      buttonColor: "bg-black"
-    },
-    {
-      id: 6,
-      image: "/images/live2.png",
-      category: "Цахилгаан бараа",
-      title: "САМСУНГ ГАЛАКСИ S24 - ХАМГИЙН ШИНЭ МОДЕЛЬ",
-      lastPrice: "2,450,000₮",
-      timer: "1 : 45 : 23 : 18",
-      buttonColor: "bg-black"
-    },
-    {
-      id: 7,
-      image: "/images/live3.png",
-      category: "Компьютер",
-      title: "ЭППЛ МАКБУК ПРО M3 - ХҮЧИРХЭГ ПРОЦЕССОРТОЙ",
-      lastPrice: "3,680,000₮",
-      timer: "0 : 52 : 18 : 45",
-      buttonColor: "bg-black"
-    },
-    {
-      id: 8,
-      image: "/images/live4.png",
-      category: "Үнэт эдлэл",
-      title: "ДАМАСКУС ГАН - ХУУЧИН АРТИЗАНЫ ГАРТ ХИЙСЭН",
-      lastPrice: "890,000₮",
-      timer: "4 : 12 : 35 : 22",
-      buttonColor: "bg-black"
-    },
-    {
-      id: 9,
-      image: "/images/live1.png",
-      category: "Автомашин",
-      title: "ХОНДА ЦИВИК - ЭДИЙН ЗАСГИЙН ХЭМНЭЛТТЭЙ",
-      lastPrice: "28,900,000₮",
-      timer: "2 : 08 : 15 : 40",
-      buttonColor: "bg-black"
-    },
-    {
-      id: 10,
-      image: "/images/live2.png",
-      category: "Цахилгаан бараа",
-      title: "СОНИ ПЛЕЙСТЕЙШН 5 - ГЭМТЭЛГҮЙ БАЙГУУЛЛАГА",
-      lastPrice: "1,750,000₮",
-      timer: "0 : 38 : 52 : 15",
-      buttonColor: "bg-black"
-    }
-  ];
+  // Generate auction data with real end times - memoized to prevent regeneration
+  const liveAuctions = useMemo(() => {
+    const now = new Date();
+    const baseAuctions = [
+      {
+        id: 1,
+        image: "/images/live1.png",
+        category: "Автомашин",
+        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
+        lastPrice: "53,400,000₮",
+        buttonColor: "bg-black"
+      },
+      {
+        id: 2,
+        image: "/images/live2.png",
+        category: "Цахилгаан бараа",
+        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
+        lastPrice: "480,000₮",
+        buttonColor: "bg-black"
+      },
+      {
+        id: 3,
+        image: "/images/live3.png",
+        category: "Компьютер",
+        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
+        lastPrice: "820,000₮",
+        buttonColor: "bg-black"
+      },
+      {
+        id: 4,
+        image: "/images/live4.png",
+        category: "Үнэт эдлэл",
+        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
+        lastPrice: "1,280,000₮",
+        buttonColor: "bg-black"
+      },
+      {
+        id: 5,
+        image: "/images/live1.png",
+        category: "Автомашин",
+        title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
+        lastPrice: "45,800,000₮",
+        buttonColor: "bg-black"
+      },
+      {
+        id: 6,
+        image: "/images/live2.png",
+        category: "Цахилгаан бараа",
+        title: "САМСУНГ ГАЛАКСИ S24 - ХАМГИЙН ШИНЭ МОДЕЛЬ",
+        lastPrice: "2,450,000₮",
+        buttonColor: "bg-black"
+      },
+      {
+        id: 7,
+        image: "/images/live3.png",
+        category: "Компьютер",
+        title: "ЭППЛ МАКБУК ПРО M3 - ХҮЧИРХЭГ ПРОЦЕССОРТОЙ",
+        lastPrice: "3,680,000₮",
+        buttonColor: "bg-black"
+      },
+      {
+        id: 8,
+        image: "/images/live4.png",
+        category: "Үнэт эдлэл",
+        title: "ДАМАСКУС ГАН - ХУУЧИН АРТИЗАНЫ ГАРТ ХИЙСЭН",
+        lastPrice: "890,000₮",
+        buttonColor: "bg-black"
+      },
+      {
+        id: 9,
+        image: "/images/live1.png",
+        category: "Автомашин",
+        title: "ХОНДА ЦИВИК - ЭДИЙН ЗАСГИЙН ХЭМНЭЛТТЭЙ",
+        lastPrice: "28,900,000₮",
+        buttonColor: "bg-black"
+      },
+      {
+        id: 10,
+        image: "/images/live2.png",
+        category: "Цахилгаан бараа",
+        title: "СОНИ ПЛЕЙСТЕЙШН 5 - ГЭМТЭЛГҮЙ БАЙГУУЛЛАГА",
+        lastPrice: "1,750,000₮",
+        buttonColor: "bg-black"
+      }
+    ];
+
+    // Add end times (varying from 1 hour to 2+ days from now for better visibility)
+    return baseAuctions.map((auction, index) => {
+      const endTime = new Date(now.getTime() + (60 + index * 30) * 60 * 1000); // 1 hour to 5+ hours
+      console.log(`Auction ${auction.id} ends at:`, endTime.toLocaleString());
+      return {
+        ...auction,
+        endTime: endTime.toISOString()
+      };
+    });
+  }, []); // Empty dependency array means this only runs once
 
   return (
     <section className="py-16 bg-gray-50">
@@ -191,9 +249,13 @@ export default function LiveAuctionSlider() {
                       className="w-full h-48 object-cover"
                     />
                     {/* Timer Overlay */}
-                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg">
-                      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm font-bold">{auction.timer}</span>
-                    </div>
+                    <CountdownTimer 
+                      endTime={auction.endTime} 
+                      onEnd={() => {
+                        console.log(`Auction ${auction.id} has ended`);
+                        // You can add additional logic here when an auction ends
+                      }}
+                    />
                   </div>
 
                   {/* Product Info */}
