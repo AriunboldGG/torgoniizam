@@ -63,7 +63,8 @@ export default function PledgeDialog({
       if (onPledgeConfirm) {
         onPledgeConfirm(calculatePledgeAmount(auctionItem.startingPrice));
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Pledge error:", error);
       setError("Дэнчин байршуулахад алдаа гарлаа. Дахин оролдоно уу.");
     } finally {
       setIsProcessing(false);

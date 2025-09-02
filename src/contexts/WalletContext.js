@@ -6,7 +6,6 @@ const WalletContext = createContext()
 
 export function WalletProvider({ children }) {
   const [walletBalance, setWalletBalance] = useState(840000) // Default balance
-  const [isLoading, setIsLoading] = useState(false)
 
   // Load wallet balance from localStorage or API
   useEffect(() => {
@@ -63,8 +62,7 @@ export function WalletProvider({ children }) {
     updateBalance,
     deductAmount,
     addAmount,
-    resetToDefault,
-    isLoading
+    resetToDefault
   }
 
   return (
