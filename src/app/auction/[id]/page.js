@@ -557,7 +557,7 @@ export default function AuctionItemPage({ params }) {
 
                {/* Countdown Timer Component */}
                <div className="bg-gray-50 p-4 xs-mobile:p-6 rounded-2xl border border-gray-200">
-                 <div className="flex flex-col xs-mobile:flex-row items-center justify-between space-y-3 xs-mobile:space-y-0">
+                 <div className="flex flex-col items-center space-y-4">
                    <div className="flex items-center space-x-2 xs-mobile:space-x-3">
                      <Image src="/svg/live-time.svg" alt="Timer" width={20} height={20} className="w-5 h-5 xs-mobile:w-6 xs-mobile:h-6" />
                      <span className="text-gray-700 font-medium text-sm xs-mobile:text-base">Дуудлага худалдаа дуусах хугацаа</span>
@@ -630,7 +630,7 @@ export default function AuctionItemPage({ params }) {
                     </div>
                   )}
                   
-                                     <div className="grid grid-cols-2 gap-2 xs-mobile:gap-3">
+                                     <div className="flex flex-col gap-3">
                      <Button 
                        className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${
                          isLoggedIn && hasUserPledged
