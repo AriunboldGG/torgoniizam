@@ -13,23 +13,13 @@ export default function About() {
           >
             ТАНИЛЦУУЛГА
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-          Монголын хамгийн анхны дуудлага худалдааны torgoniizam.mn-д тавтай морилно уу. Манай цахим хуудас нь зээлийн барьцаанд хураагдсан эд зүйлсийг онлайн дуудлага худалдааны хэлбэрээр борлуулдаг юм . 
+          <span className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+          Монголын хамгийн анхны дуудлага худалдааны torgoniizam.mn-д тавтай морилно уу. <br></br>Манай цахим хуудас нь зээлийн барьцаанд хураагдсан эд зүйлсийг онлайн дуудлага худалдааны хэлбэрээр борлуулдаг юм . 
 torgoniizam.mn сайтын тусламжтайгаар та хүссэн бараа бүтээгдэхүүнээ хоёрдогч зах зээлд ченжийн гар дамжилгүйгээр худалдаж авахаас гадна, зах зээлийн бодит үнээр эсвэл түүнээс ч бага үнээр ялагч болж авах боломжтой.
-Баярлалаа, таныг хүндэтгэсэн Монголын анхны онлайн нээлттэй дуудлага худалдааны сайт torgoniizam.mn
+<br></br>Баярлалаа, таныг хүндэтгэсэн Монголын анхны онлайн нээлттэй дуудлага худалдааны сайт torgoniizam.mn
 
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Badge variant="secondary" className="px-4 py-2 text-lg">
-              🏆 Монголын #1
-            </Badge>
-            <Badge variant="outline" className="px-4 py-2 text-lg">
-              🔒 100% Аюулгүй
-            </Badge>
-            <Badge variant="outline" className="px-4 py-2 text-lg">
-              ⚡ Шуурхай үйлчилгээ
-            </Badge>
-          </div>
+          </span>
+          
         </div>
       </section>
 

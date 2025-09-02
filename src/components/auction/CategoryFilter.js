@@ -391,7 +391,7 @@ export default function CategoryFilter() {
           count: 25
         },
         {
-          name: "Гишүүн",
+          name: "Мөнгө",
           icon: "💍",
           count: 12
         },

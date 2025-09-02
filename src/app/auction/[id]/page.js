@@ -64,7 +64,7 @@ function CountdownTimer({ endTime, onEnd }) {
   }
 
   return (
-    <div className="bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg text-sm font-bold">
+    <div className="bg-black bg-opacity-70 text-white px-2 xs-mobile:px-3 py-1 rounded-lg text-xs xs-mobile:text-sm font-bold">
       {timeLeft.days}д {timeLeft.hours}ц {timeLeft.minutes}м {timeLeft.seconds}с
     </div>
   );
@@ -127,25 +127,25 @@ function DetailedCountdownTimer({ endTime, onEnd }) {
   }
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center justify-center space-x-1 xs-mobile:space-x-2 sm:space-x-3 lg:space-x-4">
       <div className="text-center">
-        <div className="text-2xl font-bold text-black">{timeLeft.days}</div>
-        <div className="text-sm text-gray-600">ӨДӨР</div>
+        <div className="text-lg xs-mobile:text-xl sm:text-2xl font-bold text-black">{timeLeft.days}</div>
+        <div className="text-xs xs-mobile:text-sm text-gray-600">ӨДӨР</div>
       </div>
-      <div className="text-2xl font-bold text-black">:</div>
+      <div className="text-lg xs-mobile:text-xl sm:text-2xl font-bold text-black">:</div>
       <div className="text-center">
-        <div className="text-2xl font-bold text-black">{timeLeft.hours.toString().padStart(2, '0')}</div>
-        <div className="text-sm text-gray-600">ЦАГ</div>
+        <div className="text-lg xs-mobile:text-xl sm:text-2xl font-bold text-black">{timeLeft.hours.toString().padStart(2, '0')}</div>
+        <div className="text-xs xs-mobile:text-sm text-gray-600">ЦАГ</div>
       </div>
-      <div className="text-2xl font-bold text-black">:</div>
+      <div className="text-lg xs-mobile:text-xl sm:text-2xl font-bold text-black">:</div>
       <div className="text-center">
-        <div className="text-2xl font-bold text-black">{timeLeft.minutes.toString().padStart(2, '0')}</div>
-        <div className="text-sm text-gray-600">МИНУТ</div>
+        <div className="text-lg xs-mobile:text-xl sm:text-2xl font-bold text-black">{timeLeft.minutes.toString().padStart(2, '0')}</div>
+        <div className="text-xs xs-mobile:text-sm text-gray-600">МИНУТ</div>
       </div>
-      <div className="text-2xl font-bold text-black">:</div>
+      <div className="text-lg xs-mobile:text-xl sm:text-2xl font-bold text-black">:</div>
       <div className="text-center">
-        <div className="text-2xl font-bold text-black">{timeLeft.seconds.toString().padStart(2, '0')}</div>
-        <div className="text-sm text-gray-600">СЕКУНД</div>
+        <div className="text-lg xs-mobile:text-xl sm:text-2xl font-bold text-black">{timeLeft.seconds.toString().padStart(2, '0')}</div>
+        <div className="text-xs xs-mobile:text-sm text-gray-600">СЕКУНД</div>
       </div>
     </div>
   );
@@ -556,13 +556,13 @@ export default function AuctionItemPage({ params }) {
                </div>
 
                {/* Countdown Timer Component */}
-               <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200">
-                 <div className="flex items-center justify-between">
-                   <div className="flex items-center space-x-3">
-                     <Image src="/svg/live-time.svg" alt="Timer" width={24} height={24} className="w-6 h-6" />
-                     <span className="text-gray-700 font-medium">Дуудлага худалдаа дуусах хугацаа</span>
+               <div className="bg-gray-50 p-4 xs-mobile:p-6 rounded-2xl border border-gray-200">
+                 <div className="flex flex-col xs-mobile:flex-row items-center justify-between space-y-3 xs-mobile:space-y-0">
+                   <div className="flex items-center space-x-2 xs-mobile:space-x-3">
+                     <Image src="/svg/live-time.svg" alt="Timer" width={20} height={20} className="w-5 h-5 xs-mobile:w-6 xs-mobile:h-6" />
+                     <span className="text-gray-700 font-medium text-sm xs-mobile:text-base">Дуудлага худалдаа дуусах хугацаа</span>
                    </div>
-                   <div className="flex items-center space-x-4">
+                   <div className="flex items-center justify-center">
                      <DetailedCountdownTimer 
                        endTime={auctionItem.endTime} 
                        onEnd={() => {
@@ -630,9 +630,9 @@ export default function AuctionItemPage({ params }) {
                     </div>
                   )}
                   
-                                     <div className="grid grid-cols-2 gap-3">
+                                     <div className="grid grid-cols-2 gap-2 xs-mobile:gap-3">
                      <Button 
-                       className={`py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-sm leading-6 tracking-[2.4%] uppercase ${
+                       className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${
                          isLoggedIn && hasUserPledged
                            ? 'bg-[#FF4405] hover:bg-[#E63D04] text-white' 
                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -640,13 +640,14 @@ export default function AuctionItemPage({ params }) {
                        disabled={!isLoggedIn || !hasUserPledged}
                        onClick={() => setShowBidDialog(true)}
                      >
-                       <Image src="/svg/bid.svg" alt="Bid" width={20} height={20} className="w-5 h-5 mr-3" />
-                  ҮНИЙН САНАЛ ИЛГЭЭХ
+                       <Image src="/svg/bid.svg" alt="Bid" width={16} height={16} className="hidden xs-mobile:block w-4 h-4 xs-mobile:w-5 xs-mobile:h-5 mr-2 xs-mobile:mr-3" />
+                       <span className="hidden xs-mobile:inline">ҮНИЙН САНАЛ ИЛГЭЭХ</span>
+                       <span className="xs-mobile:hidden">ҮНИЙН САНАЛ</span>
                 </Button>
                     
                                                               <Button 
                        variant="outline" 
-                       className={`py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-sm leading-6 tracking-[2.4%] uppercase ${
+                       className={`py-3 xs-mobile:py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${
                          !isLoggedIn 
                            ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
                            : hasUserPledged
@@ -664,10 +665,25 @@ export default function AuctionItemPage({ params }) {
                        }}
                      >
                   {!isLoggedIn 
-                    ? 'НЭВТРЭХ ШААРДЛАГАТАЙ' 
+                    ? (
+                      <>
+                        <span className="hidden xs-mobile:inline">НЭВТРЭХ ШААРДЛАГАТАЙ</span>
+                        <span className="xs-mobile:hidden">НЭВТРЭХ</span>
+                      </>
+                    )
                     : hasUserPledged 
-                      ? 'ДЭНЧИН БАЙРШУУЛСАН' 
-                      : 'ДЭНЧИН БАЙРШУУЛАХ'
+                      ? (
+                        <>
+                          <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛСАН</span>
+                          <span className="xs-mobile:hidden">БАЙРШУУЛСАН</span>
+                        </>
+                      )
+                      : (
+                        <>
+                          <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛАХ</span>
+                          <span className="xs-mobile:hidden">БАЙРШУУЛАХ</span>
+                        </>
+                      )
                   }
                 </Button>
                      

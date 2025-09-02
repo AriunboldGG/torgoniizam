@@ -41,8 +41,8 @@ function CountdownTimer({ endTime }) {
   }
 
   return (
-    <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg">
-      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm font-bold">
+    <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-2 xs-mobile:px-3 py-1 rounded-lg">
+      <span className="text-xs xs-mobile:text-sm font-bold">
         {timeLeft.days} : {timeLeft.hours.toString().padStart(2, '0')} : {timeLeft.minutes.toString().padStart(2, '0')} : {timeLeft.seconds.toString().padStart(2, '0')}
       </span>
     </div>
@@ -198,10 +198,10 @@ export default function PendingAuctionSection() {
           <Link href="/auctions/pending" target="_blank" rel="noopener noreferrer">
             <Button 
               variant="outline"
-              className="bg-white text-gray-600 hover:bg-gray-50 px-6 py-3 rounded-lg border border-gray-200 font-tt-firs-neue-variable font-medium text-base leading-6"
+              className="bg-white text-gray-600 hover:bg-gray-50 px-3 xs-mobile:px-6 py-2 xs-mobile:py-3 rounded-lg border border-gray-200 font-tt-firs-neue-variable font-medium text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6"
             >
-              <Image src="/svg/see-all.svg" alt="See All" width={16} height={16} className="w-4 h-4 mr-2" />
-              <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
+              <Image src="/svg/see-all.svg" alt="See All" width={14} height={14} className="w-3 h-3 xs-mobile:w-4 xs-mobile:h-4 mr-1 xs-mobile:mr-2" />
+              <span className="text-xs xs-mobile:text-sm">
                 Бүгдийг үзэх
               </span>
             </Button>
@@ -238,8 +238,8 @@ export default function PendingAuctionSection() {
                       className="w-full h-48 object-cover"
                     />
                     {/* Status Badge */}
-                    <div className="absolute top-2 right-2 bg-orange-500 text-white px-3 py-1 rounded-lg">
-                      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm font-bold">{auction.status}</span>
+                    <div className="absolute top-2 right-2 bg-orange-500 text-white px-2 xs-mobile:px-3 py-1 rounded-lg">
+                      <span className="text-xs xs-mobile:text-sm font-bold">{auction.status}</span>
                     </div>
                     {/* Timer Overlay */}
                     <CountdownTimer endTime={auction.endTime} />
