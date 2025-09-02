@@ -9,6 +9,7 @@ import PledgeDialog from "@/components/ui/pledge-dialog"
 import BidDialog from "@/components/ui/bid-dialog"
 import ImageZoom from "@/components/ui/image-zoom"
 import { useUser } from "@/contexts/UserContext"
+import { useSearchParams } from "next/navigation"
 
 // Countdown Timer Component
 function CountdownTimer({ endTime, onEnd }) {
@@ -160,16 +161,23 @@ function DetailedCountdownTimer({ endTime, onEnd }) {
 export default function AuctionItemPage({ params }) {
   const unwrappedParams = use(params);
   const { user, isLoggedIn, isLoading } = useUser(); // Get real authentication state
+  const searchParams = useSearchParams();
+  
+  // Check if user came from auction history (has existing pledge)
+  const hasExistingPledge = searchParams.get('hasPledge') === 'true';
+  const fromHistory = searchParams.get('from') === 'history';
   
   // Debug logging
   console.log('Auction Page - User:', user);
   console.log('Auction Page - isLoggedIn:', isLoggedIn);
   console.log('Auction Page - isLoading:', isLoading);
+  console.log('Auction Page - hasExistingPledge:', hasExistingPledge);
+  console.log('Auction Page - fromHistory:', fromHistory);
   
   const [selectedImage, setSelectedImage] = useState(0);
   const [showPledgeDialog, setShowPledgeDialog] = useState(false);
   const [showBidDialog, setShowBidDialog] = useState(false);
-  const [hasUserPledged, setHasUserPledged] = useState(false); // State to track pledge status
+  const [hasUserPledged, setHasUserPledged] = useState(hasExistingPledge); // Initialize with existing pledge status
   const [auctionItem, setAuctionItem] = useState(null); // State to track auction item
   const [showImageZoom, setShowImageZoom] = useState(false); // State to control image zoom modal
   
@@ -603,6 +611,24 @@ export default function AuctionItemPage({ params }) {
                       </div>
                     </div>
                   )}
+
+                  {isLoggedIn && hasUserPledged && fromHistory && (
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-green-800 text-sm font-bold">✓</span>
+                        </div>
+                        <div>
+                          <p className="text-green-800 font-medium text-sm">
+                            Дэнчин байршуулсан байна
+                          </p>
+                          <p className="text-green-700 text-xs mt-1">
+                            Та энэ дуудлага худалдаанд дэнчин байршуулсан тул шууд үнийн санал илгээх боломжтой
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
                                      <div className="grid grid-cols-2 gap-3">
                      <Button 
@@ -621,21 +647,28 @@ export default function AuctionItemPage({ params }) {
                                                               <Button 
                        variant="outline" 
                        className={`py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-sm leading-6 tracking-[2.4%] uppercase ${
-                         isLoggedIn 
-                           ? 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200' 
-                           : 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                         !isLoggedIn 
+                           ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                           : hasUserPledged
+                             ? 'bg-green-100 text-green-700 border-green-300 cursor-not-allowed opacity-80'
+                             : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'
                        }`}
-                       disabled={!isLoggedIn}
+                       disabled={!isLoggedIn || hasUserPledged}
                        onClick={() => {
-                         if (isLoggedIn) {
+                         if (isLoggedIn && !hasUserPledged) {
                            setShowPledgeDialog(true);
                          } else {
-                           // Prevent dialog from opening for non-logged users
+                           // Prevent dialog from opening for non-logged users or users with existing pledge
                            setShowPledgeDialog(false);
                          }
                        }}
                      >
-                  {!isLoggedIn ? 'НЭВТРЭХ ШААРДЛАГАТАЙ' : 'ДЭНЧИН БАЙРШУУЛАХ'}
+                  {!isLoggedIn 
+                    ? 'НЭВТРЭХ ШААРДЛАГАТАЙ' 
+                    : hasUserPledged 
+                      ? 'ДЭНЧИН БАЙРШУУЛСАН' 
+                      : 'ДЭНЧИН БАЙРШУУЛАХ'
+                  }
                 </Button>
                      
                                            <PledgeDialog
