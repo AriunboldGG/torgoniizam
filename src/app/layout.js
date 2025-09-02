@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/scroll-to-top";
 import { UserProvider } from "@/contexts/UserContext";
+import { WalletProvider } from "@/contexts/WalletContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,12 +28,14 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>
-          <Header />
-          <main>
-            {children}
-          </main>
-          <Footer />
-          <ScrollToTop />
+          <WalletProvider>
+            <Header />
+            <main>
+              {children}
+            </main>
+            <Footer />
+            <ScrollToTop />
+          </WalletProvider>
         </UserProvider>
       </body>
     </html>

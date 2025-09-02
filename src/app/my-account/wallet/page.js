@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { useWallet } from "@/contexts/WalletContext"
 import {
   Dialog,
   DialogClose,
@@ -18,6 +19,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function WalletPage() {
+  const { walletBalance, updateBalance, resetToDefault } = useWallet() // Get dynamic wallet balance
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isWithdrawDialogOpen, setIsWithdrawDialogOpen] = useState(false)
   const [isRechargeDialogOpen, setIsRechargeDialogOpen] = useState(false)
@@ -113,8 +115,17 @@ export default function WalletPage() {
       return
     }
     
+    if (amount > walletBalance) {
+      alert(`Хэтэвчний үлдэгдэл хүрэлцэхгүй байна. Таны үлдэгдэл: ${walletBalance.toLocaleString()}₮`)
+      return
+    }
+    
+    // Update wallet balance
+    const newBalance = walletBalance - amount
+    updateBalance(newBalance)
+    
     // Here you would typically make an API call to process withdrawal
-    console.log("Processing withdrawal:", { account: selectedAccount, amount })
+    console.log("Processing withdrawal:", { account: selectedAccount, amount, newBalance })
     alert("Таталт амжилттай хийгдлээ!")
     setIsWithdrawDialogOpen(false)
     setSelectedAccount("")
@@ -190,10 +201,20 @@ export default function WalletPage() {
             <p className="text-base lg:text-lg mb-4">Хэтэвчний үлдэгдэл</p>
             
             {/* Current Balance */}
-            <div className="text-3xl lg:text-5xl font-bold mb-6 lg:mb-8">840,000₮</div>
+            <div className="text-3xl lg:text-5xl font-bold mb-6 lg:mb-8">{walletBalance.toLocaleString()}₮</div>
             
             {/* Action Buttons */}
             <div className="flex flex-col gap-3 lg:gap-4 justify-center">
+              {/* Temporary Reset Button - Remove this after testing */}
+              <Button 
+                onClick={() => {
+                  resetToDefault();
+                  alert("Шинэчлэх 840,000₮");
+                }}
+                className="bg-green-600 hover:bg-green-700 text-white font-tt-firs-neue-variable font-medium text-sm"
+              >
+                🔄 Шинэчлэх 840,000₮ (Тест)
+              </Button>
                              <Dialog open={isRechargeDialogOpen} onOpenChange={setIsRechargeDialogOpen}>
                  <DialogTrigger asChild>
                    <button className="bg-gray-800 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
@@ -317,7 +338,7 @@ export default function WalletPage() {
                      {/* Wallet Balance */}
                      <div className="bg-gray-50 rounded-lg p-3 xs-mobile:p-4">
                        <Label className="text-sm font-medium text-gray-700 mb-2 block">Хэтэвчний үлдэгдэл</Label>
-                       <div className="text-3xl font-bold text-orange-500">840,000₮</div>
+                       <div className="text-3xl font-bold text-orange-500">{walletBalance.toLocaleString()}₮</div>
                      </div>
                      
                      {/* Account Selection */}

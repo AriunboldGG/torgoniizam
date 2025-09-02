@@ -14,6 +14,7 @@ import { useUser } from "@/contexts/UserContext"
 function CountdownTimer({ endTime, onEnd }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isEnded, setIsEnded] = useState(false);
+  const [showTimer, setShowTimer] = useState(true);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -29,6 +30,9 @@ function CountdownTimer({ endTime, onEnd }) {
 
         setTimeLeft({ days, hours, minutes, seconds });
         setIsEnded(false);
+        
+        // Hide timer if more than 3 days remaining
+        setShowTimer(days < 3);
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         setIsEnded(true);
@@ -53,6 +57,11 @@ function CountdownTimer({ endTime, onEnd }) {
     );
   }
 
+  // Don't show timer if more than 3 days remaining
+  if (!showTimer) {
+    return null;
+  }
+
   return (
     <div className="bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg text-sm font-bold">
       {timeLeft.days}д {timeLeft.hours}ц {timeLeft.minutes}м {timeLeft.seconds}с
@@ -64,6 +73,7 @@ function CountdownTimer({ endTime, onEnd }) {
 function DetailedCountdownTimer({ endTime, onEnd }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isEnded, setIsEnded] = useState(false);
+  const [showTimer, setShowTimer] = useState(true);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -79,6 +89,9 @@ function DetailedCountdownTimer({ endTime, onEnd }) {
 
         setTimeLeft({ days, hours, minutes, seconds });
         setIsEnded(false);
+        
+        // Hide timer if more than 3 days remaining
+        setShowTimer(days < 3);
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         setIsEnded(true);
@@ -99,6 +112,15 @@ function DetailedCountdownTimer({ endTime, onEnd }) {
     return (
       <div className="text-center">
         <div className="text-2xl font-bold text-red-600">ДУУССАН</div>
+      </div>
+    );
+  }
+
+  // Don't show timer if more than 3 days remaining
+  if (!showTimer) {
+    return (
+      <div className="text-center">
+        <div className="text-gray-600 text-lg">Дуудлага худалдаа эхлэхэд 3 хоногоос илүү үлдсэн байна</div>
       </div>
     );
   }

@@ -76,11 +76,7 @@ export default function PendingAuctionPage({ params }) {
                 ХҮЛЭЭГДЭЖ БУЙ ДУУДЛАГА ХУДАЛДАА
               </h1>
             </div>
-            <Link href="/auctions/pending">
-              <Button variant="outline" className="font-tt-firs-neue-variable font-medium">
-                ← Буцах
-              </Button>
-            </Link>
+           
           </div>
         </div>
       </div>

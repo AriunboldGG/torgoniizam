@@ -34,23 +34,41 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
     // Check if user is logged in from localStorage
-    const savedUser = localStorage.getItem("user")
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
+    try {
+      const savedUser = localStorage.getItem("user")
+      console.log("UserContext: Loading user from localStorage:", savedUser)
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser)
+        console.log("UserContext: Setting user:", parsedUser)
+        setUser(parsedUser)
+      } else {
+        console.log("UserContext: No saved user found")
+      }
+    } catch (error) {
+      console.error("Error loading user from localStorage:", error)
+      // Clear invalid data
+      localStorage.removeItem("user")
+    } finally {
+      console.log("UserContext: Setting isLoading to false")
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }, [])
 
   const login = (email, password) => {
-    // Mock authentication - check against all mock users
-    const foundUser = mockUsers.find(u => u.email === email && u.password === password)
-    
-    if (foundUser) {
-      setUser(foundUser)
-      localStorage.setItem("user", JSON.stringify(foundUser))
-      return { success: true, user: foundUser }
-    } else {
-      return { success: false, error: "Имэйл эсвэл нууц үг буруу байна" }
+    try {
+      // Mock authentication - check against all mock users
+      const foundUser = mockUsers.find(u => u.email === email && u.password === password)
+      
+      if (foundUser) {
+        setUser(foundUser)
+        localStorage.setItem("user", JSON.stringify(foundUser))
+        return { success: true, user: foundUser }
+      } else {
+        return { success: false, error: "Имэйл эсвэл нууц үг буруу байна" }
+      }
+    } catch (error) {
+      console.error("Login error:", error)
+      return { success: false, error: "Нэвтрэхэд алдаа гарлаа" }
     }
   }
 

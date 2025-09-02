@@ -2,9 +2,52 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+
+// Countdown Timer Component
+function CountdownTimer({ endTime }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [showTimer, setShowTimer] = useState(true);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = endTime - now;
+
+      if (distance < 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        clearInterval(timer);
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds });
+      
+      // Hide timer if more than 3 days remaining
+      setShowTimer(days < 3);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [endTime]);
+
+  if (!showTimer) {
+    return null; // Don't show timer if more than 3 days
+  }
+
+  return (
+    <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg">
+      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm font-bold">
+        {timeLeft.days} : {timeLeft.hours.toString().padStart(2, '0')} : {timeLeft.minutes.toString().padStart(2, '0')} : {timeLeft.seconds.toString().padStart(2, '0')}
+      </span>
+    </div>
+  );
+}
 
 export default function PendingAuctionSection() {
   const scrollContainerRef = useRef(null);
@@ -39,98 +82,102 @@ export default function PendingAuctionSection() {
     }
   }, []);
 
-  const pendingAuctions = [
-    {
-      id: 1,
-      image: "/images/pending1.png",
-      category: "Үнэт эдлэл",
-      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-      startingPrice: "53,400,000₮",
-      timer: "2 : 32 : 58 : 14",
-      status: "ТУН УДАХГҮЙ"
-    },
-    {
-      id: 2,
-      image: "/images/pending2.png",
-      category: "Цахилгаан бараа",
-      title: "САМСУНГ ГАЛАКСИ S24 - ХАМГИЙН ШИНЭ МОДЕЛЬ",
-      startingPrice: "480,000₮",
-      timer: "2 : 18 : 52 : 14",
-      status: "ТУН УДАХГҮЙ"
-    },
-    {
-      id: 3,
-      image: "/images/pending3.png",
-      category: "Үнэт эдлэл",
-      title: "ДАМАСКУС ГАН - ХУУЧИН АРТИЗАНЫ ГАРТ ХИЙСЭН",
-      startingPrice: "820,000₮",
-      timer: "0 : 04 : 16 : 02",
-      status: "ТУН УДАХГҮЙ"
-    },
-    {
-      id: 4,
-      image: "/images/pending4.png",
-      category: "Компьютер",
-      title: "ЭППЛ МАКБУК ПРО M3 - ХҮЧИРХЭГ ПРОЦЕССОРТОЙ",
-      startingPrice: "1,280,000₮",
-      timer: "1 : 20 : 49 : 72",
-      status: "ТУН УДАХГҮЙ"
-    },
-    {
-      id: 5,
-      image: "/images/pending1.png",
-      category: "Автомашин",
-      title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
-      startingPrice: "45,800,000₮",
-      timer: "3 : 15 : 42 : 30",
-      status: "ТУН УДАХГҮЙ"
-    },
-    {
-      id: 6,
-      image: "/images/pending2.png",
-      category: "Цахилгаан бараа",
-      title: "СОНИ ПЛЕЙСТЕЙШН 5 - ГЭМТЭЛГҮЙ БАЙГУУЛЛАГА",
-      startingPrice: "1,750,000₮",
-      timer: "1 : 45 : 23 : 18",
-      status: "ТУН УДАХГҮЙ"
-    },
-    {
-      id: 7,
-      image: "/images/pending3.png",
-      category: "Компьютер",
-      title: "ГЭЙМИНГ КОМПЬЮТЕР - RTX 4090 ГРАФИК КАРТТАЙ",
-      startingPrice: "3,680,000₮",
-      timer: "0 : 52 : 18 : 45",
-      status: "ТУН УДАХГҮЙ"
-    },
-    {
-      id: 8,
-      image: "/images/pending4.png",
-      category: "Үнэт эдлэл",
-      title: "БРИЛЛИАНТ ЭРГЭНЭ - 5 КАРАТЫН ЧИСТЭЙ ТАЛСТ",
-      startingPrice: "890,000₮",
-      timer: "4 : 12 : 35 : 22",
-      status: "ТУН УДАХГҮЙ"
-    },
-    {
-      id: 9,
-      image: "/images/pending1.png",
-      category: "Автомашин",
-      title: "ХОНДА ЦИВИК - ЭДИЙН ЗАСГИЙН ХЭМНЭЛТТЭЙ",
-      startingPrice: "28,900,000₮",
-      timer: "2 : 08 : 15 : 40",
-      status: "ТУН УДАХГҮЙ"
-    },
-    {
-      id: 10,
-      image: "/images/pending2.png",
-      category: "Цахилгаан бараа",
-      title: "ЭППЛ АЙПЭД ПРО - М2 ЧИПТЭЙ ТАБЛЕТ",
-      startingPrice: "2,450,000₮",
-      timer: "0 : 38 : 52 : 15",
-      status: "ТУН УДАХГҮЙ"
-    }
-  ];
+  // Generate dynamic end times for pending auctions
+  const pendingAuctions = useMemo(() => {
+    const now = new Date().getTime();
+    return [
+      {
+        id: 1,
+        image: "/images/pending1.png",
+        category: "Үнэт эдлэл",
+        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
+        startingPrice: "53,400,000₮",
+        endTime: now + (2 * 24 * 60 * 60 * 1000) + (32 * 60 * 60 * 1000) + (58 * 60 * 1000) + (14 * 1000), // 2 days 32 hours
+        status: "ТУН УДАХГҮЙ"
+      },
+      {
+        id: 2,
+        image: "/images/pending2.png",
+        category: "Цахилгаан бараа",
+        title: "САМСУНГ ГАЛАКСИ S24 - ХАМГИЙН ШИНЭ МОДЕЛЬ",
+        startingPrice: "480,000₮",
+        endTime: now + (2 * 24 * 60 * 60 * 1000) + (18 * 60 * 60 * 1000) + (52 * 60 * 1000) + (14 * 1000), // 2 days 18 hours
+        status: "ТУН УДАХГҮЙ"
+      },
+      {
+        id: 3,
+        image: "/images/pending3.png",
+        category: "Үнэт эдлэл",
+        title: "ДАМАСКУС ГАН - ХУУЧИН АРТИЗАНЫ ГАРТ ХИЙСЭН",
+        startingPrice: "820,000₮",
+        endTime: now + (4 * 60 * 1000) + (16 * 1000) + (2 * 1000), // 4 minutes 16 seconds
+        status: "ТУН УДАХГҮЙ"
+      },
+      {
+        id: 4,
+        image: "/images/pending4.png",
+        category: "Компьютер",
+        title: "ЭППЛ МАКБУК ПРО M3 - ХҮЧИРХЭГ ПРОЦЕССОРТОЙ",
+        startingPrice: "1,280,000₮",
+        endTime: now + (1 * 24 * 60 * 60 * 1000) + (20 * 60 * 60 * 1000) + (49 * 60 * 1000) + (72 * 1000), // 1 day 20 hours
+        status: "ТУН УДАХГҮЙ"
+      },
+      {
+        id: 5,
+        image: "/images/pending1.png",
+        category: "Автомашин",
+        title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
+        startingPrice: "45,800,000₮",
+        endTime: now + (5 * 24 * 60 * 60 * 1000) + (15 * 60 * 60 * 1000) + (42 * 60 * 1000) + (30 * 1000), // 5 days 15 hours (more than 3 days - won't show timer)
+        status: "ТУН УДАХГҮЙ"
+      },
+      {
+        id: 6,
+        image: "/images/pending2.png",
+        category: "Цахилгаан бараа",
+        title: "СОНИ ПЛЕЙСТЕЙШН 5 - ГЭМТЭЛГҮЙ БАЙГУУЛЛАГА",
+        startingPrice: "1,750,000₮",
+        endTime: now + (1 * 24 * 60 * 60 * 1000) + (45 * 60 * 60 * 1000) + (23 * 60 * 1000) + (18 * 1000), // 1 day 45 hours
+        status: "ТУН УДАХГҮЙ"
+      },
+      {
+        id: 7,
+        image: "/images/pending3.png",
+        category: "Компьютер",
+        title: "ГЭЙМИНГ КОМПЬЮТЕР - RTX 4090 ГРАФИК КАРТТАЙ",
+        startingPrice: "3,680,000₮",
+        endTime: now + (52 * 60 * 1000) + (18 * 1000) + (45 * 1000), // 52 minutes
+        status: "ТУН УДАХГҮЙ"
+      },
+      {
+        id: 8,
+        image: "/images/pending4.png",
+        category: "Үнэт эдлэл",
+        title: "БРИЛЛИАНТ ЭРГЭНЭ - 5 КАРАТЫН ЧИСТЭЙ ТАЛСТ",
+        startingPrice: "890,000₮",
+        endTime: now + (6 * 24 * 60 * 60 * 1000) + (12 * 60 * 60 * 1000) + (35 * 60 * 1000) + (22 * 1000), // 6 days 12 hours (more than 3 days - won't show timer)
+        status: "ТУН УДАХГҮЙ"
+      },
+      {
+        id: 9,
+        image: "/images/pending1.png",
+        category: "Автомашин",
+        title: "ХОНДА ЦИВИК - ЭДИЙН ЗАСГИЙН ХЭМНЭЛТТЭЙ",
+        startingPrice: "28,900,000₮",
+        endTime: now + (2 * 24 * 60 * 60 * 1000) + (8 * 60 * 60 * 1000) + (15 * 60 * 1000) + (40 * 1000), // 2 days 8 hours
+        status: "ТУН УДАХГҮЙ"
+      },
+      {
+        id: 10,
+        image: "/images/pending2.png",
+        category: "Цахилгаан бараа",
+        title: "ЭППЛ АЙПЭД ПРО - М2 ЧИПТЭЙ ТАБЛЕТ",
+        startingPrice: "2,450,000₮",
+        endTime: now + (38 * 60 * 1000) + (52 * 1000) + (15 * 1000), // 38 minutes
+        status: "ТУН УДАХГҮЙ"
+      }
+    ];
+  }, []);
 
   return (
     <section className="py-16 bg-white">
@@ -195,9 +242,7 @@ export default function PendingAuctionSection() {
                       <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm font-bold">{auction.status}</span>
                     </div>
                     {/* Timer Overlay */}
-                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg">
-                      <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm font-bold">{auction.timer}</span>
-                    </div>
+                    <CountdownTimer endTime={auction.endTime} />
                   </div>
 
                   {/* Product Info */}

@@ -78,11 +78,7 @@ export default function CompletedAuctionPage({ params }) {
                 ДУУССАН ДУУДЛАГА ХУДАЛДАА
               </h1>
             </div>
-            <Link href="/auctions/completed">
-              <Button variant="outline" className="font-tt-firs-neue-variable font-medium">
-                ← Буцах
-              </Button>
-            </Link>
+           
           </div>
         </div>
       </div>
