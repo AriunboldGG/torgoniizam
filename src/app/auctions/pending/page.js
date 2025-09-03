@@ -6,31 +6,176 @@ import Image from "next/image"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import CategoryFilter from "@/components/auction/CategoryFilter"
+import FilterSection from "@/components/auction/FilterSection"
 
 export default function PendingAuctions() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [selectedDateFilter, setSelectedDateFilter] = useState('all');
+  const [selectedPriceFilter, setSelectedPriceFilter] = useState('all');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 50;
 
+  // Define subcategories for each category
+  const subcategories = {
+    "Үнэт эдлэл": ["Зүү", "Бөгж", "Мөнгө", "Цагаан алт", "Хүрэл", "Эрдэнийн чулуу"],
+    "Цахилгаан бараа": ["Телевизор", "Хөргөгч", "Угаалгын машин", "Агааржуулагч", "Микровейв", "Кофе машин"],
+    "Компьютер": ["Суурин компьютер", "Notebook", "PS, XBox, Nintendo", "Принтер, хувилагч", "Сэлбэг"],
+    "Автомашин": ["Toyota", "Lexus", "Mercedes-Benz", "BMW", "Honda", "Nissan", "Ford", "Hyundai"],
+    "Гар утас, таблет": ["iPhone", "Samsung", "Xiaomi", "Huawei", "Tablet", "Accessories"]
+  };
+
   // Mock data for pending auctions with proper structure (100 items for pagination demo)
-  const allPendingAuctions = Array.from({ length: 100 }, (_, index) => ({
-    id: index + 101, // Start from ID 101 to avoid conflicts
-    image: `/images/${index % 8 === 0 ? 'pending1' : index % 8 === 1 ? 'pending2' : index % 8 === 2 ? 'pending3' : index % 8 === 3 ? 'pending4' : index % 8 === 4 ? 'end1' : index % 8 === 5 ? 'end2' : index % 8 === 6 ? 'end3' : 'end4'}.png`,
-    badge: "ХҮЛЭЭГДЭЖ БУЙ",
-    countdown: `${Math.floor(Math.random() * 24)} ${Math.floor(Math.random() * 60)} ${Math.floor(Math.random() * 60)} ${Math.floor(Math.random() * 60)}`,
-    category: ["Үнэт эдлэл", "Цахилгаан бараа", "Компьютер", "Автомашин", "Гар утас, таблет"][index % 5],
-    title: `Хүлээгдэж буй бараа ${index + 1} - ${["ДАМАСКУС ГАН", "САМСУНГ ГАЛАКСИ S24", "ЦЭНХЭР ЭРДЭНИЙН ЧУЛУУ", "ЭППЛ МАКБУК ПРО M3", "ТОЙОТА ЛЭНД КРУЗЕР", "УХААЛАГ ГАР УТАС", "ХАР LAPTOP", "УГААЛГЫН МАШИН"][index % 8]}`,
-    price: `${(Math.random() * 50000000 + 100000).toLocaleString('en-US', { maximumFractionDigits: 0 })}₮`
-  }));
+  const allPendingAuctions = Array.from({ length: 100 }, (_, index) => {
+    const categories = ["Үнэт эдлэл", "Цахилгаан бараа", "Компьютер", "Автомашин", "Гар утас, таблет"];
+    const category = categories[index % 5];
+    const categorySubcategories = subcategories[category] || [];
+    const subcategory = categorySubcategories[index % categorySubcategories.length];
+    
+    // Generate random date for filtering
+    const startDate = new Date();
+    const randomDays = Math.floor(Math.random() * 30);
+    const auctionDate = new Date(startDate.getTime() + (randomDays * 24 * 60 * 60 * 1000));
+    const price = Math.random() * 50000000 + 100000;
+
+    return {
+      id: index + 101, // Start from ID 101 to avoid conflicts
+      image: `/images/${index % 8 === 0 ? 'pending1' : index % 8 === 1 ? 'pending2' : index % 8 === 2 ? 'pending3' : index % 8 === 3 ? 'pending4' : index % 8 === 4 ? 'end1' : index % 8 === 5 ? 'end2' : index % 8 === 6 ? 'end3' : 'end4'}.png`,
+      badge: "ХҮЛЭЭГДЭЖ БУЙ",
+      countdown: `${Math.floor(Math.random() * 24)} ${Math.floor(Math.random() * 60)} ${Math.floor(Math.random() * 60)} ${Math.floor(Math.random() * 60)}`,
+      category,
+      subcategory,
+      title: `Хүлээгдэж буй бараа ${index + 1} - ${["ДАМАСКУС ГАН", "САМСУНГ ГАЛАКСИ S24", "ЦЭНХЭР ЭРДЭНИЙН ЧУЛУУ", "ЭППЛ МАКБУК ПРО M3", "ТОЙОТА ЛЭНД КРУЗЕР", "УХААЛАГ ГАР УТАС", "ХАР LAPTOP", "УГААЛГЫН МАШИН"][index % 8]}`,
+      price: `${price.toLocaleString('en-US', { maximumFractionDigits: 0 })}₮`,
+      currentBid: price,
+      date: auctionDate
+    };
+  });
+
+  // Filter auctions based on selected filters
+  let filteredAuctions = [...allPendingAuctions].filter(auction => {
+    // Search filtering
+    if (searchQuery && searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase().trim();
+      if (!auction.title.toLowerCase().includes(query) &&
+          !auction.category.toLowerCase().includes(query) &&
+          !auction.subcategory.toLowerCase().includes(query)) {
+        return false;
+      }
+    }
+
+    // Category and subcategory filtering
+    if (selectedCategory && auction.category !== selectedCategory.name) {
+      return false;
+    }
+    if (selectedSubcategory && auction.subcategory !== selectedSubcategory.name) {
+      return false;
+    }
+    return true;
+  });
+
+  // Date filtering
+  if (selectedDateFilter !== 'all') {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+    const thisWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const nextWeek = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const thisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 1);
+
+    filteredAuctions = filteredAuctions.filter(auction => {
+      const auctionDate = new Date(auction.date);
+      switch (selectedDateFilter) {
+        case 'today':
+          return auctionDate >= today && auctionDate < tomorrow;
+        case 'tomorrow':
+          return auctionDate >= tomorrow && auctionDate < new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000);
+        case 'this-week':
+          return auctionDate >= today && auctionDate < thisWeek;
+        case 'next-week':
+          return auctionDate >= thisWeek && auctionDate < nextWeek;
+        case 'this-month':
+          return auctionDate >= today && auctionDate < thisMonth;
+        case 'next-month':
+          return auctionDate >= thisMonth && auctionDate < nextMonth;
+        default:
+          return true;
+      }
+    });
+  }
+
+  // Price filtering and sorting
+  if (selectedPriceFilter !== 'all') {
+    if (selectedPriceFilter === 'range') {
+      if (minPrice) {
+        filteredAuctions = filteredAuctions.filter(auction => auction.currentBid >= parseInt(minPrice));
+      }
+      if (maxPrice) {
+        filteredAuctions = filteredAuctions.filter(auction => auction.currentBid <= parseInt(maxPrice));
+      }
+    } else {
+      // Sort the filtered array
+      filteredAuctions = [...filteredAuctions].sort((a, b) => {
+        if (selectedPriceFilter === 'low-to-high') {
+          return a.currentBid - b.currentBid;
+        } else if (selectedPriceFilter === 'high-to-low') {
+          return b.currentBid - a.currentBid;
+        }
+        return 0;
+      });
+    }
+  }
 
   // Calculate pagination
-  const totalPages = Math.ceil(allPendingAuctions.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredAuctions.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const pendingAuctions = allPendingAuctions.slice(startIndex, endIndex);
+  const pendingAuctions = filteredAuctions.slice(startIndex, endIndex);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    setSelectedSubcategory(null); // Reset subcategory when category changes
+    setCurrentPage(1); // Reset to first page when filtering
+  };
+
+  const handleSubcategorySelect = (subcategory) => {
+    setSelectedSubcategory(subcategory);
+    setCurrentPage(1); // Reset to first page when filtering
+  };
+
+  const handleDateFilterChange = (value) => {
+    setSelectedDateFilter(value);
+    setCurrentPage(1);
+  };
+
+  const handlePriceFilterChange = (value) => {
+    setSelectedPriceFilter(value);
+    setCurrentPage(1);
+  };
+
+  const handleMinPriceChange = (value) => {
+    setMinPrice(value);
+    setCurrentPage(1);
+  };
+
+  const handleMaxPriceChange = (value) => {
+    setMaxPrice(value);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
   };
 
   const renderPaginationButtons = () => {
@@ -105,14 +250,46 @@ export default function PendingAuctions() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Badge variant="secondary" className="px-4 py-2 text-lg">
-              Нийт: {allPendingAuctions.length} дуудлага
+              Нийт: {filteredAuctions.length} дуудлага
             </Badge>
             <Badge variant="outline" className="px-4 py-2 text-lg">
-              Удахгүй эхлэх: {allPendingAuctions.length}
+              Удахгүй эхлэх: {filteredAuctions.length}
             </Badge>
+            {selectedCategory && (
+              <Badge variant="default" className="px-4 py-2 text-lg bg-orange-500">
+                {selectedCategory.name}
+                {selectedSubcategory && ` • ${selectedSubcategory.name}`}
+              </Badge>
+            )}
           </div>
         </div>
       </section>
+
+      {/* Category Filter Section */}
+      <div className="py-8">
+        <CategoryFilter 
+          onCategorySelect={handleCategorySelect}
+          onSubcategorySelect={handleSubcategorySelect}
+          selectedCategory={selectedCategory}
+          selectedSubcategory={selectedSubcategory}
+        />
+      </div>
+
+      {/* Additional Filters Section */}
+      <div className="pb-8">
+        <FilterSection 
+          onDateFilterChange={handleDateFilterChange}
+          onPriceFilterChange={handlePriceFilterChange}
+          onMinPriceChange={handleMinPriceChange}
+          onMaxPriceChange={handleMaxPriceChange}
+          onSearchChange={handleSearchChange}
+          selectedDateFilter={selectedDateFilter}
+          selectedPriceFilter={selectedPriceFilter}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          searchQuery={searchQuery}
+        />
+      </div>
 
       {/* Auctions Grid */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
@@ -150,7 +327,7 @@ export default function PendingAuctions() {
           {/* Auctions Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {pendingAuctions.map((auction) => (
-              <Link key={auction.id} href={`/auction/${auction.id}`} className="block">
+              <Link key={auction.id} href={`/auction/pending/${auction.id}`} target="_blank" rel="noopener noreferrer" className="block">
                 <Card className="overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 bg-white border border-gray-200 cursor-pointer group">
                   {/* Image Section with Badge and Countdown */}
                   <div className="relative aspect-square bg-white overflow-hidden">

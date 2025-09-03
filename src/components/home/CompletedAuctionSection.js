@@ -2,13 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearch } from "@/contexts/SearchContext";
 
 export default function CompletedAuctionSection() {
   const scrollContainerRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const { searchQuery, selectedCategory } = useSearch();
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -39,7 +41,7 @@ export default function CompletedAuctionSection() {
     }
   }, []);
 
-  const completedAuctions = [
+  const allCompletedAuctions = useMemo(() => [
     {
       id: 1,
       image: "/images/end1.png",
@@ -120,7 +122,41 @@ export default function CompletedAuctionSection() {
       finalPrice: "4,200,000₮",
       status: "ДУУССАН"
     }
-  ];
+  ], []);
+
+  // Filter auctions based on search query and category
+  const completedAuctions = useMemo(() => {
+    let filtered = allCompletedAuctions;
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(auction => 
+        auction.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        auction.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filter by category
+    if (selectedCategory) {
+      // Map dropdown category IDs to actual category names
+      const categoryMapping = {
+        'car': 'Автомашин',
+        'phone': 'Цахилгаан бараа', // Using electric category for phones
+        'computer': 'Компьютер',
+        'accessory': 'Үнэт эдлэл',
+        'electric': 'Цахилгаан бараа'
+      };
+      
+      const categoryName = categoryMapping[selectedCategory];
+      if (categoryName) {
+        filtered = filtered.filter(auction => 
+          auction.category === categoryName
+        );
+      }
+    }
+
+    return filtered;
+  }, [allCompletedAuctions, searchQuery, selectedCategory]);
 
   return (
     <section className="py-16 bg-gray-50">
@@ -164,7 +200,8 @@ export default function CompletedAuctionSection() {
 
           {/* Horizontal Scrollable Cards Row */}
           <div ref={scrollContainerRef} className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-            {completedAuctions.map((auction) => (
+            {completedAuctions.length > 0 ? (
+              completedAuctions.map((auction) => (
               <Card 
                 key={auction.id} 
                 className="min-w-[300px] max-w-[300px] overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex-shrink-0 cursor-pointer"
@@ -208,7 +245,17 @@ export default function CompletedAuctionSection() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              ))
+            ) : (
+              <div className="w-full text-center py-12">
+                <div className="text-gray-500 text-lg">
+                  {searchQuery ? `"${searchQuery}" хайлтад тохирох дууссан дуудлага худалдаа олдсонгүй` : 'Дууссан дуудлага худалдаа олдсонгүй'}
+                </div>
+                <div className="text-gray-400 text-sm mt-2">
+                  Өөр хайлтын үг эсвэл ангилал сонгоно уу
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Scroll Indicator Line */}

@@ -11,26 +11,41 @@ export default function PendingAuctionPage({ params }) {
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [auctionItem, setAuctionItem] = useState(null);
 
-  // Mock data for pending auction
+  // Mock data for pending auction - matches list page data
   useEffect(() => {
-    const pendingAuctionData = {
-      id: unwrappedParams.id,
-      title: "BMW X5 2021",
-      startingPrice: 35000000,
-      startDate: "2024-02-01",
-      endDate: "2024-02-15",
-      images: [
-        "/images/live1.png",
-        "/images/live2.png", 
-        "/images/live3.png",
-        "/images/live4.png"
-      ],
-      category: "АВТОМАШИН",
-      location: "Улаанбаатар",
-      isPending: true,
-      description: "BMW X5 2021 он, 3.0L турбо хөдөлгүүр, автомат дамжуулалт, xDrive систем, 45,000 км явсан, бүрэн тоноглогдсон, шинэ байдалтай."
+    const generatePendingAuctionData = (id) => {
+      const categories = ["АВТОМАШИН", "ГАР УТАС & ТАБЛЕТ", "КОМПЬЮТЕР", "ҮНЭТ ЭДЛЭЛ", "ЦАХИЛГААН БАРАА"];
+      const subcategories = ["СЕДАН", "SUV", "ХАЧГИЙН МАШИН", "МОТОЦИКЛ"];
+      const titles = ["ДАМАСКУС ГАН", "САМСУНГ ГАЛАКСИ S24", "ЦЭНХЭР ЭРДЭНИЙН ЧУЛУУ", "ЭППЛ МАКБУК ПРО M3", "ТОЙОТА ЛЭНД КРУЗЕР", "УХААЛАГ ГАР УТАС", "ХАР LAPTOP", "УГААЛГЫН МАШИН"];
+      
+      const category = categories[id % categories.length];
+      const subcategory = subcategories[id % subcategories.length];
+      const title = titles[id % titles.length];
+      const price = Math.random() * 50000000 + 100000;
+      const startingPrice = Math.floor(price * 0.8);
+      
+      return {
+        id: id.toString(),
+        title: `Хүлээгдэж буй бараа ${id} - ${title}`,
+        startingPrice: startingPrice,
+        currentBid: price,
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + (Math.random() * 30 + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        images: [
+          `/images/${id % 8 === 0 ? 'pending1' : id % 8 === 1 ? 'pending2' : id % 8 === 2 ? 'pending3' : id % 8 === 3 ? 'pending4' : id % 8 === 4 ? 'end1' : id % 8 === 5 ? 'end2' : id % 8 === 6 ? 'end3' : 'end4'}.png`,
+          "/images/live2.png", 
+          "/images/live3.png",
+          "/images/live4.png"
+        ],
+        category,
+        subcategory,
+        location: "Улаанбаатар",
+        isPending: true,
+        description: `${title} - Өндөр чанарын, найдвартай бараа. Дуудлага худалдаанд оролцож, хамгийн сайн үнээр авч болно.`
+      };
     };
     
+    const pendingAuctionData = generatePendingAuctionData(parseInt(unwrappedParams.id));
     setAuctionItem(pendingAuctionData);
   }, [unwrappedParams.id]);
 

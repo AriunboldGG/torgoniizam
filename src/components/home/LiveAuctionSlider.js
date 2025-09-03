@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearch } from "@/contexts/SearchContext";
 
 // Countdown Timer Component
 function CountdownTimer({ endTime, onEnd }) {
@@ -63,6 +64,9 @@ function CountdownTimer({ endTime, onEnd }) {
 export default function LiveAuctionSlider() {
   const scrollContainerRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const { searchQuery, selectedCategory } = useSearch();
+  
+  console.log('LiveAuctionSlider: selectedCategory =', selectedCategory);
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -94,7 +98,7 @@ export default function LiveAuctionSlider() {
   }, []);
 
   // Generate auction data with real end times - memoized to prevent regeneration
-  const liveAuctions = useMemo(() => {
+  const allLiveAuctions = useMemo(() => {
     const now = new Date();
     const baseAuctions = [
       {
@@ -190,6 +194,44 @@ export default function LiveAuctionSlider() {
     });
   }, []); // Empty dependency array means this only runs once
 
+  // Filter auctions based on search query and category
+  const liveAuctions = useMemo(() => {
+    let filtered = allLiveAuctions;
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(auction => 
+        auction.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        auction.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filter by category
+    if (selectedCategory) {
+      console.log('LiveAuctionSlider: Filtering by category:', selectedCategory);
+      // Map dropdown category IDs to actual category names
+      const categoryMapping = {
+        'car': 'Автомашин',
+        'phone': 'Цахилгаан бараа', // Using electric category for phones
+        'computer': 'Компьютер',
+        'accessory': 'Үнэт эдлэл',
+        'electric': 'Цахилгаан бараа'
+      };
+      
+      const categoryName = categoryMapping[selectedCategory];
+      console.log('LiveAuctionSlider: Mapped to:', categoryName);
+      if (categoryName) {
+        const beforeFilter = filtered.length;
+        filtered = filtered.filter(auction => 
+          auction.category === categoryName
+        );
+        console.log(`LiveAuctionSlider: Filtered from ${beforeFilter} to ${filtered.length} auctions`);
+      }
+    }
+
+    return filtered;
+  }, [allLiveAuctions, searchQuery, selectedCategory]);
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -232,7 +274,8 @@ export default function LiveAuctionSlider() {
 
           {/* Horizontal Scrollable Cards Row */}
           <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
-            {liveAuctions.map((auction) => (
+            {liveAuctions.length > 0 ? (
+              liveAuctions.map((auction) => (
               <Card 
                 key={auction.id} 
                 className="min-w-[300px] max-w-[300px] overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex-shrink-0 cursor-pointer"
@@ -295,7 +338,17 @@ export default function LiveAuctionSlider() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              ))
+            ) : (
+              <div className="w-full text-center py-12">
+                <div className="text-gray-500 text-lg">
+                  {searchQuery ? `"${searchQuery}" хайлтад тохирох дуудлага худалдаа олдсонгүй` : 'Дуудлага худалдаа олдсонгүй'}
+                </div>
+                <div className="text-gray-400 text-sm mt-2">
+                  Өөр хайлтын үг эсвэл ангилал сонгоно уу
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Scroll Indicator Line */}

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 
-export default function CategoryFilter() {
+export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, selectedCategory, selectedSubcategory }) {
   const categories = [
     {
       id: "car",
@@ -271,11 +271,7 @@ export default function CategoryFilter() {
           icon: "🚗",
           count: 1
         },
-        {
-          name: "Samsung",
-          icon: "🚗",
-          count: 1
-        },
+      
         {
           name: "UAZ",
           icon: "🚗",
@@ -452,20 +448,31 @@ export default function CategoryFilter() {
     }
   ]
 
-  // No category selected by default - subcategories will be closed
-  const [selectedCategory, setSelectedCategory] = useState(null)
+  // Use props for selected category or fallback to local state
+  const [localSelectedCategory, setLocalSelectedCategory] = useState(null)
+  const currentSelectedCategory = selectedCategory || localSelectedCategory
 
   const handleCategoryClick = (category) => {
-    if (selectedCategory?.id === category.id) {
-      setSelectedCategory(null)
+    if (currentSelectedCategory?.id === category.id) {
+      if (onCategorySelect) {
+        onCategorySelect(null)
+      } else {
+        setLocalSelectedCategory(null)
+      }
     } else {
-      setSelectedCategory(category)
+      if (onCategorySelect) {
+        onCategorySelect(category)
+      } else {
+        setLocalSelectedCategory(category)
+      }
     }
   }
 
   const handleSubcategoryClick = (subcategory) => {
     console.log("Selected subcategory:", subcategory)
-    // You can add navigation or filtering logic here
+    if (onSubcategorySelect) {
+      onSubcategorySelect(subcategory)
+    }
   }
 
   return (
@@ -478,13 +485,13 @@ export default function CategoryFilter() {
             <div
               key={category.id}
               className={`flex flex-col items-center cursor-pointer transition-all duration-200 ${
-                selectedCategory?.id === category.id ? 'scale-105' : ''
+                currentSelectedCategory?.id === category.id ? 'scale-105' : ''
               }`}
               onClick={() => handleCategoryClick(category)}
             >
               <div 
                 className={`relative w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full flex items-center justify-center transition-all duration-200 ${
-                  selectedCategory?.id === category.id 
+                  currentSelectedCategory?.id === category.id 
                     ? 'bg-[#131316]' 
                     : 'bg-[#F4F4F5] hover:bg-[#131316]'
                 }`}
@@ -495,13 +502,13 @@ export default function CategoryFilter() {
                   width={40}
                   height={40}
                   className={`w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 transition-all duration-200 ${
-                    selectedCategory?.id === category.id 
+                    currentSelectedCategory?.id === category.id 
                       ? 'filter brightness-0 invert saturate-0' 
                       : ''
                   }`}
                 />
                 <div className={`absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  selectedCategory?.id === category.id 
+                  currentSelectedCategory?.id === category.id 
                     ? 'bg-white text-[#131316]' 
                     : 'bg-[#131316] text-white'
                 }`}>
@@ -509,7 +516,7 @@ export default function CategoryFilter() {
                 </div>
               </div>
               <span className={`text-xs sm:text-sm font-medium mt-1 sm:mt-2 text-center transition-colors duration-200 ${
-                selectedCategory?.id === category.id 
+                currentSelectedCategory?.id === category.id 
                   ? 'text-[#131316]' 
                   : 'text-gray-700'
               }`}>
@@ -520,30 +527,64 @@ export default function CategoryFilter() {
         </div>
 
         {/* Subcategories */}
-        {selectedCategory && (
+        {currentSelectedCategory && (
           <div className="border-t pt-3 sm:pt-4 md:pt-6">
             <div className="flex items-center gap-2 mb-2 sm:mb-3 md:mb-4">
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               <h4 className="text-sm sm:text-base text-blue-600 font-medium">
-                {selectedCategory.name} - ({selectedCategory.subcategories.length} дэд ангилал)
+                {currentSelectedCategory.name} - ({currentSelectedCategory.subcategories.length} дэд ангилал)
               </h4>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 sm:gap-2 md:gap-3">
-              {selectedCategory.subcategories.map((subcategory, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-1 sm:gap-2 cursor-pointer p-1.5 sm:p-2 md:p-3 rounded-lg transition-all duration-200 hover:text-[#FF4405]"
-                  onClick={() => handleSubcategoryClick(subcategory)}
-                >
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                  <span className="text-base sm:text-lg md:text-xl flex-shrink-0">{subcategory.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-xs sm:text-sm text-blue-600 font-medium break-words leading-tight">{subcategory.name}</span>
-                    <div className="text-xs text-gray-500 mt-0.5 sm:mt-1">{subcategory.count} items</div>
+            {/* Car category gets compact layout, others get original layout */}
+            {currentSelectedCategory.id === 'car' ? (
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-1 sm:gap-2">
+                {currentSelectedCategory.subcategories.map((subcategory, index) => (
+                  <div
+                    key={index}
+                    className={`flex flex-col items-center cursor-pointer p-1.5 sm:p-2 rounded-lg transition-all duration-200 hover:text-[#FF4405] ${
+                      selectedSubcategory?.name === subcategory.name ? 'bg-orange-50 border border-orange-200' : ''
+                    }`}
+                    onClick={() => handleSubcategoryClick(subcategory)}
+                  >
+                    <div className="flex items-center gap-1 mb-1">
+                      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                        selectedSubcategory?.name === subcategory.name ? 'bg-orange-500' : 'bg-blue-500'
+                      }`}></div>
+                      <span className="text-sm sm:text-base flex-shrink-0">{subcategory.icon}</span>
+                    </div>
+                    <div className="text-center">
+                      <span className={`text-xs font-medium break-words leading-tight block ${
+                        selectedSubcategory?.name === subcategory.name ? 'text-orange-600' : 'text-blue-600'
+                      }`}>{subcategory.name}</span>
+                      <div className="text-xs text-gray-500 mt-0.5">{subcategory.count}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 sm:gap-2 md:gap-3">
+                {currentSelectedCategory.subcategories.map((subcategory, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-1 sm:gap-2 cursor-pointer p-1.5 sm:p-2 md:p-3 rounded-lg transition-all duration-200 hover:text-[#FF4405] ${
+                      selectedSubcategory?.name === subcategory.name ? 'bg-orange-50 border border-orange-200' : ''
+                    }`}
+                    onClick={() => handleSubcategoryClick(subcategory)}
+                  >
+                    <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${
+                      selectedSubcategory?.name === subcategory.name ? 'bg-orange-500' : 'bg-blue-500'
+                    }`}></div>
+                    <span className="text-base sm:text-lg md:text-xl flex-shrink-0">{subcategory.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className={`text-xs sm:text-sm font-medium break-words leading-tight ${
+                        selectedSubcategory?.name === subcategory.name ? 'text-orange-600' : 'text-blue-600'
+                      }`}>{subcategory.name}</span>
+                      <div className="text-xs text-gray-500 mt-0.5 sm:mt-1">{subcategory.count} items</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

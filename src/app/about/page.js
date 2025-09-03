@@ -14,16 +14,10 @@ export default function About() {
               ТАНИЛЦУУЛГА
             </h1>
             <div className="text-xl text-gray-600 mb-8 text-justify leading-relaxed">
-              <p className="mb-0">
+              <p className="mb-0" style={{textIndent: '2em'}}>
                 Монголын хамгийн анхны дуудлага худалдааны torgoniizam.mn-д тавтай морилно уу.
-              </p>
-              <p className="mb-0">
                 Манай цахим хуудас нь зээлийн барьцаанд хураагдсан эд зүйлсийг онлайн дуудлага худалдааны хэлбэрээр борлуулдаг юм.
-              </p>
-              <p className="mb-0">
                 torgoniizam.mn сайтын тусламжтайгаар та хүссэн бараа бүтээгдэхүүнээ хоёрдогч зах зээлд ченжийн гар дамжилгүйгээр худалдаж авахаас гадна, зах зээлийн бодит үнээр эсвэл түүнээс ч бага үнээр ялагч болж авах боломжтой.
-              </p>
-              <p className="mb-0">
                 Баярлалаа, таныг хүндэтгэсэн Монголын анхны онлайн нээлттэй дуудлага худалдааны сайт torgoniizam.mn
               </p>
             </div>
@@ -39,11 +33,11 @@ export default function About() {
               >
                 Бидний эрхэм зорилго
               </h2>
-              <p className="text-lg text-gray-600 mb-0 text-justify leading-relaxed">
+              <p className="text-lg text-gray-600 mb-0 text-justify leading-relaxed" style={{textIndent: '2em'}}>
                Дэлхийн стандартад нийцсэн, найдвартай онлайн дуудлага худалдааны платформыг бүрдүүлж, 
                 эдийн засгийн хөгжилд хувь нэмрээ оруулах.
               </p>
-              <p className="text-lg text-gray-600 mb-0 text-justify leading-relaxed">
+              <p className="text-lg text-gray-600 mb-0 text-justify leading-relaxed" style={{textIndent: '2em'}}>
                 Бид технологийн дэвшлийг ашиглан уламжлалт дуудлага худалдааг орчин үеийн болгож, 
                 хэрэглэгчдийнхээ хэрэгцээг хангахад анхаардаг.
               </p>
@@ -70,7 +64,7 @@ export default function About() {
               >
                 Бидний үнэт зүйлс
               </h2>
-              <p className="text-xl text-gray-600 text-justify leading-relaxed mb-0">
+              <p className="text-xl text-gray-600 text-justify leading-relaxed mb-0" style={{textIndent: '2em'}}>
                 Бидний ажиллаж буй бүх зүйлийн суурь болсон үнэт зүйлс
               </p>
             </div>
@@ -84,7 +78,7 @@ export default function About() {
                 <CardTitle className="text-xl">Итгэлцэл</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-justify leading-relaxed mb-0">
+                <p className="text-gray-600 text-justify leading-relaxed mb-0" style={{textIndent: '2em'}}>
                   Хэрэглэгчдийн итгэлийг хүлээж, шударга, ил тод үйл ажиллагаа явуулдаг
                 </p>
               </CardContent>
@@ -98,7 +92,7 @@ export default function About() {
                 <CardTitle className="text-xl">Инноваци</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-justify leading-relaxed mb-0">
+                <p className="text-gray-600 text-justify leading-relaxed mb-0" style={{textIndent: '2em'}}>
                   Технологийн дэвшлийг ашиглан үйлчилгээг тасралтгүй сайжруулдаг
                 </p>
               </CardContent>
@@ -112,7 +106,7 @@ export default function About() {
                 <CardTitle className="text-xl">Чадвар</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-justify leading-relaxed mb-0">
+                <p className="text-gray-600 text-justify leading-relaxed mb-0" style={{textIndent: '2em'}}>
                   Мэргэжлийн багтай, өндөр чанартай үйлчилгээг санал болгодог
                 </p>
               </CardContent>
@@ -126,7 +120,7 @@ export default function About() {
                 <CardTitle className="text-xl">Хөгжил</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-justify leading-relaxed mb-0">
+                <p className="text-gray-600 text-justify leading-relaxed mb-0" style={{textIndent: '2em'}}>
                   Тасралтгүй суралцаж, өөрчлөлтийг эерэгээр хүлээн авдаг
                 </p>
               </CardContent>
@@ -140,7 +134,7 @@ export default function About() {
                 <CardTitle className="text-xl">Хэрэглэгч</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-justify leading-relaxed mb-0">
+                <p className="text-gray-600 text-justify leading-relaxed mb-0" style={{textIndent: '2em'}}>
                   Хэрэглэгчдийн хэрэгцээг тэргүүлж, тэдний сэтгэл ханамжид анхаардаг
                 </p>
               </CardContent>
@@ -154,7 +148,7 @@ export default function About() {
                 <CardTitle className="text-xl">Чансаа</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-justify leading-relaxed mb-0">
+                <p className="text-gray-600 text-justify leading-relaxed mb-0" style={{textIndent: '2em'}}>
                   Монголын дуудлага худалдааны салбарт тэргүүлэгч байх
                 </p>
               </CardContent>

@@ -227,7 +227,7 @@ export default function CompletedAuctionsPage() {
 
                 {/* Action Buttons */}
                 <div className="flex space-x-3">
-                  <Link href={`/auction/completed/${auction.id}`}>
+                  <Link href={`/auction/completed/${auction.id}`} target="_blank" rel="noopener noreferrer">
                     <Button className="flex-1 bg-green-500 hover:bg-green-600 text-white">
                       📊 Дэлгэрэнгүй
                     </Button>

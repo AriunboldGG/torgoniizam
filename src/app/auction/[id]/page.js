@@ -212,162 +212,74 @@ export default function AuctionItemPage({ params }) {
   // Function to get auction data based on ID - memoized to prevent regeneration
   const auctionData = useMemo(() => {
     const now = new Date();
-    // Mock auction database - in real app this would come from API/database
-    const auctionDatabase = {
-      "1": {
-        id: "1",
-        category: "Үнэт эдлэл",
-        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-        startingPrice: "53,400,000₮",
-        lastPrice: "58,200,000₮",
-        mainImage: "/images/pending1.png",
-        endTime: new Date(now.getTime() + (2 * 24 + 12) * 60 * 60 * 1000).toISOString(), // 2 days 12 hours from now
-        description: "Хуучин артизаны гарт хийсэн, их гарт мөнгөн тоногтой эмээл. Нарийн хийцтэй, уран дархны урлагийн бүтээл.",
+    
+    // Generate auction data that matches the list pages
+    const generateAuctionData = (id) => {
+      const categories = ["АВТОМАШИН", "ГАР УТАС & ТАБЛЕТ", "КОМПЬЮТЕР", "ҮНЭТ ЭДЛЭЛ", "ЦАХИЛГААН БАРАА"];
+      const subcategories = ["СЕДАН", "SUV", "ХАЧГИЙН МАШИН", "МОТОЦИКЛ"];
+      const titles = ["ЛУУТ АЛТАН ШАРМАЛ", "Том ухаалаг телевизор", "Цагаан тоглоомын консол", "Хар хүрэн SUV", "Ухаалаг гар утас", "Хар laptop", "Угаалгын машин", "Үнэт эдлэл"];
+      
+      const category = categories[id % categories.length];
+      const subcategory = subcategories[id % subcategories.length];
+      const title = titles[id % titles.length];
+      const price = Math.random() * 50000000 + 100000;
+      const startingPrice = Math.floor(price * 0.8);
+      
+      return {
+        id: id.toString(),
+        category,
+        subcategory,
+        title: `Дуудлага худалдааны бараа ${id} - ${title}`,
+        startingPrice: `${startingPrice.toLocaleString('en-US', { maximumFractionDigits: 0 })}₮`,
+        lastPrice: `${price.toLocaleString('en-US', { maximumFractionDigits: 0 })}₮`,
+        mainImage: `/images/${id % 8 === 0 ? 'live1' : id % 8 === 1 ? 'live2' : id % 8 === 2 ? 'live3' : id % 8 === 3 ? 'live4' : id % 8 === 4 ? 'end1' : id % 8 === 5 ? 'end2' : id % 8 === 6 ? 'end3' : 'end4'}.png`,
+        endTime: new Date(now.getTime() + (Math.random() * 7 * 24 + 1) * 60 * 60 * 1000).toISOString(), // Random time within a week
+        description: `${title} - Өндөр чанарын, найдвартай бараа. Дуудлага худалдаанд оролцож, хамгийн сайн үнээр авч болно.`,
         specifications: [
-          { label: "Материал", value: "Алт, мөнгө" },
-          { label: "Хэмжээ", value: "Стандарт" },
-          { label: "Хийц", value: "Гараар хийсэн" },
-          { label: "Төрөл", value: "Эмээл" },
-          { label: "Нас", value: "100+ жил" },
-          { label: "Төлөв", value: "Сайн" }
+          { label: "Ангилал", value: category },
+          { label: "Дэд ангилал", value: subcategory },
+          { label: "Төлөв", value: "Шинэ" },
+          { label: "Гарант", value: "1 жил" },
+          { label: "Хүргэлт", value: "Үнэгүй" },
+          { label: "Байршил", value: "Улаанбаатар" }
         ],
         images: [
-          "/images/pending1.png",
-          "/images/pending2.png",
-          "/images/pending3.png",
-          "/images/pending4.png",
-          "/images/pending1.png"
+          `/images/${id % 8 === 0 ? 'live1' : id % 8 === 1 ? 'live2' : id % 8 === 2 ? 'live3' : id % 8 === 3 ? 'live4' : id % 8 === 4 ? 'end1' : id % 8 === 5 ? 'end2' : id % 8 === 6 ? 'end3' : 'end4'}.png`,
+          `/images/live2.png`,
+          `/images/live3.png`,
+          `/images/live4.png`,
+          `/images/end1.png`
         ],
         bids: [
-          { id: 7, email: "faisal........@outlook.com", date: "2025.02.24", amount: "58,200,000₮" },
-          { id: 6, email: "1bes........@ymail.com", date: "2025.02.24", amount: "57,800,000₮" },
-          { id: 5, email: "john........@gmail.com", date: "2025.02.24", amount: "57,200,000₮" }
+          { id: 3, email: "user1@example.com", date: new Date().toLocaleDateString('mn-MN'), amount: `${price.toLocaleString('en-US', { maximumFractionDigits: 0 })}₮` },
+          { id: 2, email: "user2@example.com", date: new Date(Date.now() - 86400000).toLocaleDateString('mn-MN'), amount: `${Math.floor(price * 0.95).toLocaleString('en-US', { maximumFractionDigits: 0 })}₮` },
+          { id: 1, email: "user3@example.com", date: new Date(Date.now() - 172800000).toLocaleDateString('mn-MN'), amount: `${Math.floor(price * 0.9).toLocaleString('en-US', { maximumFractionDigits: 0 })}₮` }
         ]
-      },
-      "2": {
-        id: "2",
-        category: "Цахилгаан бараа",
-        title: "САМСУНГ ГАЛАКСИ S24 - ХАМГИЙН ШИНЭ МОДЕЛЬ",
-        startingPrice: "480,000₮",
-        lastPrice: "520,000₮",
-        mainImage: "/images/pending2.png",
-        endTime: new Date(now.getTime() + (1 * 24 + 18) * 60 * 60 * 1000).toISOString(), // 1 day 18 hours from now
-        description: "Самсунгийн хамгийн шинэ загвар, дээд зэргийн камертай, хурдтай процессортой ухаалаг утас.",
-        specifications: [
-          { label: "Загвар", value: "Galaxy S24" },
-          { label: "Процессор", value: "Snapdragon 8 Gen 3" },
-          { label: "RAM", value: "8GB" },
-          { label: "Хадгалах", value: "256GB" },
-          { label: "Камер", value: "200MP" },
-          { label: "Батарей", value: "5000mAh" }
-        ],
-        images: [
-          "/images/pending2.png",
-          "/images/pending3.png",
-          "/images/pending4.png",
-          "/images/pending1.png",
-          "/images/pending2.png"
-        ],
-        bids: [
-          { id: 6, email: "1bes........@ymail.com", date: "2025.02.24", amount: "520,000₮" },
-          { id: 5, email: "john........@gmail.com", date: "2025.02.24", amount: "510,000₮" },
-          { id: 4, email: "user........@hotmail.com", date: "2025.02.24", amount: "500,000₮" }
-        ]
-      },
-      "3": {
-        id: "3",
-        category: "Үнэт эдлэл",
-        title: "ДАМАСКУС ГАН - ХУУЧИН АРТИЗАНЫ ГАРТ ХИЙСЭН",
-        startingPrice: "820,000₮",
-        lastPrice: "890,000₮",
-        mainImage: "/images/pending3.png",
-        endTime: new Date(now.getTime() + (4 * 60 + 16) * 60 * 1000).toISOString(), // 4 hours 16 minutes from now
-        description: "Дамаскус гангаар хийсэн, хуучин артизаны гарт бүтсэн цэвэрхэн хутга. Уран дархны урлагийн бүтээл.",
-        specifications: [
-          { label: "Материал", value: "Дамаскус ган" },
-          { label: "Урт", value: "25см" },
-          { label: "Хийц", value: "Гараар хийсэн" },
-          { label: "Төрөл", value: "Хутга" },
-          { label: "Нас", value: "150+ жил" },
-          { label: "Төлөв", value: "Сайн" }
-        ],
-        images: [
-          "/images/pending3.png",
-          "/images/pending4.png",
-          "/images/pending1.png",
-          "/images/pending2.png",
-          "/images/pending3.png"
-        ],
-        bids: [
-          { id: 5, email: "john........@gmail.com", date: "2025.02.24", amount: "890,000₮" },
-          { id: 4, email: "user........@hotmail.com", date: "2025.02.24", amount: "870,000₮" },
-          { id: 3, email: "bidder........@yahoo.com", date: "2025.02.24", amount: "850,000₮" }
-        ]
-      },
-      "4": {
-        id: "4",
-        category: "Компьютер",
-        title: "ЭППЛ МАКБУК ПРО M3 - ХҮЧИРХЭГ ПРОЦЕССОРТОЙ",
-        startingPrice: "1,280,000₮",
-        lastPrice: "1,450,000₮",
-        mainImage: "/images/pending4.png",
-        endTime: new Date(now.getTime() + (1 * 24 + 20) * 60 * 60 * 1000).toISOString(), // 1 day 20 hours from now
-        description: "Apple M3 процессортой, хамгийн хүчирхэг MacBook Pro. График дизайн, видео засварт зориулсан.",
-        specifications: [
-          { label: "Загвар", value: "MacBook Pro M3" },
-          { label: "Процессор", value: "Apple M3" },
-          { label: "RAM", value: "16GB" },
-          { label: "SSD", value: "512GB" },
-          { label: "Дэлгэц", value: "14 inch" },
-          { label: "Үйлдлийн систем", value: "macOS Sonoma" }
-        ],
-        images: [
-          "/images/pending4.png",
-          "/images/pending1.png",
-          "/images/pending2.png",
-          "/images/pending3.png",
-          "/images/pending4.png"
-        ],
-        bids: [
-          { id: 4, email: "user........@hotmail.com", date: "2025.02.24", amount: "1,450,000₮" },
-          { id: 5, email: "john........@gmail.com", date: "2025.02.24", amount: "1,420,000₮" },
-          { id: 6, email: "1bes........@ymail.com", date: "2025.02.24", amount: "1,400,000₮" }
-        ]
-      },
-      "5": {
-        id: "5",
-        category: "Автомашин",
-        title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
-        startingPrice: "45,800,000₮",
-        lastPrice: "48,200,000₮",
-        mainImage: "/images/pending1.png",
-        endTime: new Date(now.getTime() + (3 * 24 + 15) * 60 * 60 * 1000).toISOString(), // 3 days 15 hours from now
-        description: "Тойота Лэнд Крузер, Борлуулагчийн хамгийн сайн сонголт. Хүчирхэг, найдвартай, тохилог SUV.",
-        specifications: [
-          { label: "Үйлдвэрлэсэн он", value: "2024" },
-          { label: "Импортлогдсон он", value: "2025" },
-          { label: "Хөдөлгүүр", value: "Бензин" },
-          { label: "Өнгө", value: "Цэнхэр" },
-          { label: "Моторын багтаамж", value: "3500CC" },
-          { label: "Хурдны хайрцаг", value: "Автомат" },
-          { label: "Хүрд", value: "Зөв" },
-          { label: "Хөтөлгч", value: "Бүх дугуй 4WD" },
-          { label: "Гүйлт", value: "8'000км" }
-        ],
-        images: [
-          "/images/pending1.png",
-          "/images/pending2.png",
-          "/images/pending3.png",
-          "/images/pending4.png",
-          "/images/pending1.png"
-        ],
-        bids: [
-          { id: 3, email: "bidder........@yahoo.com", date: "2025.02.24", amount: "48,200,000₮" },
-          { id: 2, email: "auction........@outlook.com", date: "2025.02.24", amount: "47,500,000₮" },
-          { id: 1, email: "faisal........@outlook.com", date: "2025.02.24", amount: "47,000,000₮" }
-        ]
-      }
+      };
     };
+    
+    // Mock auction database - in real app this would come from API/database
+    const auctionDatabase = {};
+    
+    // Generate data for all possible IDs
+    for (let i = 1; i <= 5; i++) {
+      auctionDatabase[i.toString()] = generateAuctionData(i);
+    }
+    
+    // Generate data for live auctions (1000+)
+    for (let i = 1000; i <= 1020; i++) {
+      auctionDatabase[i.toString()] = generateAuctionData(i);
+    }
+    
+    // Generate data for today's auctions (2000+)
+    for (let i = 2000; i <= 2020; i++) {
+      auctionDatabase[i.toString()] = generateAuctionData(i);
+    }
+    
+    // Generate data for pending auctions (100+)
+    for (let i = 101; i <= 120; i++) {
+      auctionDatabase[i.toString()] = generateAuctionData(i);
+    }
 
     // Return auction data or default data if not found
     return auctionDatabase[unwrappedParams.id] || {

@@ -11,28 +11,41 @@ export default function CompletedAuctionPage({ params }) {
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [auctionItem, setAuctionItem] = useState(null);
 
-  // Mock data for completed auction
+  // Mock data for completed auction - matches list page data
   useEffect(() => {
-    const completedAuctionData = {
-      id: unwrappedParams.id,
-      title: "Toyota Land Cruiser 2020",
-      finalPrice: 52000000,
-      startingPrice: 40000000,
-      endDate: "2024-01-15",
-      bidders: 15,
-      images: [
-        "/images/live1.png",
-        "/images/live2.png", 
-        "/images/live3.png",
-        "/images/live4.png"
-      ],
-      category: "АВТОМАШИН",
-      location: "Улаанбаатар",
-      winner: "Бат-Эрдэнэ",
-      isCompleted: true,
-      description: "Toyota Land Cruiser 2020 он, 4.6L V8 хөдөлгүүр, автомат дамжуулалт, 4WD систем, 85,000 км явсан, бүрэн тоноглогдсон, сайн байдалтай."
+    const generateCompletedAuctionData = (id) => {
+      const categories = ["АВТОМАШИН", "ГАР УТАС & ТАБЛЕТ", "КОМПЬЮТЕР", "ҮНЭТ ЭДЛЭЛ", "ЦАХИЛГААН БАРАА"];
+      const titles = ["Toyota Land Cruiser 2020", "iPhone 15 Pro Max 256GB", "MacBook Pro M3 14-inch", "Diamond Ring 2.5 Carat", "Samsung 65\" QLED TV", "Mercedes-Benz S-Class 2021"];
+      const winners = ["Бат-Эрдэнэ", "Сара", "Майк", "Анна", "Дэлгэр", "Төмөр"];
+      
+      const category = categories[id % categories.length];
+      const title = titles[id % titles.length];
+      const finalPrice = Math.random() * 50000000 + 100000;
+      const startingPrice = Math.floor(finalPrice * 0.7);
+      const bidders = Math.floor(Math.random() * 20) + 5;
+      
+      return {
+        id: id.toString(),
+        title,
+        finalPrice: finalPrice,
+        startingPrice: startingPrice,
+        endDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        bidders,
+        images: [
+          "/images/completed-section.png",
+          "/images/live2.png", 
+          "/images/live3.png",
+          "/images/live4.png"
+        ],
+        category,
+        location: "Улаанбаатар",
+        winner: winners[id % winners.length],
+        isCompleted: true,
+        description: `${title} - Дуудлага худалдаа дууссан, ${winners[id % winners.length]} хожигч болсон. Өндөр чанарын, найдвартай бараа.`
+      };
     };
     
+    const completedAuctionData = generateCompletedAuctionData(parseInt(unwrappedParams.id));
     setAuctionItem(completedAuctionData);
   }, [unwrappedParams.id]);
 

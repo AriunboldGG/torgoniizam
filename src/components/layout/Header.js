@@ -95,7 +95,7 @@ export default function Header() {
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className={`flex items-center space-x-2 transition-colors font-bold uppercase px-6 py-3 rounded-full font-tt-firs-neue-variable tracking-[2.4%] ${
-                    isActivePage("/auctions/today") || isActivePage("/auctions/pending")
+                    isActivePage("/auctions/live-auctions") || isActivePage("/auctions/today") || isActivePage("/auctions/pending")
                       ? "bg-[#FF4405] text-white"
                       : "text-gray-900 hover:text-gray-700"
                   }`}
@@ -107,7 +107,7 @@ export default function Header() {
                     width={12}
                     height={12}
                     className={`w-3 h-3 transition-transform ${isDropdownOpen ? 'rotate-180' : ''} ${
-                      isActivePage("/auctions/today") || isActivePage("/auctions/pending") ? "invert" : ""
+                      isActivePage("/auctions/live-auctions") || isActivePage("/auctions/today") || isActivePage("/auctions/pending") ? "invert" : ""
                     }`}
                   />
                 </button>
@@ -115,6 +115,23 @@ export default function Header() {
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
                   <div className="absolute top-full left-0 mt-3 w-72 bg-white rounded-lg shadow-xl border border-gray-200 py-3 z-50">
+                    <Link href="/auctions/live-auctions" onClick={() => setIsDropdownOpen(false)}>
+                      <div className={`px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
+                        isActivePage("/auctions/live-auctions") ? "bg-orange-50" : ""
+                      }`}>
+                        <span 
+                          className={`font-bold uppercase transition-colors font-tt-firs-neue-variable tracking-[2.4%] ${
+                            isActivePage("/auctions/live-auctions") 
+                              ? "text-[#FF4405]" 
+                              : "text-gray-700 hover:text-[#FF4405]"
+                          }`}
+                        >
+                          <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
+                            Одоо явагдаж буй дуудлага худалдаа
+                          </span>
+                        </span>
+                      </div>
+                    </Link>
                     <Link href="/auctions/today" onClick={() => setIsDropdownOpen(false)}>
                       <div className={`px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
                         isActivePage("/auctions/today") ? "bg-orange-50" : ""
@@ -311,6 +328,23 @@ export default function Header() {
 
                   {/* Auction Links */}
                   <div>
+                    <Link href="/auctions/live-auctions" onClick={() => setIsMobileMenuOpen(false)}>
+                      <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border mb-2 sm:mb-3 ${
+                        isActivePage("/auctions/live-auctions") ? "bg-orange-50 border-orange-200" : "border-gray-200"
+                      }`}>
+                        <span 
+                          className={`font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%] ${
+                            isActivePage("/auctions/live-auctions") 
+                              ? "text-[#FF4405]" 
+                              : "text-gray-700"
+                          }`}
+                        >
+                          <span className="text-sm">
+                            Одоо явагдаж буй дуудлага худалдаа
+                          </span>
+                        </span>
+                      </div>
+                    </Link>
                     <Link href="/auctions/today" onClick={() => setIsMobileMenuOpen(false)}>
                       <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border mb-2 sm:mb-3 ${
                         isActivePage("/auctions/today") ? "bg-orange-50 border-orange-200" : "border-gray-200"
