@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,6 +14,10 @@ export default function Header() {
   const { user, logout } = useUser();
   const router = useRouter();
   const pathname = usePathname();
+  
+  // Refs for dropdown elements
+  const dropdownRef = useRef(null);
+  const userMenuRef = useRef(null);
 
   // Close dropdowns when navigating to a new page
   useEffect(() => {
@@ -21,6 +25,26 @@ export default function Header() {
     setIsMobileMenuOpen(false);
     setIsUserMenuOpen(false);
   }, [pathname]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close auction dropdown
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+      
+      // Close user menu dropdown
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -67,7 +91,7 @@ export default function Header() {
               </Link>
 
               {/* Auction Dropdown */}
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className={`flex items-center space-x-2 transition-colors font-bold uppercase px-6 py-3 rounded-full font-tt-firs-neue-variable tracking-[2.4%] ${
@@ -129,6 +153,21 @@ export default function Header() {
                 )}
               </div>
 
+              {/* My History - Only for logged in users */}
+              {user && (
+                <Link href="/my-account/auctions">
+                  <div 
+                    className={`px-5 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer font-tt-firs-neue-variable tracking-[2.4%] ${
+                      isActivePage("/my-account/auctions") 
+                        ? "bg-[#FF4405] text-white" 
+                        : "bg-white text-gray-700"
+                    }`}
+                  >
+                    <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">МИНИЙ ТҮҮХ</span>
+                  </div>
+                </Link>
+              )}
+
               {/* About Page */}
               <Link href="/about">
                 <div 
@@ -162,7 +201,7 @@ export default function Header() {
               
               {user ? (
                 /* Logged in user - show user menu */
-                <div className="relative">
+                <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="flex items-center space-x-3 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors"
@@ -307,6 +346,20 @@ export default function Header() {
                       </div>
                     </Link>
                   </div>
+
+                  {/* My History - Only for logged in users */}
+                  {user && (
+                    <Link href="/my-account/auctions" onClick={() => setIsMobileMenuOpen(false)}>
+                      <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 font-tt-firs-neue-variable tracking-[2.4%] ${
+                        isActivePage("/my-account/auctions") 
+                          ? "bg-[#FF4405] text-white" 
+                          : "bg-white text-gray-700 border border-gray-200"
+                      }`}
+                      >
+                        <span className="text-sm">МИНИЙ ТҮҮХ</span>
+                      </div>
+                    </Link>
+                  )}
 
                   {/* About Page */}
                   <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>

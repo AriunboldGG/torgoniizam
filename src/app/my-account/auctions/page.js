@@ -54,6 +54,7 @@ export default function AuctionsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isReceivedDialogOpen, setIsReceivedDialogOpen] = useState(false)
   const [selectedAuction, setSelectedAuction] = useState(null)
+  const [activeFilter, setActiveFilter] = useState('all') // 'all', 'won', 'lost', 'active'
 
   // Dynamic participated auctions based on user's bidding history
   const participatedAuctions = useMemo(() => {
@@ -206,6 +207,25 @@ export default function AuctionsPage() {
     return { total, won, lost, active }
   }, [participatedAuctions])
 
+  // Filter auctions based on active filter
+  const filteredAuctions = useMemo(() => {
+    if (activeFilter === 'all') {
+      return participatedAuctions
+    } else if (activeFilter === 'won') {
+      return participatedAuctions.filter(a => a.status === 'won' || a.status === 'received')
+    } else if (activeFilter === 'lost') {
+      return participatedAuctions.filter(a => a.status === 'lost')
+    } else if (activeFilter === 'active') {
+      return participatedAuctions.filter(a => a.status === 'bidding' || a.status === 'outbid')
+    }
+    return participatedAuctions
+  }, [participatedAuctions, activeFilter])
+
+  // Handle filter click
+  const handleFilterClick = (filter) => {
+    setActiveFilter(filter)
+  }
+
   return (
     <div className="p-4 lg:p-6">
       <div className="mx-auto max-w-4xl">
@@ -221,29 +241,49 @@ export default function AuctionsPage() {
           )}
         </div>
 
-        {/* Auction Statistics */}
+        {/* Auction Statistics - Clickable Filters */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 lg:mb-8">
-          <div className="bg-white rounded-lg shadow-sm border p-4 text-center">
+          <button 
+            onClick={() => handleFilterClick('all')}
+            className={`bg-white rounded-lg shadow-sm border p-4 text-center transition-all duration-200 hover:shadow-md ${
+              activeFilter === 'all' ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+            }`}
+          >
             <div className="text-2xl font-bold text-blue-600">{auctionStats.total}</div>
             <div className="text-sm text-gray-600">Нийт</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border p-4 text-center">
+          </button>
+          <button 
+            onClick={() => handleFilterClick('won')}
+            className={`bg-white rounded-lg shadow-sm border p-4 text-center transition-all duration-200 hover:shadow-md ${
+              activeFilter === 'won' ? 'ring-2 ring-green-500 bg-green-50' : 'hover:bg-gray-50'
+            }`}
+          >
             <div className="text-2xl font-bold text-green-600">{auctionStats.won}</div>
             <div className="text-sm text-gray-600">Ялсан</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border p-4 text-center">
+          </button>
+          <button 
+            onClick={() => handleFilterClick('lost')}
+            className={`bg-white rounded-lg shadow-sm border p-4 text-center transition-all duration-200 hover:shadow-md ${
+              activeFilter === 'lost' ? 'ring-2 ring-red-500 bg-red-50' : 'hover:bg-gray-50'
+            }`}
+          >
             <div className="text-2xl font-bold text-red-600">{auctionStats.lost}</div>
             <div className="text-sm text-gray-600">Ялаагүй</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border p-4 text-center">
+          </button>
+          <button 
+            onClick={() => handleFilterClick('active')}
+            className={`bg-white rounded-lg shadow-sm border p-4 text-center transition-all duration-200 hover:shadow-md ${
+              activeFilter === 'active' ? 'ring-2 ring-orange-500 bg-orange-50' : 'hover:bg-gray-50'
+            }`}
+          >
             <div className="text-2xl font-bold text-orange-600">{auctionStats.active}</div>
             <div className="text-sm text-gray-600">Идэвхтэй</div>
-          </div>
+          </button>
         </div>
         
         {/* Participated Auctions List */}
         <div className="space-y-4 lg:space-y-6">
-          {participatedAuctions.map((auction) => (
+          {filteredAuctions.map((auction) => (
             <div key={auction.id} className="bg-white rounded-lg shadow-sm border p-4 lg:p-6">
               <div className="flex flex-col sm:flex-row gap-4 lg:gap-6">
                 {/* Auction Image */}
