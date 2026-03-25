@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import ImageZoom from "@/components/ui/image-zoom"
+import { FiCalendar } from "react-icons/fi"
 
 export default function PendingAuctionPage({ params }) {
   const unwrappedParams = use(params);
@@ -11,54 +12,55 @@ export default function PendingAuctionPage({ params }) {
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [auctionItem, setAuctionItem] = useState(null);
 
-  // Mock data for pending auction - matches list page data
   useEffect(() => {
-    const generatePendingAuctionData = (id) => {
-      const categories = ["АВТОМАШИН", "ГАР УТАС & ТАБЛЕТ", "КОМПЬЮТЕР", "ҮНЭТ ЭДЛЭЛ", "ЦАХИЛГААН БАРАА"];
-      const subcategories = ["СЕДАН", "SUV", "ХАЧГИЙН МАШИН", "МОТОЦИКЛ"];
-      const titles = ["ДАМАСКУС ГАН", "САМСУНГ ГАЛАКСИ S24", "ЦЭНХЭР ЭРДЭНИЙН ЧУЛУУ", "ЭППЛ МАКБУК ПРО M3", "ТОЙОТА ЛЭНД КРУЗЕР", "УХААЛАГ ГАР УТАС", "ХАР LAPTOP", "УГААЛГЫН МАШИН"];
-      
-      const category = categories[id % categories.length];
-      const subcategory = subcategories[id % subcategories.length];
-      const title = titles[id % titles.length];
-      const price = Math.random() * 50000000 + 100000;
-      const startingPrice = Math.floor(price * 0.8);
-      
-      return {
-        id: id.toString(),
-        title: `Хүлээгдэж буй бараа ${id} - ${title}`,
-        startingPrice: startingPrice,
-        currentBid: price,
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date(Date.now() + (Math.random() * 30 + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        images: [
-          `/images/${id % 8 === 0 ? 'pending1' : id % 8 === 1 ? 'pending2' : id % 8 === 2 ? 'pending3' : id % 8 === 3 ? 'pending4' : id % 8 === 4 ? 'end1' : id % 8 === 5 ? 'end2' : id % 8 === 6 ? 'end3' : 'end4'}.png`,
-          "/images/live2.png", 
-          "/images/live3.png",
-          "/images/live4.png"
-        ],
-        category,
-        subcategory,
-        location: "Улаанбаатар",
-        isPending: true,
-        description: `${title} - Өндөр чанарын, найдвартай бараа. Дуудлага худалдаанд оролцож, хамгийн сайн үнээр авч болно.`
-      };
-    };
-    
-    const pendingAuctionData = generatePendingAuctionData(parseInt(unwrappedParams.id));
-    setAuctionItem(pendingAuctionData);
+    const fetchLot = async () => {
+      try {
+        const response = await fetch(`/api/lot/detail/${unwrappedParams.id}`)
+        const json = await response.json()
+        const lot = json?.data ?? json
+
+        const rawImages = Array.isArray(lot.images) ? lot.images : []
+        const images = rawImages.length > 0
+          ? rawImages.map((img) => (typeof img === "string" ? img : img.url ?? img.image ?? ""))
+          : [lot.thumbnail ?? "/images/pending1.png"]
+
+        const attrs = lot.attributes && typeof lot.attributes === "object" && !Array.isArray(lot.attributes)
+          ? Object.entries(lot.attributes).map(([label, value]) => ({ label, value: String(value) }))
+          : []
+
+        setAuctionItem({
+          id: lot.id,
+          title: lot.name ?? "",
+          startingPrice: lot.starting_price != null ? Number(lot.starting_price) : 0,
+          startDate: lot.start_date ?? "",
+          endDate: lot.end_date ?? "",
+          images,
+          category: lot.category?.value ?? "",
+          location: lot.city?.value ?? "Улаанбаатар",
+          isPending: true,
+          description: lot.description ?? "",
+          attributes: attrs,
+        })
+      } catch (error) {
+        console.error("Failed to fetch lot detail:", error)
+      }
+    }
+    fetchLot()
   }, [unwrappedParams.id]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('mn-MN').format(price);
   };
 
-  const formatDate = (dateString) => {
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString('mn-MN', {
+    return date.toLocaleString('mn-MN', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -128,8 +130,9 @@ export default function PendingAuctionPage({ params }) {
               </div>
               
               {/* Start Date */}
-              <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg text-sm font-bold">
-                📅 {formatDate(auctionItem.startDate)}
+              <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg text-sm font-bold flex items-center gap-1.5">
+                <FiCalendar className="w-4 h-4" />
+                {formatDateTime(auctionItem.startDate)}
               </div>
             </div>
             
@@ -192,13 +195,13 @@ export default function PendingAuctionPage({ params }) {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Эхлэх огноо:</span>
                     <span className="text-lg font-medium text-gray-900">
-                      {formatDate(auctionItem.startDate)}
+                      {formatDateTime(auctionItem.startDate)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Дуусах огноо:</span>
                     <span className="text-lg font-medium text-gray-900">
-                      {formatDate(auctionItem.endDate)}
+                      {formatDateTime(auctionItem.endDate)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -217,9 +220,21 @@ export default function PendingAuctionPage({ params }) {
                 <h3 className="text-xl font-bold text-gray-900 mb-4 font-tt-firs-neue-variable">
                   Барааны дэлгэрэнгүй
                 </h3>
-                <p className="text-gray-700 leading-relaxed">
-                  {auctionItem.description}
-                </p>
+                {auctionItem.description && (
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    {auctionItem.description}
+                  </p>
+                )}
+                {auctionItem.attributes?.length > 0 && (
+                  <div className="space-y-3">
+                    {auctionItem.attributes.map((attr, index) => (
+                      <div key={index} className="flex justify-between py-2 border-b border-gray-100 last:border-b-0">
+                        <span className="text-gray-600 font-medium">{attr.label}</span>
+                        <span className="font-bold text-gray-900">{attr.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 

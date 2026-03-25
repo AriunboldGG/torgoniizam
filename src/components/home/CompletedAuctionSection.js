@@ -41,88 +41,39 @@ export default function CompletedAuctionSection() {
     }
   }, []);
 
-  const allCompletedAuctions = useMemo(() => [
-    {
-      id: 1,
-      image: "/images/end1.png",
-      category: "Гар утас, таблет",
-      title: "САМСУНГ ГАЛАКСИ S24 - ХАМГИЙН ШИНЭ МОДЕЛЬ",
-      finalPrice: "1,400,000₮",
-      status: "ДУУССАН"
-    },
-    {
-      id: 2,
-      image: "/images/end2.png",
-      category: "Цахилгаан бараа",
-      title: "СОНИ БРАВИЯ - 4K ХАМГИЙН САЙН КАЧЕСТЬТЭЙ",
-      finalPrice: "480,000₮",
-      status: "ДУУССАН"
-    },
-    {
-      id: 3,
-      image: "/images/end3.png",
-      category: "Үнэт эдлэл",
-      title: "ДАМАСКУС ГАН - ХУУЧИН АРТИЗАНЫ ГАРТ ХИЙСЭН",
-      finalPrice: "1,280,000₮",
-      status: "ДУУССАН"
-    },
-    {
-      id: 4,
-      image: "/images/end4.png",
-      category: "Автомашин",
-      title: "ФОРД БРОНКО - ХАМГИЙН ХҮЧИРХЭГ SUV",
-      finalPrice: "820,000₮",
-      status: "ДУУССАН"
-    },
-    {
-      id: 5,
-      image: "/images/end1.png",
-      category: "Компьютер",
-      title: "ЭППЛ МАКБУК ПРО M3 - ХҮЧИРХЭГ ПРОЦЕССОРТОЙ",
-      finalPrice: "3,680,000₮",
-      status: "ДУУССАН"
-    },
-    {
-      id: 6,
-      image: "/images/end2.png",
-      category: "Үнэт эдлэл",
-      title: "БРИЛЛИАНТ ЭРГЭНЭ - 5 КАРАТЫН ЧИСТЭЙ ТАЛСТ",
-      finalPrice: "2,450,000₮",
-      status: "ДУУССАН"
-    },
-    {
-      id: 7,
-      image: "/images/end3.png",
-      category: "Автомашин",
-      title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
-      finalPrice: "45,800,000₮",
-      status: "ДУУССАН"
-    },
-    {
-      id: 8,
-      image: "/images/end4.png",
-      category: "Цахилгаан бараа",
-      title: "СОНИ ПЛЕЙСТЕЙШН 5 - ГЭМТЭЛГҮЙ БАЙГУУЛЛАГА",
-      finalPrice: "1,750,000₮",
-      status: "ДУУССАН"
-    },
-    {
-      id: 9,
-      image: "/images/end1.png",
-      category: "Үнэт эдлэл",
-      title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-      finalPrice: "890,000₮",
-      status: "ДУУССАН"
-    },
-    {
-      id: 10,
-      image: "/images/end2.png",
-      category: "Компьютер",
-      title: "ГЭЙМИНГ КОМПЬЮТЕР - RTX 4090 ГРАФИК КАРТТАЙ",
-      finalPrice: "4,200,000₮",
-      status: "ДУУССАН"
+  const [allCompletedAuctions, setAllCompletedAuctions] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchLots = async () => {
+      try {
+        const response = await fetch("/api/lot/list?status=completed")
+        const data = await response.json()
+        const list = data?.data?.results ?? data?.results ?? (Array.isArray(data?.data) ? data.data : null) ?? []
+        if (Array.isArray(list)) {
+          setAllCompletedAuctions(
+            list.map((lot) => ({
+              id: lot.id,
+              imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
+              category: lot.category?.value ?? "",
+              title: lot.name ?? "",
+              finalPrice: lot.final_price != null
+                ? `${Number(lot.final_price).toLocaleString()}₮`
+                : lot.current_bid != null
+                ? `${Number(lot.current_bid).toLocaleString()}₮`
+                : "",
+              status: "ДУУССАН",
+            }))
+          )
+        }
+      } catch (error) {
+        console.error("Failed to fetch completed auctions:", error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  ], []);
+    fetchLots()
+  }, [])
 
   // Filter auctions based on search query and category
   const completedAuctions = useMemo(() => {
@@ -200,7 +151,11 @@ export default function CompletedAuctionSection() {
 
           {/* Horizontal Scrollable Cards Row */}
           <div ref={scrollContainerRef} className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-            {completedAuctions.length > 0 ? (
+            {isLoading ? (
+              <div className="w-full text-center py-12">
+                <div className="text-gray-400 text-lg">Уншиж байна...</div>
+              </div>
+            ) : completedAuctions.length > 0 ? (
               completedAuctions.map((auction) => (
               <Card 
                 key={auction.id} 
@@ -210,11 +165,9 @@ export default function CompletedAuctionSection() {
                 <CardContent className="p-0">
                   {/* Product Image with Status Badge */}
                   <div className="relative">
-                    <Image 
-                      src={auction.image} 
+                    <img 
+                      src={auction.imageUrl || "/images/end1.png"} 
                       alt={auction.title}
-                      width={300}
-                      height={192}
                       className="w-full h-48 object-cover"
                     />
                     {/* Status Badge */}

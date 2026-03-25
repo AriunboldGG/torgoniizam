@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function WalletPage() {
-  const { walletBalance, updateBalance, resetToDefault } = useWallet() // Get dynamic wallet balance
+  const { walletBalance, heldBalance, isLoadingBalance, updateBalance } = useWallet()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isWithdrawDialogOpen, setIsWithdrawDialogOpen] = useState(false)
   const [isRechargeDialogOpen, setIsRechargeDialogOpen] = useState(false)
@@ -27,6 +27,76 @@ export default function WalletPage() {
   const [accountNumber, setAccountNumber] = useState("")
   const [selectedAccount, setSelectedAccount] = useState("")
   const [withdrawAmount, setWithdrawAmount] = useState("")
+  const [rechargeAmount, setRechargeAmount] = useState("")
+  const [isTopupLoading, setIsTopupLoading] = useState(false)
+  const [isWithdrawLoading, setIsWithdrawLoading] = useState(false)
+  const [isConnectLoading, setIsConnectLoading] = useState(false)
+  const [banks, setBanks] = useState([])
+  const [connectedAccounts, setConnectedAccounts] = useState([])
+  const [transactions, setTransactions] = useState([])
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(true)
+
+  useEffect(() => {
+    const fetchBanks = async () => {
+      try {
+        const accessToken = localStorage.getItem("access_token")
+        const response = await fetch("/api/bank/list", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        const data = await response.json()
+        const list = data?.data ?? data
+        if (Array.isArray(list)) {
+          setBanks(list.map((b) => ({ value: b.id, label: b.name ?? b.bank_name ?? b.label })))
+        }
+      } catch (error) {
+        console.error("Failed to fetch banks:", error)
+      }
+    }
+
+    const fetchAccounts = async () => {
+      try {
+        const accessToken = localStorage.getItem("access_token")
+        const response = await fetch("/api/account/list", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        const data = await response.json()
+        const list = data?.data ?? data
+        if (Array.isArray(list)) {
+          setConnectedAccounts(
+            list.map((a) => ({
+              value: a.account_no,
+              label: a.account_no,
+              bank: a.bank?.name ?? a.bank_name ?? "",
+            }))
+          )
+        }
+      } catch (error) {
+        console.error("Failed to fetch accounts:", error)
+      }
+    }
+
+    fetchBanks()
+    fetchAccounts()
+
+    const fetchTransactions = async () => {
+      try {
+        const accessToken = localStorage.getItem("access_token")
+        const response = await fetch("/api/wallet/transactions", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        const data = await response.json()
+        const list = data?.results ?? data?.data ?? data
+        if (Array.isArray(list)) {
+          setTransactions(list)
+        }
+      } catch (error) {
+        console.error("Failed to fetch transactions:", error)
+      } finally {
+        setIsLoadingTransactions(false)
+      }
+    }
+    fetchTransactions()
+  }, [])
 
   // Custom styles for better dropdown visibility
   useEffect(() => {
@@ -61,22 +131,6 @@ export default function WalletPage() {
     }
   }, [])
 
-  const banks = [
-    { value: "khan-bank", label: "Хаан Банк" },
-    { value: "golomt-bank", label: "Голомт Банк" },
-    { value: "m-bank", label: "M Банк" },
-    { value: "state-bank", label: "Төрийн Банк" },
-    { value: "capitron-bank", label: "Капитрон Банк" },
-    { value: "bogd-bank", label: "Богд Банк" },
-    { value: "arig-bank", label: "Ариг Банк" },
-    { value: "xac-bank", label: "ХАС Банк" }
-  ]
-
-  const connectedAccounts = [
-    // These would be populated from actual user's connected accounts
-    // For demo purposes, showing empty state
-  ]
-
   const rechargeBankAccount = {
     bank: "Хаан банк",
     accountNumber: "5040647892",
@@ -84,52 +138,124 @@ export default function WalletPage() {
     transactionPurpose: "AOjasd456as"
   }
 
-  const handleConnectAccount = () => {
+  const handleConnectAccount = async () => {
     if (!selectedBank || !accountNumber) {
       alert("Банк болон дансны дугаарыг оруулна уу")
       return
     }
-    
-    // Here you would typically make an API call to connect the account
-    console.log("Connecting account:", { bank: selectedBank, accountNumber })
-    alert("Данс амжилттай холбогдлоо!")
-    setIsDialogOpen(false)
-    setSelectedBank("")
-    setAccountNumber("")
+    setIsConnectLoading(true)
+    try {
+      const accessToken = localStorage.getItem("access_token")
+      const response = await fetch("/api/account/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ bank: Number(selectedBank), account_no: accountNumber }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        alert(data?.detail || "Данс холбоход алдаа гарлаа. Дахин оролдоно уу.")
+        return
+      }
+      alert("Данс амжилттай холбогдлоо!")
+      // Refresh connected accounts
+      const accessToken2 = localStorage.getItem("access_token")
+      const res = await fetch("/api/account/list", { headers: { Authorization: `Bearer ${accessToken2}` } })
+      const d = await res.json()
+      const lst = d?.data ?? d
+      if (Array.isArray(lst)) {
+        setConnectedAccounts(lst.map((a) => ({ value: a.account_no, label: a.account_no, bank: a.bank?.name ?? a.bank_name ?? "" })))
+      }
+      setIsDialogOpen(false)
+      setSelectedBank("")
+      setAccountNumber("")
+    } catch (error) {
+      console.error("Connect account error:", error)
+      alert("Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.")
+    } finally {
+      setIsConnectLoading(false)
+    }
   }
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
     if (connectedAccounts.length === 0) {
       alert("Холбогдсон данс байхгүй байна. Эхлээд дансаа холбоно уу.")
       return
     }
-    
     if (!selectedAccount || !withdrawAmount) {
       alert("Данс болон дүнгээ оруулна уу")
       return
     }
-    
     const amount = parseFloat(withdrawAmount)
     if (amount < 1000) {
       alert("1000₮-өөс дээш дүнгээр таталт хийх боломжтой")
       return
     }
-    
     if (amount > walletBalance) {
       alert(`Хэтэвчний үлдэгдэл хүрэлцэхгүй байна. Таны үлдэгдэл: ${walletBalance.toLocaleString()}₮`)
       return
     }
-    
-    // Update wallet balance
-    const newBalance = walletBalance - amount
-    updateBalance(newBalance)
-    
-    // Here you would typically make an API call to process withdrawal
-    console.log("Processing withdrawal:", { account: selectedAccount, amount, newBalance })
-    alert("Таталт амжилттай хийгдлээ!")
-    setIsWithdrawDialogOpen(false)
-    setSelectedAccount("")
-    setWithdrawAmount("")
+    setIsWithdrawLoading(true)
+    try {
+      const accessToken = localStorage.getItem("access_token")
+      const response = await fetch("/api/wallet/withdraw", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ bank_account: selectedAccount, amount: String(amount) }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        alert(data?.detail || "Таталт хийхэд алдаа гарлаа. Дахин оролдоно уу.")
+        return
+      }
+      alert("Таталт амжилттай хийгдлээ!")
+      setIsWithdrawDialogOpen(false)
+      setSelectedAccount("")
+      setWithdrawAmount("")
+    } catch (error) {
+      console.error("Withdraw error:", error)
+      alert("Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.")
+    } finally {
+      setIsWithdrawLoading(false)
+    }
+  }
+
+  const handleTopup = async () => {
+    const amount = parseFloat(rechargeAmount)
+    if (!rechargeAmount || isNaN(amount) || amount <= 0) {
+      alert("Цэнэглэх дүнгээ оруулна уу")
+      return
+    }
+    setIsTopupLoading(true)
+    try {
+      const accessToken = localStorage.getItem("access_token")
+      const response = await fetch("/api/wallet/topup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ amount }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        alert(data?.detail || "Цэнэглэхэд алдаа гарлаа. Дахин оролдоно уу.")
+        return
+      }
+      alert("Цэнэглэлтийн хүсэлт амжилттай илгээгдлээ!")
+      setIsRechargeDialogOpen(false)
+      setRechargeAmount("")
+    } catch (error) {
+      console.error("Topup error:", error)
+      alert("Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.")
+    } finally {
+      setIsTopupLoading(false)
+    }
   }
 
   const copyToClipboard = (text) => {
@@ -140,40 +266,6 @@ export default function WalletPage() {
     })
   }
 
-  const transactions = [
-    {
-      id: 1,
-      type: "recharge",
-      description: "Хэтэвч цэнэглэлт хийгдсэн",
-      date: "2025.02.24",
-      amount: "+240,000₮",
-      isPositive: true
-    },
-    {
-      id: 2,
-      type: "withdrawal",
-      description: "Таталт хийгдсэн",
-      date: "2025.02.24",
-      amount: "-200,000₮",
-      isPositive: false
-    },
-    {
-      id: 3,
-      type: "withdrawal",
-      description: "Таталт хийгдсэн",
-      date: "2025.02.24",
-      amount: "-80,000₮",
-      isPositive: false
-    },
-    {
-      id: 4,
-      type: "recharge",
-      description: "Хэтэвч цэнэглэлт хийгдсэн",
-      date: "2025.02.24",
-      amount: "+400,000₮",
-      isPositive: true
-    }
-  ]
 
   return (
     <div className="p-3 xs-mobile:p-4 lg:p-6">
@@ -201,20 +293,20 @@ export default function WalletPage() {
             <p className="text-base lg:text-lg mb-4">Хэтэвчний үлдэгдэл</p>
             
             {/* Current Balance */}
-            <div className="text-3xl lg:text-5xl font-bold mb-6 lg:mb-8">{walletBalance.toLocaleString()}₮</div>
+            <div className="text-3xl lg:text-5xl font-bold mb-2">
+              {isLoadingBalance ? "..." : `${walletBalance.toLocaleString()}₮`}
+            </div>
+
+            {/* Held Balance */}
+            {heldBalance > 0 && (
+              <p className="text-sm text-orange-100 mb-6 lg:mb-8">
+                Түр хадгалагдсан: {heldBalance.toLocaleString()}₮
+              </p>
+            )}
+            {heldBalance === 0 && <div className="mb-6 lg:mb-8" />}
             
             {/* Action Buttons */}
             <div className="flex flex-col gap-3 lg:gap-4 justify-center">
-              {/* Temporary Reset Button - Remove this after testing */}
-              <Button 
-                onClick={() => {
-                  resetToDefault();
-                  alert("Шинэчлэх 840,000₮");
-                }}
-                className="bg-green-600 hover:bg-green-700 text-white font-tt-firs-neue-variable font-medium text-sm"
-              >
-                🔄 Шинэчлэх 840,000₮ (Тест)
-              </Button>
                              <Dialog open={isRechargeDialogOpen} onOpenChange={setIsRechargeDialogOpen}>
                  <DialogTrigger asChild>
                    <button className="bg-gray-800 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
@@ -305,15 +397,38 @@ export default function WalletPage() {
                          </button>
                        </div>
                      </div>
+
+                     {/* Topup Amount */}
+                     <div className="grid gap-2">
+                       <Label htmlFor="recharge-amount" className="text-sm font-medium text-gray-700">
+                         Цэнэглэх дүн <span className="text-red-500">*</span>
+                       </Label>
+                       <Input
+                         id="recharge-amount"
+                         type="number"
+                         placeholder="Дүнгээ оруулна уу"
+                         value={rechargeAmount}
+                         onChange={(e) => setRechargeAmount(e.target.value)}
+                         className="w-full text-lg"
+                       />
+                     </div>
                    </div>
                    
                    <DialogFooter className="flex-shrink-0 flex justify-end pt-4">
                      <Button 
                        variant="outline"
                        onClick={() => setIsRechargeDialogOpen(false)}
-                       className="px-6 xs-mobile:px-8"
+                       className="px-6 xs-mobile:px-8 mr-2"
+                       disabled={isTopupLoading}
                      >
                        ХААХ
+                     </Button>
+                     <Button
+                       onClick={handleTopup}
+                       className="bg-orange-500 hover:bg-orange-600 text-white px-6 xs-mobile:px-8"
+                       disabled={isTopupLoading}
+                     >
+                       {isTopupLoading ? "Илгээж байна..." : "ЦЭНЭГЛЭХ"}
                      </Button>
                    </DialogFooter>
                  </DialogContent>
@@ -410,8 +525,9 @@ export default function WalletPage() {
                       <Button 
                         onClick={handleWithdraw}
                         className="bg-orange-500 hover:bg-orange-600 text-white px-6 xs-mobile:px-8"
+                        disabled={isWithdrawLoading}
                       >
-                        ТАТАЛТ ХИЙХ
+                        {isWithdrawLoading ? "Илгээж байна..." : "ТАТАЛТ ХИЙХ"}
                       </Button>
                     </DialogFooter>
                  </DialogContent>
@@ -433,30 +549,30 @@ export default function WalletPage() {
                   </DialogHeader>
                   
                   <div className="flex-1 overflow-y-auto grid gap-3 xs-mobile:gap-4 py-3 xs-mobile:py-4">
-                                         <div className="grid gap-2">
-                       <Label htmlFor="bank" className="text-sm font-medium text-gray-700">Банк</Label>
-                       <Select value={selectedBank} onValueChange={setSelectedBank}>
-                         <SelectTrigger className="w-full">
-                           <SelectValue placeholder="Сонгоно уу" />
-                         </SelectTrigger>
-                         <SelectContent 
-                           className="select-dropdown-fix max-h-[300px] z-[100] bg-white border border-gray-200 rounded-lg shadow-lg"
-                           position="popper"
-                           sideOffset={4}
-                         >
-                                                       {banks.map((bank) => (
-                              <SelectItem 
-                                key={bank.value} 
-                                value={bank.value} 
-                                className="cursor-pointer hover:bg-orange-100 py-3 px-3 bg-white border-b border-gray-100 last:border-b-0 transition-colors"
-                              >
-                                {bank.label}
-                              </SelectItem>
-                            ))}
-                         </SelectContent>
-                       </Select>
-                     </div>
-                    
+                    <div className="grid gap-2">
+                      <Label htmlFor="bank" className="text-sm font-medium text-gray-700">Банк</Label>
+                      <Select value={selectedBank} onValueChange={setSelectedBank}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Сонгоно уу" />
+                        </SelectTrigger>
+                        <SelectContent
+                          className="select-dropdown-fix max-h-[300px] z-[100] bg-white border border-gray-200 rounded-lg shadow-lg"
+                          position="popper"
+                          sideOffset={4}
+                        >
+                          {banks.map((bank) => (
+                            <SelectItem
+                              key={bank.value}
+                              value={String(bank.value)}
+                              className="cursor-pointer hover:bg-orange-100 py-3 px-3 bg-white border-b border-gray-100 last:border-b-0 transition-colors"
+                            >
+                              {bank.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     <div className="grid gap-2">
                       <Label htmlFor="account" className="text-sm font-medium text-gray-700">
                         Дансны дугаар <span className="text-red-500">*</span>
@@ -473,15 +589,16 @@ export default function WalletPage() {
                   
                   <DialogFooter className="flex-shrink-0 flex gap-3 pt-4">
                     <DialogClose asChild>
-                      <Button variant="outline" className="flex-1">
+                      <Button variant="outline" className="flex-1" disabled={isConnectLoading}>
                         БУЦАХ
                       </Button>
                     </DialogClose>
                     <Button 
                       onClick={handleConnectAccount}
                       className="flex-1 bg-orange-500 hover:bg-orange-600 text-white"
+                      disabled={isConnectLoading}
                     >
-                      ХОЛБОХ
+                      {isConnectLoading ? "Илгээж байна..." : "ХОЛБОХ"}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -495,33 +612,44 @@ export default function WalletPage() {
           <h2 className="text-lg lg:text-xl font-semibold text-gray-900 mb-4 lg:mb-6">ГҮЙЛГЭЭНИЙ мэдээлэл</h2>
           
           <div className="space-y-2 xs-mobile:space-y-3 lg:space-y-4">
-            {transactions.map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between p-2 xs-mobile:p-3 lg:p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
-                  {/* Transaction Icon */}
-                  <div className={`w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    transaction.isPositive ? 'bg-orange-500' : 'bg-gray-800'
-                  }`}>
-                    <span className="text-white text-xs lg:text-sm font-bold">
-                      {transaction.isPositive ? '+' : '↓'}
+            {isLoadingTransactions ? (
+              <p className="text-center text-gray-400 py-6">Уншиж байна...</p>
+            ) : transactions.length === 0 ? (
+              <p className="text-center text-gray-400 py-6">Гүйлгээний мэдээлэл байхгүй байна</p>
+            ) : (
+              transactions.map((transaction, index) => {
+                const txnKey = transaction.txn_type?.key ?? transaction.type ?? ""
+                const isTopup = txnKey !== "WITHDRAWAL"
+                const amount = parseFloat(transaction.amount ?? 0)
+                const formattedAmount = `${isTopup ? "+" : "-"}${amount.toLocaleString()}₮`
+                const date = transaction.created_at
+                  ? new Date(transaction.created_at).toLocaleDateString("mn-MN")
+                  : ""
+                const description = transaction.txn_type?.value ?? (isTopup ? "Хэтэвч цэнэглэлт хийгдсэн" : "Таталт хийгдсэн")
+                return (
+                  <div key={transaction.id ?? index} className="flex items-center justify-between p-2 xs-mobile:p-3 lg:p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
+                      <div className={`w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        isTopup ? "bg-orange-500" : "bg-gray-800"
+                      }`}>
+                        <span className="text-white text-xs lg:text-sm font-bold">
+                          {isTopup ? "+" : "↓"}
+                        </span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-gray-900 text-sm lg:text-base truncate">{description}</p>
+                        <p className="text-xs lg:text-sm text-gray-500">{date}</p>
+                      </div>
+                    </div>
+                    <span className={`font-bold text-base lg:text-lg flex-shrink-0 ml-2 ${
+                      isTopup ? "text-orange-500" : "text-gray-900"
+                    }`}>
+                      {formattedAmount}
                     </span>
                   </div>
-                  
-                  {/* Transaction Details */}
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-gray-900 text-sm lg:text-base truncate">{transaction.description}</p>
-                    <p className="text-xs lg:text-sm text-gray-500">{transaction.date}</p>
-                  </div>
-                </div>
-                
-                {/* Amount */}
-                <span className={`font-bold text-base lg:text-lg flex-shrink-0 ml-2 ${
-                  transaction.isPositive ? 'text-orange-500' : 'text-gray-900'
-                }`}>
-                  {transaction.amount}
-                </span>
-              </div>
-            ))}
+                )
+              })
+            )}
           </div>
         </div>
       </div>

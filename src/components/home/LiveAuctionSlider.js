@@ -97,102 +97,39 @@ export default function LiveAuctionSlider() {
     }
   }, []);
 
-  // Generate auction data with real end times - memoized to prevent regeneration
-  const allLiveAuctions = useMemo(() => {
-    const now = new Date();
-    const baseAuctions = [
-      {
-        id: 1,
-        image: "/images/live1.png",
-        category: "Автомашин",
-        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-        lastPrice: "53,400,000₮",
-        buttonColor: "bg-black"
-      },
-      {
-        id: 2,
-        image: "/images/live2.png",
-        category: "Цахилгаан бараа",
-        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-        lastPrice: "480,000₮",
-        buttonColor: "bg-black"
-      },
-      {
-        id: 3,
-        image: "/images/live3.png",
-        category: "Компьютер",
-        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-        lastPrice: "820,000₮",
-        buttonColor: "bg-black"
-      },
-      {
-        id: 4,
-        image: "/images/live4.png",
-        category: "Үнэт эдлэл",
-        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-        lastPrice: "1,280,000₮",
-        buttonColor: "bg-black"
-      },
-      {
-        id: 5,
-        image: "/images/live1.png",
-        category: "Автомашин",
-        title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
-        lastPrice: "45,800,000₮",
-        buttonColor: "bg-black"
-      },
-      {
-        id: 6,
-        image: "/images/live2.png",
-        category: "Цахилгаан бараа",
-        title: "САМСУНГ ГАЛАКСИ S24 - ХАМГИЙН ШИНЭ МОДЕЛЬ",
-        lastPrice: "2,450,000₮",
-        buttonColor: "bg-black"
-      },
-      {
-        id: 7,
-        image: "/images/live3.png",
-        category: "Компьютер",
-        title: "ЭППЛ МАКБУК ПРО M3 - ХҮЧИРХЭГ ПРОЦЕССОРТОЙ",
-        lastPrice: "3,680,000₮",
-        buttonColor: "bg-black"
-      },
-      {
-        id: 8,
-        image: "/images/live4.png",
-        category: "Үнэт эдлэл",
-        title: "ДАМАСКУС ГАН - ХУУЧИН АРТИЗАНЫ ГАРТ ХИЙСЭН",
-        lastPrice: "890,000₮",
-        buttonColor: "bg-black"
-      },
-      {
-        id: 9,
-        image: "/images/live1.png",
-        category: "Автомашин",
-        title: "ХОНДА ЦИВИК - ЭДИЙН ЗАСГИЙН ХЭМНЭЛТТЭЙ",
-        lastPrice: "28,900,000₮",
-        buttonColor: "bg-black"
-      },
-      {
-        id: 10,
-        image: "/images/live2.png",
-        category: "Цахилгаан бараа",
-        title: "СОНИ ПЛЕЙСТЕЙШН 5 - ГЭМТЭЛГҮЙ БАЙГУУЛЛАГА",
-        lastPrice: "1,750,000₮",
-        buttonColor: "bg-black"
-      }
-    ];
+  const [allLiveAuctions, setAllLiveAuctions] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-    // Add end times (varying from 1 hour to 2+ days from now for better visibility)
-    return baseAuctions.map((auction, index) => {
-      const endTime = new Date(now.getTime() + (60 + index * 30) * 60 * 1000); // 1 hour to 5+ hours
-      console.log(`Auction ${auction.id} ends at:`, endTime.toLocaleString());
-      return {
-        ...auction,
-        endTime: endTime.toISOString()
-      };
-    });
-  }, []); // Empty dependency array means this only runs once
+  useEffect(() => {
+    const fetchLots = async () => {
+      try {
+        const response = await fetch("/api/lot/list?status=live")
+        const data = await response.json()
+        const list = data?.data?.results ?? data?.results ?? (Array.isArray(data?.data) ? data.data : null) ?? []
+        if (Array.isArray(list)) {
+          setAllLiveAuctions(
+            list.map((lot) => ({
+              id: lot.id,
+              imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
+              category: lot.category?.value ?? "",
+              title: lot.name ?? "",
+              lastPrice: lot.current_bid != null
+                ? `${Number(lot.current_bid).toLocaleString()}₮`
+                : lot.starting_price != null
+                ? `${Number(lot.starting_price).toLocaleString()}₮`
+                : "",
+              endTime: lot.end_date ?? null,
+            }))
+          )
+        }
+      } catch (error) {
+        console.error("Failed to fetch live auctions:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchLots()
+  }, [])
 
   // Filter auctions based on search query and category
   const liveAuctions = useMemo(() => {
@@ -274,7 +211,9 @@ export default function LiveAuctionSlider() {
 
           {/* Horizontal Scrollable Cards Row */}
           <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
-            {liveAuctions.length > 0 ? (
+            {isLoading ? (
+              <div className="w-full text-center py-12 text-gray-400">Уншиж байна...</div>
+            ) : liveAuctions.length > 0 ? (
               liveAuctions.map((auction) => (
               <Card 
                 key={auction.id} 
@@ -284,11 +223,9 @@ export default function LiveAuctionSlider() {
                 <CardContent className="p-0">
                   {/* Product Image with Timer Overlay */}
                   <div className="relative">
-                    <Image 
-                      src={auction.image} 
+                    <img
+                      src={auction.imageUrl || "/images/live1.png"}
                       alt={auction.title}
-                      width={300}
-                      height={192}
                       className="w-full h-48 object-cover"
                     />
                     {/* Timer Overlay */}

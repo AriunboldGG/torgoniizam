@@ -22,7 +22,7 @@ export function LoginForm() {
     setIsLoading(true)
 
     try {
-      const result = login(email, password)
+      const result = await login(email, password)
       
       if (result.success) {
         // Check if there's a redirect parameter
@@ -62,7 +62,7 @@ export function LoginForm() {
             <Input
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               id="email"
-              placeholder="test@example.com"
+              placeholder="email@example.com"
               type="email"
               autoCapitalize="none"
               autoComplete="email"
@@ -81,7 +81,7 @@ export function LoginForm() {
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               id="password"
               type="password"
-              placeholder="password123"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -114,24 +114,6 @@ export function LoginForm() {
         ДАН системээр нэвтрэх
       </Button>
       
-      <div className="text-center text-sm text-gray-500 space-y-2">
-        <p className="font-medium">Тестийн хэрэглэгчид:</p>
-        
-        <div className="bg-gray-50 p-3 rounded-md">
-          <p className="font-semibold text-gray-700 mb-1">Хэрэглэгч 1:</p>
-          <p>Имэйл: <strong>test@example.com</strong></p>
-          <p>Нууц үг: <strong>password123</strong></p>
-          <p className="text-xs text-gray-500 mt-1">Ариунболд (Ариунболд Ганбат)</p>
-        </div>
-        
-        <div className="bg-gray-50 p-3 rounded-md">
-          <p className="font-semibold text-gray-700 mb-1">Хэрэглэгч 2:</p>
-          <p>Имэйл: <strong>galhuu@gmail.com</strong></p>
-          <p>Нууц үг: <strong>Test123</strong></p>
-          <p className="text-xs text-gray-500 mt-1">B.GALHUU (Galhuu B)</p>
-        </div>
-      </div>
-
       {/* Sign Up Link */}
       <div className="text-center">
         <p className="text-sm text-gray-600">

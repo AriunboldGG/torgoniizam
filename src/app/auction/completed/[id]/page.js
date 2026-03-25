@@ -11,42 +11,37 @@ export default function CompletedAuctionPage({ params }) {
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [auctionItem, setAuctionItem] = useState(null);
 
-  // Mock data for completed auction - matches list page data
   useEffect(() => {
-    const generateCompletedAuctionData = (id) => {
-      const categories = ["АВТОМАШИН", "ГАР УТАС & ТАБЛЕТ", "КОМПЬЮТЕР", "ҮНЭТ ЭДЛЭЛ", "ЦАХИЛГААН БАРАА"];
-      const titles = ["Toyota Land Cruiser 2020", "iPhone 15 Pro Max 256GB", "MacBook Pro M3 14-inch", "Diamond Ring 2.5 Carat", "Samsung 65\" QLED TV", "Mercedes-Benz S-Class 2021"];
-      const winners = ["Бат-Эрдэнэ", "Сара", "Майк", "Анна", "Дэлгэр", "Төмөр"];
-      
-      const category = categories[id % categories.length];
-      const title = titles[id % titles.length];
-      const finalPrice = Math.random() * 50000000 + 100000;
-      const startingPrice = Math.floor(finalPrice * 0.7);
-      const bidders = Math.floor(Math.random() * 20) + 5;
-      
-      return {
-        id: id.toString(),
-        title,
-        finalPrice: finalPrice,
-        startingPrice: startingPrice,
-        endDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        bidders,
-        images: [
-          "/images/completed-section.png",
-          "/images/live2.png", 
-          "/images/live3.png",
-          "/images/live4.png"
-        ],
-        category,
-        location: "Улаанбаатар",
-        winner: winners[id % winners.length],
-        isCompleted: true,
-        description: `${title} - Дуудлага худалдаа дууссан, ${winners[id % winners.length]} хожигч болсон. Өндөр чанарын, найдвартай бараа.`
-      };
-    };
-    
-    const completedAuctionData = generateCompletedAuctionData(parseInt(unwrappedParams.id));
-    setAuctionItem(completedAuctionData);
+    const fetchLot = async () => {
+      try {
+        const response = await fetch(`/api/lot/detail/${unwrappedParams.id}`)
+        const json = await response.json()
+        const lot = json?.data ?? json
+
+        const rawImages = Array.isArray(lot.images) ? lot.images : []
+        const images = rawImages.length > 0
+          ? rawImages.map((img) => (typeof img === "string" ? img : img.url ?? img.image ?? ""))
+          : [lot.thumbnail ?? "/images/end1.png"]
+
+        setAuctionItem({
+          id: lot.id,
+          title: lot.name ?? "",
+          finalPrice: lot.final_price != null ? Number(lot.final_price) : (lot.current_bid != null ? Number(lot.current_bid) : 0),
+          startingPrice: lot.starting_price != null ? Number(lot.starting_price) : 0,
+          endDate: lot.end_date ?? "",
+          bidders: lot.bidder_count ?? 0,
+          images,
+          category: lot.category?.value ?? "",
+          location: lot.city?.value ?? "Улаанбаатар",
+          winner: lot.winner?.value ?? lot.winner?.name ?? "",
+          isCompleted: true,
+          description: lot.description ?? "",
+        })
+      } catch (error) {
+        console.error("Failed to fetch lot detail:", error)
+      }
+    }
+    fetchLot()
   }, [unwrappedParams.id]);
 
   const formatPrice = (price) => {

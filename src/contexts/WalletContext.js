@@ -5,32 +5,40 @@ import { createContext, useContext, useState, useEffect } from "react"
 const WalletContext = createContext()
 
 export function WalletProvider({ children }) {
-  const [walletBalance, setWalletBalance] = useState(840000) // Default balance
+  const [walletBalance, setWalletBalance] = useState(0)
+  const [heldBalance, setHeldBalance] = useState(0)
+  const [isLoadingBalance, setIsLoadingBalance] = useState(true)
 
-  // Load wallet balance from localStorage or API
-  useEffect(() => {
-    try {
-      const savedBalance = localStorage.getItem("walletBalance")
-      console.log("WalletContext: Loading balance from localStorage:", savedBalance)
-      if (savedBalance) {
-        setWalletBalance(parseInt(savedBalance))
-      } else {
-        // If no saved balance, use default and save it
-        console.log("WalletContext: No saved balance, using default 840000")
-        setWalletBalance(840000)
-        localStorage.setItem("walletBalance", "840000")
-      }
-    } catch (error) {
-      console.error("Error loading wallet balance:", error)
-      // Use default balance if localStorage fails
-      setWalletBalance(840000)
+  const fetchBalance = async () => {
+    const accessToken = localStorage.getItem("access_token")
+    if (!accessToken) {
+      setIsLoadingBalance(false)
+      return
     }
+    try {
+      const response = await fetch("/api/wallet/balance", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!response.ok) throw new Error("Failed to fetch balance")
+      const data = await response.json()
+      // API may wrap in { data: { available, held } } or return directly
+      const payload = data?.data ?? data
+      setWalletBalance(parseFloat(payload?.available ?? 0))
+      setHeldBalance(parseFloat(payload?.held ?? 0))
+    } catch (error) {
+      console.error("Error fetching wallet balance:", error)
+    } finally {
+      setIsLoadingBalance(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchBalance()
   }, [])
 
   // Update wallet balance
   const updateBalance = (newBalance) => {
     setWalletBalance(newBalance)
-    localStorage.setItem("walletBalance", newBalance.toString())
   }
 
   // Deduct amount from wallet (for pledges, bids, etc.)
@@ -51,18 +59,14 @@ export function WalletProvider({ children }) {
     return { success: true, newBalance }
   }
 
-  // Reset wallet balance to default (for testing/development)
-  const resetToDefault = () => {
-    updateBalance(840000)
-    return { success: true, newBalance: 840000 }
-  }
-
   const value = {
     walletBalance,
+    heldBalance,
+    isLoadingBalance,
     updateBalance,
     deductAmount,
     addAmount,
-    resetToDefault
+    refetchBalance: fetchBalance,
   }
 
   return (

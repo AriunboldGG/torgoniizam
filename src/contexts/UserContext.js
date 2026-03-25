@@ -4,77 +4,87 @@ import { createContext, useContext, useState, useEffect } from "react"
 
 const UserContext = createContext()
 
+const fetchUserInfo = async (accessToken) => {
+  const response = await fetch(`/api/auth/userinfo`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (!response.ok) throw new Error("Failed to fetch user info")
+  const json = await response.json()
+  // API wraps user in { module, status_code, data: { ... } }
+  return json.data ?? json
+}
+
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Mock users data
-  const mockUsers = [
-    {
-      id: 1,
-      email: "test@example.com",
-      password: "password123",
-      firstName: "Ариунболд",
-      lastName: "Ганбат",
-      fullName: "Ариунболд",
-      registrationNumber: "TA99081235",
-      avatar: "БА"
-    },
-    {
-      id: 2,
-      email: "galhuu@gmail.com",
-      password: "Test123",
-      firstName: "Galhuu",
-      lastName: "B",
-      fullName: "B.GALHUU",
-      registrationNumber: "TB24031578",
-      avatar: "ГБ"
-    }
-  ]
-
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    try {
-      const savedUser = localStorage.getItem("user")
-      console.log("UserContext: Loading user from localStorage:", savedUser)
-      if (savedUser) {
-        const parsedUser = JSON.parse(savedUser)
-        console.log("UserContext: Setting user:", parsedUser)
-        setUser(parsedUser)
-      } else {
-        console.log("UserContext: No saved user found")
+    // Restore user session from localStorage and refresh user info
+    const restore = async () => {
+      const accessToken = localStorage.getItem("access_token")
+      if (!accessToken) {
+        setIsLoading(false)
+        return
       }
-    } catch (error) {
-      console.error("Error loading user from localStorage:", error)
-      // Clear invalid data
-      localStorage.removeItem("user")
-    } finally {
-      console.log("UserContext: Setting isLoading to false")
-      setIsLoading(false)
+      try {
+        const userData = await fetchUserInfo(accessToken)
+        localStorage.setItem("user", JSON.stringify(userData))
+        setUser(userData)
+      } catch (error) {
+        console.error("Error restoring user session:", error)
+        // Fall back to cached user if API is unreachable
+        try {
+          const savedUser = localStorage.getItem("user")
+          if (savedUser) setUser(JSON.parse(savedUser))
+        } catch {}
+      } finally {
+        setIsLoading(false)
+      }
     }
+    restore()
   }, [])
 
-  const login = (email, password) => {
+  const login = async (email, password) => {
     try {
-      // Mock authentication - check against all mock users
-      const foundUser = mockUsers.find(u => u.email === email && u.password === password)
-      
-      if (foundUser) {
-        setUser(foundUser)
-        localStorage.setItem("user", JSON.stringify(foundUser))
-        return { success: true, user: foundUser }
-      } else {
-        return { success: false, error: "Имэйл эсвэл нууц үг буруу байна" }
+      const response = await fetch(`/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: email, password }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        const errorMsg =
+          data?.detail ||
+          data?.error_description ||
+          data?.non_field_errors?.[0] ||
+          "Имэйл эсвэл нууц үг буруу байна"
+        return { success: false, error: errorMsg }
       }
+
+      const { access_token, refresh_token } = data
+
+      localStorage.setItem("access_token", access_token)
+      if (refresh_token) localStorage.setItem("refresh_token", refresh_token)
+
+      // Fetch real user info with the new token
+      const userInfo = await fetchUserInfo(access_token)
+      localStorage.setItem("user", JSON.stringify(userInfo))
+      setUser(userInfo)
+
+      return { success: true, user: userInfo }
     } catch (error) {
       console.error("Login error:", error)
-      return { success: false, error: "Нэвтрэхэд алдаа гарлаа" }
+      return { success: false, error: "Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу." }
     }
   }
 
   const logout = () => {
     setUser(null)
     localStorage.removeItem("user")
+    localStorage.removeItem("access_token")
+    localStorage.removeItem("refresh_token")
   }
 
   const value = {

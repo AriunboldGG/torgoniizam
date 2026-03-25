@@ -324,15 +324,56 @@ export default function AuctionItemPage({ params }) {
     };
   }, [unwrappedParams.id]); // Include id in dependency array
 
-  // Get auction data based on the ID from URL
-  const initialAuctionItem = auctionData;
-  
-  // Initialize auction item state
+  // Get auction data from API
   useEffect(() => {
-    if (!auctionItem) {
-      setAuctionItem(initialAuctionItem);
+    const fetchLot = async () => {
+      try {
+        const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null
+        const headers = token ? { Authorization: `Bearer ${token}` } : {}
+        const response = await fetch(`/api/lot/detail/${unwrappedParams.id}`, { headers })
+        const json = await response.json()
+        const lot = json?.data ?? json
+
+        const rawImages = Array.isArray(lot.images) ? lot.images : []
+        const images = rawImages.length > 0
+          ? rawImages.map((img) => (typeof img === "string" ? img : img.url ?? img.image ?? ""))
+          : [lot.thumbnail ?? "/images/end4.png"]
+
+        // attributes is a plain object: { "Өнгө": "Хүрэн", ... }
+        const specs = lot.attributes && typeof lot.attributes === "object" && !Array.isArray(lot.attributes)
+          ? Object.entries(lot.attributes).map(([label, value]) => ({ label, value: String(value) }))
+          : []
+
+        const bids = Array.isArray(lot.bids)
+          ? lot.bids.map((b, i) => ({
+              id: b.id ?? i,
+              email: b.user?.email ?? b.email ?? "user@example.com",
+              date: b.created_at ? new Date(b.created_at).toLocaleDateString("mn-MN") : "",
+              amount: b.amount != null ? `${Number(b.amount).toLocaleString()}₮` : "",
+            }))
+          : []
+
+        const startingPriceNum = lot.starting_price != null ? Number(lot.starting_price) : 0
+        const currentBidNum = lot.current_bid != null ? Number(lot.current_bid) : startingPriceNum
+
+        setAuctionItem({
+          id: lot.id,
+          category: lot.category?.value ?? "",
+          title: lot.name ?? "",
+          startingPrice: `${startingPriceNum.toLocaleString()}₮`,
+          lastPrice: `${currentBidNum.toLocaleString()}₮`,
+          endTime: lot.end_date ?? new Date().toISOString(),
+          description: lot.description ?? "",
+          specifications: specs,
+          images: images.length > 0 ? images : ["/images/end4.png"],
+          bids,
+        })
+      } catch (error) {
+        console.error("Failed to fetch lot detail:", error)
+      }
     }
-  }, [auctionItem, initialAuctionItem]);
+    fetchLot()
+  }, [unwrappedParams.id]);
 
   // Close dialogs if user is not logged in
   useEffect(() => {

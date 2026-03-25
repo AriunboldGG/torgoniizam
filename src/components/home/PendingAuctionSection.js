@@ -84,102 +84,40 @@ export default function PendingAuctionSection() {
     }
   }, []);
 
-  // Generate dynamic end times for pending auctions
-  const allPendingAuctions = useMemo(() => {
-    const now = new Date().getTime();
-    return [
-      {
-        id: 1,
-        image: "/images/pending1.png",
-        category: "Үнэт эдлэл",
-        title: "ЛУУТ АЛТАН ШАРМАЛ - ИХ ГАРЫН МӨНГӨН ТОНОГТОЙ ЭМЭЭЛ",
-        startingPrice: "53,400,000₮",
-        endTime: now + (2 * 24 * 60 * 60 * 1000) + (32 * 60 * 60 * 1000) + (58 * 60 * 1000) + (14 * 1000), // 2 days 32 hours
-        status: "ТУН УДАХГҮЙ"
-      },
-      {
-        id: 2,
-        image: "/images/pending2.png",
-        category: "Цахилгаан бараа",
-        title: "САМСУНГ ГАЛАКСИ S24 - ХАМГИЙН ШИНЭ МОДЕЛЬ",
-        startingPrice: "480,000₮",
-        endTime: now + (2 * 24 * 60 * 60 * 1000) + (18 * 60 * 60 * 1000) + (52 * 60 * 1000) + (14 * 1000), // 2 days 18 hours
-        status: "ТУН УДАХГҮЙ"
-      },
-      {
-        id: 3,
-        image: "/images/pending3.png",
-        category: "Үнэт эдлэл",
-        title: "ДАМАСКУС ГАН - ХУУЧИН АРТИЗАНЫ ГАРТ ХИЙСЭН",
-        startingPrice: "820,000₮",
-        endTime: now + (4 * 60 * 1000) + (16 * 1000) + (2 * 1000), // 4 minutes 16 seconds
-        status: "ТУН УДАХГҮЙ"
-      },
-      {
-        id: 4,
-        image: "/images/pending4.png",
-        category: "Компьютер",
-        title: "ЭППЛ МАКБУК ПРО M3 - ХҮЧИРХЭГ ПРОЦЕССОРТОЙ",
-        startingPrice: "1,280,000₮",
-        endTime: now + (1 * 24 * 60 * 60 * 1000) + (20 * 60 * 60 * 1000) + (49 * 60 * 1000) + (72 * 1000), // 1 day 20 hours
-        status: "ТУН УДАХГҮЙ"
-      },
-      {
-        id: 5,
-        image: "/images/pending1.png",
-        category: "Автомашин",
-        title: "ТОЙОТА ЛЭНД КРУЗЕР - Борлуулагчийн ХАМГИЙН САЙН СОНГОЛТ",
-        startingPrice: "45,800,000₮",
-        endTime: now + (5 * 24 * 60 * 60 * 1000) + (15 * 60 * 60 * 1000) + (42 * 60 * 1000) + (30 * 1000), // 5 days 15 hours (more than 3 days - won't show timer)
-        status: "ТУН УДАХГҮЙ"
-      },
-      {
-        id: 6,
-        image: "/images/pending2.png",
-        category: "Цахилгаан бараа",
-        title: "СОНИ ПЛЕЙСТЕЙШН 5 - ГЭМТЭЛГҮЙ БАЙГУУЛЛАГА",
-        startingPrice: "1,750,000₮",
-        endTime: now + (1 * 24 * 60 * 60 * 1000) + (45 * 60 * 60 * 1000) + (23 * 60 * 1000) + (18 * 1000), // 1 day 45 hours
-        status: "ТУН УДАХГҮЙ"
-      },
-      {
-        id: 7,
-        image: "/images/pending3.png",
-        category: "Компьютер",
-        title: "ГЭЙМИНГ КОМПЬЮТЕР - RTX 4090 ГРАФИК КАРТТАЙ",
-        startingPrice: "3,680,000₮",
-        endTime: now + (52 * 60 * 1000) + (18 * 1000) + (45 * 1000), // 52 minutes
-        status: "ТУН УДАХГҮЙ"
-      },
-      {
-        id: 8,
-        image: "/images/pending4.png",
-        category: "Үнэт эдлэл",
-        title: "БРИЛЛИАНТ ЭРГЭНЭ - 5 КАРАТЫН ЧИСТЭЙ ТАЛСТ",
-        startingPrice: "890,000₮",
-        endTime: now + (6 * 24 * 60 * 60 * 1000) + (12 * 60 * 60 * 1000) + (35 * 60 * 1000) + (22 * 1000), // 6 days 12 hours (more than 3 days - won't show timer)
-        status: "ТУН УДАХГҮЙ"
-      },
-      {
-        id: 9,
-        image: "/images/pending1.png",
-        category: "Автомашин",
-        title: "ХОНДА ЦИВИК - ЭДИЙН ЗАСГИЙН ХЭМНЭЛТТЭЙ",
-        startingPrice: "28,900,000₮",
-        endTime: now + (2 * 24 * 60 * 60 * 1000) + (8 * 60 * 60 * 1000) + (15 * 60 * 1000) + (40 * 1000), // 2 days 8 hours
-        status: "ТУН УДАХГҮЙ"
-      },
-      {
-        id: 10,
-        image: "/images/pending2.png",
-        category: "Цахилгаан бараа",
-        title: "ЭППЛ АЙПЭД ПРО - М2 ЧИПТЭЙ ТАБЛЕТ",
-        startingPrice: "2,450,000₮",
-        endTime: now + (38 * 60 * 1000) + (52 * 1000) + (15 * 1000), // 38 minutes
-        status: "ТУН УДАХГҮЙ"
+  const [allPendingAuctions, setAllPendingAuctions] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchLots = async () => {
+      try {
+        const response = await fetch("/api/lot/list?status=pending")
+        const data = await response.json()
+        const list = data?.data?.results ?? data?.results ?? (Array.isArray(data?.data) ? data.data : null) ?? []
+        if (Array.isArray(list)) {
+          setAllPendingAuctions(
+            list.map((lot) => ({
+              id: lot.id,
+              imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
+              category: lot.category?.value ?? "",
+              title: lot.name ?? "",
+              startingPrice: lot.starting_price != null
+                ? `${Number(lot.starting_price).toLocaleString()}₮`
+                : "",
+              endTime: new Date(lot.end_date ?? Date.now()).getTime(),
+              status: "ТУН УДАХГҮЙ",
+            }))
+          )
+        }
+      } catch (error) {
+        console.error("Failed to fetch pending auctions:", error)
+      } finally {
+        setIsLoading(false)
       }
-    ];
-  }, []);
+    }
+    fetchLots()
+  }, [])
+
+
 
   // Filter auctions based on search query and category
   const pendingAuctions = useMemo(() => {
@@ -257,7 +195,11 @@ export default function PendingAuctionSection() {
 
           {/* Horizontal Scrollable Cards Row */}
           <div ref={scrollContainerRef} className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-            {pendingAuctions.length > 0 ? (
+            {isLoading ? (
+              <div className="w-full text-center py-12">
+                <div className="text-gray-400 text-lg">Уншиж байна...</div>
+              </div>
+            ) : pendingAuctions.length > 0 ? (
               pendingAuctions.map((auction) => (
               <Card 
                 key={auction.id} 
@@ -267,11 +209,9 @@ export default function PendingAuctionSection() {
                 <CardContent className="p-0">
                   {/* Product Image with Timer Overlay and Status Badge */}
                   <div className="relative">
-                    <Image 
-                      src={auction.image} 
+                    <img 
+                      src={auction.imageUrl || "/images/pending1.png"} 
                       alt={auction.title}
-                      width={300}
-                      height={192}
                       className="w-full h-48 object-cover"
                     />
                     {/* Status Badge */}
