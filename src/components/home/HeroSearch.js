@@ -3,11 +3,10 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useSearch } from "@/contexts/SearchContext";
-import { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
+import { useState, useEffect } from "react";
 
 export default function HeroSearch() {
-  const { searchQuery, selectedCategory, updateSearchQuery, updateSelectedCategory } = useSearch();
+  const { searchQuery, selectedCategory, updateSearchQuery } = useSearch();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [localSelectedCategory, setLocalSelectedCategory] = useState(selectedCategory);
 
@@ -19,41 +18,11 @@ export default function HeroSearch() {
   useEffect(() => {
     setLocalSelectedCategory(selectedCategory);
   }, [selectedCategory]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-  const dropdownRef = useRef(null);
-
-  // Define the 5 main categories
-  const categories = [
-    { id: "car", name: "АВТОМАШИН" },
-    { id: "phone", name: "ГАР УТАС & ТАБЛЕТ" },
-    { id: "computer", name: "КОМПЬЮТЕР" },
-    { id: "accessory", name: "ҮНЭТ ЭДЛЭЛ" },
-    { id: "electric", name: "ЦАХИЛГААН БАРАА" }
-  ];
 
   const handleSearchInputChange = (e) => {
     const value = e.target.value;
     setLocalSearchQuery(value);
     updateSearchQuery(value);
-  };
-
-  const handleCategoryChange = (category) => {
-    console.log('HeroSearch: Category changed to:', category);
-    setLocalSelectedCategory(category);
-    updateSelectedCategory(category);
-    setIsDropdownOpen(false);
-  };
-
-  const handleDropdownToggle = () => {
-    if (!isDropdownOpen && dropdownRef.current) {
-      const rect = dropdownRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY + 8,
-        left: rect.left
-      });
-    }
-    setIsDropdownOpen(!isDropdownOpen);
   };
 
   const handleSearch = () => {
@@ -62,19 +31,6 @@ export default function HeroSearch() {
     console.log('Searching for:', localSearchQuery, 'in category:', localSelectedCategory);
   };
 
-  // Handle click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
   return (
     <section className="relative overflow-hidden" style={{ paddingTop: '7rem', paddingBottom: '5rem' }}>
       {/* Background with SVG pattern */}

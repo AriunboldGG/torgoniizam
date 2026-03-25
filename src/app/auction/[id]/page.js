@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use, useMemo } from "react";
+import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -209,120 +209,7 @@ export default function AuctionItemPage({ params }) {
     setAuctionItem({ ...auctionItem });
   };
   
-  // Function to get auction data based on ID - memoized to prevent regeneration
-  const auctionData = useMemo(() => {
-    const now = new Date();
-    
-    // Generate auction data that matches the list pages
-    const generateAuctionData = (id) => {
-      const categories = ["АВТОМАШИН", "ГАР УТАС & ТАБЛЕТ", "КОМПЬЮТЕР", "ҮНЭТ ЭДЛЭЛ", "ЦАХИЛГААН БАРАА"];
-      const subcategories = ["СЕДАН", "SUV", "ХАЧГИЙН МАШИН", "МОТОЦИКЛ"];
-      const titles = ["ЛУУТ АЛТАН ШАРМАЛ", "Том ухаалаг телевизор", "Цагаан тоглоомын консол", "Хар хүрэн SUV", "Ухаалаг гар утас", "Хар laptop", "Угаалгын машин", "Үнэт эдлэл"];
-      
-      const category = categories[id % categories.length];
-      const subcategory = subcategories[id % subcategories.length];
-      const title = titles[id % titles.length];
-      const price = Math.random() * 50000000 + 100000;
-      const startingPrice = Math.floor(price * 0.8);
-      
-      return {
-        id: id.toString(),
-        category,
-        subcategory,
-        title: `Дуудлага худалдааны бараа ${id} - ${title}`,
-        startingPrice: `${startingPrice.toLocaleString('en-US', { maximumFractionDigits: 0 })}₮`,
-        lastPrice: `${price.toLocaleString('en-US', { maximumFractionDigits: 0 })}₮`,
-        mainImage: `/images/${id % 8 === 0 ? 'live1' : id % 8 === 1 ? 'live2' : id % 8 === 2 ? 'live3' : id % 8 === 3 ? 'live4' : id % 8 === 4 ? 'end1' : id % 8 === 5 ? 'end2' : id % 8 === 6 ? 'end3' : 'end4'}.png`,
-        endTime: new Date(now.getTime() + (Math.random() * 7 * 24 + 1) * 60 * 60 * 1000).toISOString(), // Random time within a week
-        description: `${title} - Өндөр чанарын, найдвартай бараа. Дуудлага худалдаанд оролцож, хамгийн сайн үнээр авч болно.`,
-        specifications: [
-          { label: "Ангилал", value: category },
-          { label: "Дэд ангилал", value: subcategory },
-          { label: "Төлөв", value: "Шинэ" },
-          { label: "Гарант", value: "1 жил" },
-          { label: "Хүргэлт", value: "Үнэгүй" },
-          { label: "Байршил", value: "Улаанбаатар" }
-        ],
-        images: [
-          `/images/${id % 8 === 0 ? 'live1' : id % 8 === 1 ? 'live2' : id % 8 === 2 ? 'live3' : id % 8 === 3 ? 'live4' : id % 8 === 4 ? 'end1' : id % 8 === 5 ? 'end2' : id % 8 === 6 ? 'end3' : 'end4'}.png`,
-          `/images/live2.png`,
-          `/images/live3.png`,
-          `/images/live4.png`,
-          `/images/end1.png`
-        ],
-        bids: [
-          { id: 3, email: "user1@example.com", date: new Date().toLocaleDateString('mn-MN'), amount: `${price.toLocaleString('en-US', { maximumFractionDigits: 0 })}₮` },
-          { id: 2, email: "user2@example.com", date: new Date(Date.now() - 86400000).toLocaleDateString('mn-MN'), amount: `${Math.floor(price * 0.95).toLocaleString('en-US', { maximumFractionDigits: 0 })}₮` },
-          { id: 1, email: "user3@example.com", date: new Date(Date.now() - 172800000).toLocaleDateString('mn-MN'), amount: `${Math.floor(price * 0.9).toLocaleString('en-US', { maximumFractionDigits: 0 })}₮` }
-        ]
-      };
-    };
-    
-    // Mock auction database - in real app this would come from API/database
-    const auctionDatabase = {};
-    
-    // Generate data for all possible IDs
-    for (let i = 1; i <= 5; i++) {
-      auctionDatabase[i.toString()] = generateAuctionData(i);
-    }
-    
-    // Generate data for live auctions (1000+)
-    for (let i = 1000; i <= 1020; i++) {
-      auctionDatabase[i.toString()] = generateAuctionData(i);
-    }
-    
-    // Generate data for today's auctions (2000+)
-    for (let i = 2000; i <= 2020; i++) {
-      auctionDatabase[i.toString()] = generateAuctionData(i);
-    }
-    
-    // Generate data for pending auctions (100+)
-    for (let i = 101; i <= 120; i++) {
-      auctionDatabase[i.toString()] = generateAuctionData(i);
-    }
 
-    // Return auction data or default data if not found
-    return auctionDatabase[unwrappedParams.id] || {
-      id: unwrappedParams.id,
-      category: "Автомашин",
-      title: "TOYOTA LAND CRUISER 250",
-      startingPrice: "48,200,000₮",
-      lastPrice: "53,400,000₮",
-      mainImage: "/images/end4.png",
-      endTime: new Date(now.getTime() + (12 * 24 + 4) * 60 * 60 * 1000).toISOString(), // 12 days 4 hours from now
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-      specifications: [
-        { label: "Үйлдвэрлэсэн он", value: "2024" },
-        { label: "Импортлогдсон он", value: "2025" },
-        { label: "Хөдөлгүүр", value: "Бензин" },
-        { label: "Өнгө", value: "Цэнхэр" },
-        { label: "Моторын багтаамж", value: "3500CC" },
-        { label: "Гадна талын ашиглалт", value: "Хэвийн" },
-        { label: "Хурдны хайрцаг", value: "Автомат" },
-        { label: "Салоны ашиглалт", value: "Хэвийн" },
-        { label: "Хүрд", value: "Зөв" },
-        { label: "Байршил", value: "Улаанбаатар" },
-        { label: "Хөтөлгч", value: "Бүх дугуй 4WD" },
-        { label: "Эд ангиудын ашиглалт", value: "Хэвийн" },
-        { label: "Гүйлт", value: "8'000км" }
-      ],
-      images: [
-        "/images/end4.png",
-        "/images/end1.png",
-        "/images/end2.png",
-        "/images/end3.png",
-        "/images/end4.png"
-      ],
-      bids: [
-        { id: 7, email: "faisal........@outlook.com", date: "2025.02.24", amount: "48,200,000₮" },
-        { id: 6, email: "1bes........@ymail.com", date: "2025.02.24", amount: "48,200,000₮" },
-        { id: 5, email: "john........@gmail.com", date: "2025.02.24", amount: "48,200,000₮" },
-        { id: 4, email: "user........@hotmail.com", date: "2025.02.24", amount: "48,200,000₮" },
-        { id: 3, email: "bidder........@yahoo.com", date: "2025.02.24", amount: "48,200,000₮" },
-        { id: 1, email: "auction........@outlook.com", date: "2025.02.24", amount: "48,200,000₮" }
-      ]
-    };
-  }, [unwrappedParams.id]); // Include id in dependency array
 
   // Get auction data from API
   useEffect(() => {

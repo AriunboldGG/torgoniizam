@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function WalletPage() {
-  const { walletBalance, heldBalance, isLoadingBalance, updateBalance } = useWallet()
+  const { walletBalance, heldBalance, isLoadingBalance } = useWallet()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isWithdrawDialogOpen, setIsWithdrawDialogOpen] = useState(false)
   const [isRechargeDialogOpen, setIsRechargeDialogOpen] = useState(false)
