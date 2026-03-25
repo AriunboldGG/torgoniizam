@@ -62,12 +62,6 @@ export default function HeroSearch() {
     console.log('Searching for:', localSearchQuery, 'in category:', localSelectedCategory);
   };
 
-  const getCategoryDisplayName = () => {
-    if (!localSelectedCategory) return "Бүх ангилал";
-    const category = categories.find(cat => cat.id === localSelectedCategory);
-    return category ? category.name : "Бүх ангилал";
-  };
-
   // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -135,71 +129,7 @@ export default function HeroSearch() {
                   />
                 </div>
                 
-                {/* Separator */}
-                <div className="w-px h-6 bg-gray-300"></div>
-                
-                {/* Category Dropdown */}
-                <div className="relative" ref={dropdownRef}>
-                  <div 
-                    className="px-4 py-3 flex items-center space-x-2 cursor-pointer hover:bg-gray-50 rounded-r-full transition-colors"
-                    onClick={handleDropdownToggle}
-                  >
-                    <span 
-                      className="text-gray-600 text-sm font-tt-firs-neue-variable font-medium"
-                    >
-                      {getCategoryDisplayName()}
-                    </span>
-                    <Image 
-                      src="/svg/dropdown-search.svg" 
-                      alt="Dropdown" 
-                      width={14}
-                      height={14}
-                      className={`w-3.5 h-3.5 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                    />
-                  </div>
-                  
-                  {/* Dropdown Menu */}
-                  {isDropdownOpen && createPortal(
-                    <div 
-                      className="fixed w-72 bg-white border-2 border-orange-500 rounded-xl shadow-2xl"
-                      style={{
-                        top: dropdownPosition.top,
-                        left: dropdownPosition.left,
-                        zIndex: 9999,
-                        position: 'fixed'
-                      }}
-                    >
-                      <div className="py-3">
-                        <div 
-                          className={`px-4 py-3 cursor-pointer hover:bg-orange-50 text-sm font-tt-firs-neue-variable font-medium transition-colors ${
-                            !localSelectedCategory ? 'bg-orange-50 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700'
-                          }`}
-                          onClick={() => {
-                            console.log('Clicked: Бүх ангилал');
-                            handleCategoryChange('');
-                          }}
-                        >
-                          Бүх ангилал
-                        </div>
-                        {categories.map((category) => (
-                          <div 
-                            key={category.id}
-                            className={`px-4 py-3 cursor-pointer hover:bg-orange-50 text-sm font-tt-firs-neue-variable font-medium transition-colors ${
-                              localSelectedCategory === category.id ? 'bg-orange-50 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700'
-                            }`}
-                            onClick={() => {
-                              console.log('Clicked category:', category.id, category.name);
-                              handleCategoryChange(category.id);
-                            }}
-                          >
-                            {category.name}
-                          </div>
-                        ))}
-                      </div>
-                    </div>,
-                    document.body
-                  )}
-                </div>
+              
               </div>
             </div>
           </div>
@@ -220,71 +150,7 @@ export default function HeroSearch() {
                   />
                 </div>
                 
-                {/* Separator */}
-                <div className="w-px h-8 bg-gray-300"></div>
-                
-                {/* Category Dropdown */}
-                <div className="relative" ref={dropdownRef}>
-                  <div 
-                    className="px-6 py-4 flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-r-full transition-colors"
-                    onClick={handleDropdownToggle}
-                  >
-                    <span 
-                      className="text-gray-600 text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile font-tt-firs-neue-variable font-medium"
-                    >
-                      {getCategoryDisplayName()}
-                    </span>
-                    <Image 
-                      src="/svg/dropdown-search.svg" 
-                      alt="Dropdown" 
-                      width={16}
-                      height={16}
-                      className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                    />
-                  </div>
-                  
-                  {/* Dropdown Menu */}
-                  {isDropdownOpen && createPortal(
-                    <div 
-                      className="fixed w-72 bg-white border-2 border-orange-500 rounded-xl shadow-2xl"
-                      style={{
-                        top: dropdownPosition.top,
-                        left: dropdownPosition.left,
-                        zIndex: 9999,
-                        position: 'fixed'
-                      }}
-                    >
-                      <div className="py-3">
-                        <div 
-                          className={`px-4 py-3 cursor-pointer hover:bg-orange-50 text-sm font-tt-firs-neue-variable font-medium transition-colors ${
-                            !localSelectedCategory ? 'bg-orange-50 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700'
-                          }`}
-                          onClick={() => {
-                            console.log('Clicked: Бүх ангилал');
-                            handleCategoryChange('');
-                          }}
-                        >
-                          Бүх ангилал
-                        </div>
-                        {categories.map((category) => (
-                          <div 
-                            key={category.id}
-                            className={`px-4 py-3 cursor-pointer hover:bg-orange-50 text-sm font-tt-firs-neue-variable font-medium transition-colors ${
-                              localSelectedCategory === category.id ? 'bg-orange-50 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700'
-                            }`}
-                            onClick={() => {
-                              console.log('Clicked category:', category.id, category.name);
-                              handleCategoryChange(category.id);
-                            }}
-                          >
-                            {category.name}
-                          </div>
-                        ))}
-                      </div>
-                    </div>,
-                    document.body
-                  )}
-                </div>
+              
               </div>
             </div>
             
