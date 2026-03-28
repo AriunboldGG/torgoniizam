@@ -123,6 +123,7 @@ module.exports = {
   			}
   		},
   		fontFamily: {
+  			sans: ['var(--font-inter)', 'Inter', 'sans-serif'],
   			'tt-firs-neue': ['TT Firs Neue', 'sans-serif'],
   			'tt-firs-neue-variable': ['TT Firs Neue Variable', 'TT Firs Neue', 'sans-serif'],
   		},

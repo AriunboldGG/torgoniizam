@@ -55,8 +55,8 @@ export default function About() {
           </div>
         </section>
 
-        {/* Values Section */}
-        <section className="py-16 bg-white rounded-lg shadow-sm mb-8">
+        
+        {/* <section className="py-16 bg-white rounded-lg shadow-sm mb-8">
           <div className="px-8">
             <div className="text-center mb-12">
               <h2 
@@ -155,7 +155,7 @@ export default function About() {
             </Card>
           </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Stats Section */}
         <section className="py-16">

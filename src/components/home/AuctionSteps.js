@@ -127,8 +127,8 @@ export default function AuctionSteps() {
                 {/* Step Badge */}
                 <div className="bg-orange-500 text-white px-3 py-1 rounded-lg mb-3">
                   <span 
-                    className="font-bold uppercase font-tt-firs-neue-variable leading-3"
-                    style={{ fontSize: '8px' }}
+                    className="font-bold uppercase font-tt-firs-neue-variable"
+                    style={{ fontSize: '11px' }}
                   >
                     <span>
                       {step.badge}
@@ -138,8 +138,8 @@ export default function AuctionSteps() {
 
                 {/* Step Title */}
                 <h3 
-                  className="text-white text-center uppercase font-tt-firs-neue-variable font-semibold leading-3"
-                  style={{ fontSize: '8px' }}
+                  className="text-white text-center uppercase font-tt-firs-neue-variable font-semibold whitespace-nowrap"
+                  style={{ fontSize: '10px' }}
                 >
                   <span>
                     {step.title}
@@ -171,8 +171,8 @@ export default function AuctionSteps() {
                 {/* Step Badge */}
                 <div className="bg-orange-500 text-white px-2 py-1 sm:px-3 rounded-lg mb-2 sm:mb-3">
                   <span 
-                    className="font-bold uppercase font-tt-firs-neue-variable leading-3"
-                    style={{ fontSize: '8px' }}
+                    className="font-bold uppercase font-tt-firs-neue-variable"
+                    style={{ fontSize: '11px' }}
                   >
                     <span>
                       {step.badge}
@@ -182,8 +182,8 @@ export default function AuctionSteps() {
 
                 {/* Step Title */}
                 <h3 
-                  className="text-white text-center uppercase font-tt-firs-neue-variable font-semibold leading-3"
-                  style={{ fontSize: '8px' }}
+                  className="text-white text-center uppercase font-tt-firs-neue-variable font-semibold whitespace-nowrap"
+                  style={{ fontSize: '10px' }}
                 >
                   <span>
                     {step.title}

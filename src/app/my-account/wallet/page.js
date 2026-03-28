@@ -300,7 +300,7 @@ export default function WalletPage() {
             {/* Held Balance */}
             {heldBalance > 0 && (
               <p className="text-sm text-orange-100 mb-6 lg:mb-8">
-                Түр хадгалагдсан: {heldBalance.toLocaleString()}₮
+                Дэнчинд байршуулсан: {heldBalance.toLocaleString()}₮
               </p>
             )}
             {heldBalance === 0 && <div className="mb-6 lg:mb-8" />}

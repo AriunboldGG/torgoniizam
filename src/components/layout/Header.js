@@ -172,10 +172,10 @@ export default function Header() {
 
               {/* My History - Only for logged in users */}
               {user && (
-                <Link href="/my-account/auctions">
+                <Link href="/auctions/my-auctions">
                   <div 
                     className={`px-5 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer font-tt-firs-neue-variable tracking-[2.4%] ${
-                      isActivePage("/my-account/auctions") 
+                      isActivePage("/auctions/my-auctions") 
                         ? "bg-[#FF4405] text-white" 
                         : "bg-white text-gray-700"
                     }`}
@@ -383,9 +383,9 @@ export default function Header() {
 
                   {/* My History - Only for logged in users */}
                   {user && (
-                    <Link href="/my-account/auctions" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Link href="/auctions/my-auctions" onClick={() => setIsMobileMenuOpen(false)}>
                       <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 font-tt-firs-neue-variable tracking-[2.4%] ${
-                        isActivePage("/my-account/auctions") 
+                        isActivePage("/auctions/my-auctions") 
                           ? "bg-[#FF4405] text-white" 
                           : "bg-white text-gray-700 border border-gray-200"
                       }`}
