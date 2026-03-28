@@ -159,7 +159,7 @@ export default function WalletPage() {
         alert(data?.detail || "Данс холбоход алдаа гарлаа. Дахин оролдоно уу.")
         return
       }
-      alert("Данс амжилттай холбогдлоо!")
+      alert(data?.message ?? data?.detail ?? "Данс амжилттай холбогдлоо!")
       // Refresh connected accounts
       const accessToken2 = localStorage.getItem("access_token")
       const res = await fetch("/api/account/list", { headers: { Authorization: `Bearer ${accessToken2}` } })
@@ -213,7 +213,7 @@ export default function WalletPage() {
         alert(data?.detail || "Таталт хийхэд алдаа гарлаа. Дахин оролдоно уу.")
         return
       }
-      alert("Таталт амжилттай хийгдлээ!")
+      alert(data?.message ?? data?.detail ?? "Таталт амжилттай хийгдлээ!")
       setIsWithdrawDialogOpen(false)
       setSelectedAccount("")
       setWithdrawAmount("")
@@ -247,7 +247,7 @@ export default function WalletPage() {
         alert(data?.detail || "Цэнэглэхэд алдаа гарлаа. Дахин оролдоно уу.")
         return
       }
-      alert("Цэнэглэлтийн хүсэлт амжилттай илгээгдлээ!")
+      alert(data?.message ?? data?.detail ?? "Цэнэглэлтийн хүсэлт амжилттай илгээгдлээ!")
       setIsRechargeDialogOpen(false)
       setRechargeAmount("")
     } catch (error) {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
@@ -9,7 +9,39 @@ import { Separator } from "@/components/ui/separator";
 import CategoryFilter from "@/components/auction/CategoryFilter";
 import FilterSection from "@/components/auction/FilterSection";
 
+function computeCountdown(startDate) {
+  if (!startDate) return 'Удахгүй'
+  const diff = new Date(startDate).getTime() - Date.now()
+  if (diff <= 0) return 'Эхэлсэн'
+  const h = Math.floor(diff / 3600000)
+  const m = Math.floor((diff % 3600000) / 60000)
+  const s = Math.floor((diff % 60000) / 1000)
+  return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+}
+
+function mapLot(lot) {
+  const rawImages = Array.isArray(lot.images) ? lot.images : []
+  const image = rawImages.length > 0
+    ? (typeof rawImages[0] === 'string' ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? '/images/live1.png')
+    : (lot.thumbnail ?? '/images/live1.png')
+  const price = lot.starting_price != null ? Number(lot.starting_price) : 0
+  return {
+    id: lot.id,
+    image,
+    badge: 'ТУН УДАХГҮЙ',
+    countdown: computeCountdown(lot.start_date),
+    category: lot.category?.value ?? lot.category?.name ?? '',
+    subcategory: lot.subcategory?.value ?? lot.subcategory?.name ?? '',
+    title: lot.name ?? '',
+    price: `${price.toLocaleString('mn-MN')}₮`,
+    currentBid: price,
+    startDate: lot.start_date ? new Date(lot.start_date) : null,
+  }
+}
+
 export default function TodayAuctions() {
+  const [allTodaysAuctions, setAllTodaysAuctions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
@@ -20,41 +52,31 @@ export default function TodayAuctions() {
   const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 50;
 
-  // Define subcategories for each category
-  const subcategories = {
-    "Үнэт эдлэл": ["Зүү", "Бөгж", "Мөнгө", "Цагаан алт", "Хүрэл", "Эрдэнийн чулуу"],
-    "Цахилгаан бараа": ["Телевизор", "Хөргөгч", "Угаалгын машин", "Агааржуулагч", "Микровейв", "Кофе машин"],
-    "Компьютер": ["Суурин компьютер", "Notebook", "PS, XBox, Nintendo", "Принтер, хувилагч", "Сэлбэг"],
-    "Автомашин": ["Toyota", "Lexus", "Mercedes-Benz", "BMW", "Honda", "Nissan", "Ford", "Hyundai"],
-    "Гар утас, таблет": ["iPhone", "Samsung", "Xiaomi", "Huawei", "Tablet", "Accessories"]
-  };
+  useEffect(() => {
+    const fetchLots = async () => {
+      try {
+        const res = await fetch('/api/lot/list?status=pending&limit=100&offset=0')
+        const json = await res.json()
+        const list = json?.results ?? json?.data ?? (Array.isArray(json) ? json : [])
 
-  // Mock data for today's auctions with proper structure (100 items for pagination demo)
-  const allTodaysAuctions = Array.from({ length: 100 }, (_, index) => {
-    const categories = ["Үнэт эдлэл", "Цахилгаан бараа", "Компьютер", "Автомашин", "Гар утас, таблет"];
-    const category = categories[index % 5];
-    const categorySubcategories = subcategories[category] || [];
-    const subcategory = categorySubcategories[index % categorySubcategories.length];
-    
-    // Generate random date for filtering
-    const startDate = new Date();
-    const randomDays = Math.floor(Math.random() * 30);
-    const auctionDate = new Date(startDate.getTime() + (randomDays * 24 * 60 * 60 * 1000));
-    const price = Math.random() * 50000000 + 100000;
+        // Keep only lots whose start_date is within the next 24 hours
+        const now = Date.now()
+        const in24h = now + 24 * 60 * 60 * 1000
+        const today = list.filter(lot => {
+          if (!lot.start_date) return false
+          const t = new Date(lot.start_date).getTime()
+          return t >= now && t <= in24h
+        })
 
-    return {
-      id: index + 2000, // Start from ID 2000 to avoid conflicts
-      image: `/images/${index % 8 === 0 ? 'live1' : index % 8 === 1 ? 'live2' : index % 8 === 2 ? 'live3' : index % 8 === 3 ? 'live4' : index % 8 === 4 ? 'end1' : index % 8 === 5 ? 'end2' : index % 8 === 6 ? 'end3' : 'end4'}.png`,
-      badge: "ТУН УДАХГҮЙ",
-      countdown: `${Math.floor(Math.random() * 24)} ${Math.floor(Math.random() * 60)} ${Math.floor(Math.random() * 60)} ${Math.floor(Math.random() * 60)}`,
-      category,
-      subcategory,
-      title: `Дуудлага худалдааны бараа ${index + 1} - ${["ЛУУТ АЛТАН ШАРМАЛ", "Том ухаалаг телевизор", "Цагаан тоглоомын консол", "Хар хүрэн SUV", "Ухаалаг гар утас", "Хар laptop", "Угаалгын машин", "Үнэт эдлэл"][index % 8]}`,
-      price: `${price.toLocaleString('en-US', { maximumFractionDigits: 0 })}₮`,
-      currentBid: price,
-      date: auctionDate
-    };
-  });
+        setAllTodaysAuctions(today.map(mapLot))
+      } catch (err) {
+        console.error('Failed to fetch today lots:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchLots()
+  }, []);
 
   // Filter auctions based on selected filters
   let filteredAuctions = [...allTodaysAuctions].filter(auction => {
@@ -77,37 +99,6 @@ export default function TodayAuctions() {
     }
     return true;
   });
-
-  // Date filtering
-  if (selectedDateFilter !== 'all') {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-    const thisWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const nextWeek = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
-    const thisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 1);
-
-    filteredAuctions = filteredAuctions.filter(auction => {
-      const auctionDate = new Date(auction.date);
-      switch (selectedDateFilter) {
-        case 'today':
-          return auctionDate >= today && auctionDate < tomorrow;
-        case 'tomorrow':
-          return auctionDate >= tomorrow && auctionDate < new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000);
-        case 'this-week':
-          return auctionDate >= today && auctionDate < thisWeek;
-        case 'next-week':
-          return auctionDate >= thisWeek && auctionDate < nextWeek;
-        case 'this-month':
-          return auctionDate >= today && auctionDate < thisMonth;
-        case 'next-month':
-          return auctionDate >= thisMonth && auctionDate < nextMonth;
-        default:
-          return true;
-      }
-    });
-  }
 
   // Price filtering and sorting
   if (selectedPriceFilter !== 'all') {
@@ -235,6 +226,19 @@ export default function TodayAuctions() {
     return buttons;
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Уншиж байна...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Hero Section */}
@@ -245,9 +249,7 @@ export default function TodayAuctions() {
           >
             Өнөөдөр болох дуудлага худалдаа
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Өнөөдрийн онцгой дуудлага худалдаануудыг үзээрэй.
-          </p>
+        
           <div className="flex flex-wrap justify-center gap-4">
             <Badge variant="secondary" className="px-4 py-2 text-lg">
               Нийт: {filteredAuctions.length} дуудлага
@@ -304,7 +306,7 @@ export default function TodayAuctions() {
               </h2>
               <Separator orientation="vertical" className="h-8" />
               <span className="text-gray-600">
-                {startIndex + 1}-{Math.min(endIndex, allTodaysAuctions.length)} / {allTodaysAuctions.length} үр дүн
+                {startIndex + 1}-{Math.min(endIndex, filteredAuctions.length)} / {filteredAuctions.length} үр дүн
               </span>
             </div>
             
@@ -391,7 +393,7 @@ export default function TodayAuctions() {
           {/* Page Info */}
           <div className="text-center mt-6 text-gray-600">
             <span className="text-sm">
-              Хуудас {currentPage} / {totalPages} • Нийт {allTodaysAuctions.length} бараа
+              Хуудас {currentPage} / {totalPages} • Нийт {filteredAuctions.length} бараа
             </span>
           </div>
         </div>

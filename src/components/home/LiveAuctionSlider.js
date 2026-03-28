@@ -103,7 +103,7 @@ export default function LiveAuctionSlider() {
   useEffect(() => {
     const fetchLots = async () => {
       try {
-        const response = await fetch("/api/lot/list?status=live")
+        const response = await fetch("/api/lot/list?status=active&limit=25&offset=0")
         const data = await response.json()
         const list = data?.data?.results ?? data?.results ?? (Array.isArray(data?.data) ? data.data : null) ?? []
         if (Array.isArray(list)) {

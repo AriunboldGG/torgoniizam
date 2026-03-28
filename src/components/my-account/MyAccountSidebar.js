@@ -39,7 +39,7 @@ export function MyAccountSidebar() {
             <span className="text-white font-bold text-lg lg:text-xl">{user?.avatar || "ГБ"}</span>
           </div>
           <div>
-            <p className="font-semibold text-gray-900 text-sm lg:text-base">{user?.fullName || "B.АЛТАНЗУЛ"}</p>
+            <p className="font-semibold text-gray-900 text-sm lg:text-base">{user?.first_name || "B.АЛТАНЗУЛ"}</p>
             <p className="text-xs lg:text-sm text-gray-500">Хэрэглэгч</p>
           </div>
         </div>

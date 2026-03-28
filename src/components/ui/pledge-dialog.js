@@ -23,11 +23,13 @@ const calculatePledgeAmount = (priceString) => {
 export default function PledgeDialog({ 
   isOpen, 
   onOpenChange, 
-  auctionItem, 
+  auctionItem,
+  lotId,
   onPledgeConfirm 
 }) {
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const { walletBalance, deductAmount } = useWallet(); // Get dynamic wallet balance
 
   const handlePledgeConfirm = async () => {
@@ -44,25 +46,42 @@ export default function PledgeDialog({
         return;
       }
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call the join API
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      const joinRes = await fetch(`/api/lot/join/${lotId}`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      const joinData = await joinRes.json().catch(() => ({}));
+      console.log('joindata.message');
       
-      // Deduct pledge amount from wallet
-      const result = deductAmount(pledgeAmount);
-      if (!result.success) {
-        setError("Дэнчин байршуулахад алдаа гарлаа. Дахин оролдоно уу.");
+
+      if (!joinRes.ok) {
+        const errMsg = joinData?.detail ?? joinData?.message ?? 'Дэнчин байршуулахад алдаа гарлаа. Дахин оролдоно уу.';
+        setError(errMsg);
         setIsProcessing(false);
         return;
       }
 
-      console.log('Pledge amount:', calculatePledgeAmount(auctionItem.startingPrice));
-      console.log('New wallet balance:', result.newBalance);
-      
-      onOpenChange(false);
-      // Call the parent's onPledgeConfirm function
+      const successMsg = joinData?.message ?? joinData?.detail ?? 'Дэнчин амжилттай байршуулагдлаа.';
+
+      // Deduct pledge amount from local wallet state
+      const result = deductAmount(pledgeAmount);
+      if (!result.success) {
+        setError('Дэнчин байршуулахад алдаа гарлаа. Дахин оролдоно уу.');
+        setIsProcessing(false);
+        return;
+      }
+
+      setSuccessMessage(successMsg);
       if (onPledgeConfirm) {
         onPledgeConfirm(calculatePledgeAmount(auctionItem.startingPrice));
       }
+      setTimeout(() => {
+        setSuccessMessage('');
+        onOpenChange(false);
+      }, 2000);
     } catch (error) {
       console.error("Pledge error:", error);
       setError("Дэнчин байршуулахад алдаа гарлаа. Дахин оролдоно уу.");
@@ -82,6 +101,11 @@ export default function PledgeDialog({
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
                 {error}
+              </div>
+            )}
+            {successMessage && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-md text-sm">
+                {successMessage}
               </div>
             )}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">

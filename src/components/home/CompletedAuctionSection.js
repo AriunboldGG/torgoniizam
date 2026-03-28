@@ -47,9 +47,16 @@ export default function CompletedAuctionSection() {
   useEffect(() => {
     const fetchLots = async () => {
       try {
-        const response = await fetch("/api/lot/list?status=completed")
-        const data = await response.json()
-        const list = data?.data?.results ?? data?.results ?? (Array.isArray(data?.data) ? data.data : null) ?? []
+        const [expRes, soldRes] = await Promise.all([
+          fetch("/api/lot/list?status=expired&limit=25&offset=0"),
+          fetch("/api/lot/list?status=sold&limit=25&offset=0"),
+        ])
+        const [expData, soldData] = await Promise.all([expRes.json(), soldRes.json()])
+        const expList = expData?.data?.results ?? expData?.results ?? (Array.isArray(expData?.data) ? expData.data : null) ?? []
+        const soldList = soldData?.data?.results ?? soldData?.results ?? (Array.isArray(soldData?.data) ? soldData.data : null) ?? []
+        const combined = [...expList, ...soldList]
+        const data = { results: combined }
+        const list = combined
         if (Array.isArray(list)) {
           setAllCompletedAuctions(
             list.map((lot) => ({

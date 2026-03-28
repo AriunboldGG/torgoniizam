@@ -31,7 +31,7 @@ function CountdownTimer({ endTime, onEnd }) {
 
         setTimeLeft({ days, hours, minutes, seconds });
         setIsEnded(false);
-        
+
         // Hide timer if more than 3 days remaining
         setShowTimer(days < 3);
       } else {
@@ -90,7 +90,7 @@ function DetailedCountdownTimer({ endTime, onEnd }) {
 
         setTimeLeft({ days, hours, minutes, seconds });
         setIsEnded(false);
-        
+
         // Hide timer if more than 3 days remaining
         setShowTimer(days < 3);
       } else {
@@ -162,25 +162,25 @@ export default function AuctionItemPage({ params }) {
   const unwrappedParams = use(params);
   const { user, isLoggedIn, isLoading } = useUser(); // Get real authentication state
   const searchParams = useSearchParams();
-  
+
   // Check if user came from auction history (has existing pledge)
   const hasExistingPledge = searchParams.get('hasPledge') === 'true';
   const fromHistory = searchParams.get('from') === 'history';
-  
+
   // Debug logging
   console.log('Auction Page - User:', user);
   console.log('Auction Page - isLoggedIn:', isLoggedIn);
   console.log('Auction Page - isLoading:', isLoading);
   console.log('Auction Page - hasExistingPledge:', hasExistingPledge);
   console.log('Auction Page - fromHistory:', fromHistory);
-  
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [showPledgeDialog, setShowPledgeDialog] = useState(false);
   const [showBidDialog, setShowBidDialog] = useState(false);
   const [hasUserPledged, setHasUserPledged] = useState(hasExistingPledge); // Initialize with existing pledge status
   const [auctionItem, setAuctionItem] = useState(null); // State to track auction item
   const [showImageZoom, setShowImageZoom] = useState(false); // State to control image zoom modal
-  
+
   const handlePledgeConfirm = (pledgeAmount) => {
     // Handle pledge confirmation here
     console.log('Pledge confirmed:', pledgeAmount);
@@ -192,7 +192,7 @@ export default function AuctionItemPage({ params }) {
   const handleBidConfirm = (bidAmount) => {
     // Handle bid confirmation here
     console.log('Bid confirmed:', bidAmount);
-    
+
     // Add new bid to the auction item's bids array
     const newBid = {
       id: Math.max(...auctionItem.bids.map(bid => bid.id)) + 1,
@@ -200,15 +200,15 @@ export default function AuctionItemPage({ params }) {
       date: new Date().toLocaleDateString('mn-MN'),
       amount: bidAmount + '₮'
     };
-    
+
     // Update the auction item with new bid and new last price
     auctionItem.bids.unshift(newBid); // Add to beginning of array
     auctionItem.lastPrice = bidAmount + '₮';
-    
+
     // Force re-render by updating state
     setAuctionItem({ ...auctionItem });
   };
-  
+
 
 
   // Get auction data from API
@@ -233,11 +233,11 @@ export default function AuctionItemPage({ params }) {
 
         const bids = Array.isArray(lot.bids)
           ? lot.bids.map((b, i) => ({
-              id: b.id ?? i,
-              email: b.user?.email ?? b.email ?? "user@example.com",
-              date: b.created_at ? new Date(b.created_at).toLocaleDateString("mn-MN") : "",
-              amount: b.amount != null ? `${Number(b.amount).toLocaleString()}₮` : "",
-            }))
+            id: b.id ?? i,
+            email: b.user?.email ?? b.email ?? "user@example.com",
+            date: b.created_at ? new Date(b.created_at).toLocaleDateString("mn-MN") : "",
+            amount: b.amount != null ? `${Number(b.amount).toLocaleString()}₮` : "",
+          }))
           : []
 
         const startingPriceNum = lot.starting_price != null ? Number(lot.starting_price) : 0
@@ -249,6 +249,8 @@ export default function AuctionItemPage({ params }) {
           title: lot.name ?? "",
           startingPrice: `${startingPriceNum.toLocaleString()}₮`,
           lastPrice: `${currentBidNum.toLocaleString()}₮`,
+          startDate: lot.start_date ?? "",
+          endDate: lot.end_date ?? "",
           endTime: lot.end_date ?? new Date().toISOString(),
           description: lot.description ?? "",
           specifications: specs,
@@ -300,22 +302,22 @@ export default function AuctionItemPage({ params }) {
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xs-mobile:gap-6 sm:gap-8 lg:gap-12">
-            
+
             {/* Left Column - Image Gallery */}
             <div className="space-y-4">
               {/* Main Image */}
-              <div 
+              <div
                 className="relative bg-white rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
                 onClick={() => setShowImageZoom(true)}
               >
-                <Image 
-                  src={auctionItem.images[selectedImage]} 
+                <Image
+                  src={auctionItem.images[selectedImage]}
                   alt={auctionItem.title}
                   width={600}
                   height={600}
                   className="w-full h-64 sm:h-80 lg:h-[500px] object-cover"
                 />
-                
+
                 {/* Zoom Icon Overlay */}
                 <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                   <div className="opacity-0 hover:opacity-100 transition-opacity duration-300">
@@ -324,16 +326,16 @@ export default function AuctionItemPage({ params }) {
                     </svg>
                   </div>
                 </div>
-                
+
                 {/* Orange Badge */}
                 <div className="absolute top-4 right-4 bg-[#FF4405] text-white px-3 py-1 rounded-lg text-sm font-bold">
-                  ТУН УДАХГҮЙ
+                  LIVE
                 </div>
-                
+
                 {/* Countdown Timer Overlay */}
                 <div className="absolute bottom-4 left-4">
-                  <CountdownTimer 
-                    endTime={auctionItem.endTime} 
+                  <CountdownTimer
+                    endTime={auctionItem.endTime}
                     onEnd={() => {
                       console.log(`Auction ${auctionItem.id} has ended`);
                       // You can add additional logic here when an auction ends
@@ -341,19 +343,18 @@ export default function AuctionItemPage({ params }) {
                   />
                 </div>
               </div>
-              
+
               {/* Thumbnail Gallery */}
               <div className="flex space-x-3 overflow-x-auto pb-2">
                 {auctionItem.images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all duration-200 ${
-                      selectedImage === index ? 'border-[#FF4405] scale-105' : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all duration-200 ${selectedImage === index ? 'border-[#FF4405] scale-105' : 'border-gray-200 hover:border-gray-300'
+                      }`}
                   >
-                    <Image 
-                      src={image} 
+                    <Image
+                      src={image}
                       alt={`${auctionItem.title} ${index + 1}`}
                       width={80}
                       height={80}
@@ -371,198 +372,211 @@ export default function AuctionItemPage({ params }) {
                 <div className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium mb-3">
                   {auctionItem.category}
                 </div>
-                <h1 
-                   className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-4 font-tt-firs-neue-variable tracking-[2.4%]"
+                <h1
+                  className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-4 font-tt-firs-neue-variable tracking-[2.4%]"
                 >
                   {auctionItem.title}
                 </h1>
-                <p className="text-gray-600 text-lg leading-relaxed">
-                  {auctionItem.description}
-                </p>
+                {auctionItem.description && (
+                  <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap">
+                    {auctionItem.description}
+                  </p>
+                )}
               </div>
 
               {/* Pricing Section */}
-               <div className="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl border border-orange-100">
-                 <div className="grid grid-cols-2 gap-6">
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl border border-orange-100">
+                <div className="grid grid-cols-2 gap-6">
                   <div>
-                     <p className="text-gray-600 text-sm mb-2">Эхлэх үнэ</p>
-                     <p className="text-gray-700 font-bold text-xl sm:text-2xl">{auctionItem.startingPrice}</p>
+                    <p className="text-gray-600 text-sm mb-2">Эхлэх үнэ</p>
+                    <p className="text-gray-700 font-bold text-xl sm:text-2xl">{auctionItem.startingPrice}</p>
                   </div>
                   <div>
-                     <p className="text-gray-600 text-sm mb-2">Сүүлийн үнэ</p>
-                     <p className="text-[#FF4405] font-bold text-xl sm:text-2xl">{auctionItem.lastPrice}</p>
-                   </div>
-                 </div>
-               </div>
+                    <p className="text-gray-600 text-sm mb-2">Сүүлийн үнэ</p>
+                    <p className="text-[#FF4405] font-bold text-xl sm:text-2xl">{auctionItem.lastPrice}</p>
+                  </div>
+                </div>
+              </div>
 
-               {/* Countdown Timer Component */}
-               <div className="bg-gray-50 p-4 xs-mobile:p-6 rounded-2xl border border-gray-200">
-                 <div className="flex flex-col items-center space-y-4">
-                   <div className="flex items-center space-x-2 xs-mobile:space-x-3">
-                     <Image src="/svg/live-time.svg" alt="Timer" width={20} height={20} className="w-5 h-5 xs-mobile:w-6 xs-mobile:h-6" />
-                     <span className="text-gray-700 font-medium text-sm xs-mobile:text-base">Дуудлага худалдаа дуусах хугацаа</span>
-                   </div>
-                   <div className="flex items-center justify-center">
-                     <DetailedCountdownTimer 
-                       endTime={auctionItem.endTime} 
-                       onEnd={() => {
-                         console.log(`Auction ${auctionItem.id} has ended`);
-                         // You can add additional logic here when an auction ends
-                       }}
-                     />
+              {/* Countdown Timer Component */}
+              <div className="bg-gray-50 p-4 xs-mobile:p-6 rounded-2xl border border-gray-200">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="flex items-center space-x-2 xs-mobile:space-x-3">
+                    <Image src="/svg/live-time.svg" alt="Timer" width={20} height={20} className="w-5 h-5 xs-mobile:w-6 xs-mobile:h-6" />
+                    <span className="text-gray-700 font-medium text-sm xs-mobile:text-base">Дуудлага худалдаа дуусах хугацаа</span>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <DetailedCountdownTimer
+                      endTime={auctionItem.endTime}
+                      onEnd={() => {
+                        console.log(`Auction ${auctionItem.id} has ended`);
+                        // You can add additional logic here when an auction ends
+                      }}
+                    />
+                  </div>
+                  {/* Start / End dates */}
+                  <div className="w-full grid grid-cols-2 gap-3 pt-2 border-t border-gray-200">
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Эхлэх огноо</p>
+                      <p className="text-sm font-medium text-gray-800">{auctionItem.startDate ? new Date(auctionItem.startDate).toLocaleString('mn-MN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Дуусах огноо</p>
+                      <p className="text-sm font-medium text-gray-800">{auctionItem.endDate ? new Date(auctionItem.endDate).toLocaleString('mn-MN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}</p>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-                <div className="space-y-4">
-                  {!isLoggedIn && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-yellow-800 text-sm font-bold">!</span>
-                        </div>
-                        <div>
-                          <p className="text-yellow-800 font-medium text-sm">
-                            Нэвтрэх шаардлагатай
-                          </p>
-                          <p className="text-yellow-700 text-xs mt-1">
-                            Үнийн санал илгээх болон дэнчин байршуулахын тулд эхлээд нэвтэрнэ үү
-                          </p>
-                        </div>
+              <div className="space-y-4">
+                {!isLoggedIn && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-yellow-800 text-sm font-bold">!</span>
+                      </div>
+                      <div>
+                        <p className="text-yellow-800 font-medium text-sm">
+                          Нэвтрэх шаардлагатай
+                        </p>
+                        <p className="text-yellow-700 text-xs mt-1">
+                          Үнийн санал илгээх болон дэнчин байршуулахын тулд эхлээд нэвтэрнэ үү
+                        </p>
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {isLoggedIn && !hasUserPledged && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-blue-800 text-sm font-bold">!</span>
-                        </div>
-                        <div>
-                          <p className="text-blue-800 font-medium text-sm">
-                            Дэнчин байршуулах шаардлагатай
-                          </p>
-                          <p className="text-blue-700 text-xs mt-1">
-                            Үнийн санал илгээхийн тулд эхлээд дэнчин байршуулна уу (үнийн 10%)
-                          </p>
-                        </div>
+                {isLoggedIn && !hasUserPledged && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-6 h-6 bg-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-blue-800 text-sm font-bold">!</span>
+                      </div>
+                      <div>
+                        <p className="text-blue-800 font-medium text-sm">
+                          Дэнчин байршуулах шаардлагатай
+                        </p>
+                        <p className="text-blue-700 text-xs mt-1">
+                          Үнийн санал илгээхийн тулд эхлээд дэнчин байршуулна уу (үнийн 10%)
+                        </p>
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {isLoggedIn && hasUserPledged && fromHistory && (
-                    <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-green-800 text-sm font-bold">✓</span>
-                        </div>
-                        <div>
-                          <p className="text-green-800 font-medium text-sm">
-                            Дэнчин байршуулсан байна
-                          </p>
-                          <p className="text-green-700 text-xs mt-1">
-                            Та энэ дуудлага худалдаанд дэнчин байршуулсан тул шууд үнийн санал илгээх боломжтой
-                          </p>
-                        </div>
+                {isLoggedIn && hasUserPledged && fromHistory && (
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-green-800 text-sm font-bold">✓</span>
+                      </div>
+                      <div>
+                        <p className="text-green-800 font-medium text-sm">
+                          Дэнчин байршуулсан байна
+                        </p>
+                        <p className="text-green-700 text-xs mt-1">
+                          Та энэ дуудлага худалдаанд дэнчин байршуулсан тул шууд үнийн санал илгээх боломжтой
+                        </p>
                       </div>
                     </div>
-                  )}
-                  
-                                     <div className="flex flex-col gap-3">
-                     <Button 
-                       className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${
-                         isLoggedIn && hasUserPledged
-                           ? 'bg-[#FF4405] hover:bg-[#E63D04] text-white' 
-                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                       }`}
-                       disabled={!isLoggedIn || !hasUserPledged}
-                       onClick={() => setShowBidDialog(true)}
-                     >
-                       <Image src="/svg/bid.svg" alt="Bid" width={16} height={16} className="hidden xs-mobile:block w-4 h-4 xs-mobile:w-5 xs-mobile:h-5 mr-2 xs-mobile:mr-3" />
-                       <span className="hidden xs-mobile:inline">ҮНИЙН САНАЛ ИЛГЭЭХ</span>
-                       <span className="xs-mobile:hidden">ҮНИЙН САНАЛ</span>
-                </Button>
-                    
-                                                              <Button 
-                       variant="outline" 
-                       className={`py-3 xs-mobile:py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${
-                         !isLoggedIn 
-                           ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
-                           : hasUserPledged
-                             ? 'bg-green-100 text-green-700 border-green-300 cursor-not-allowed opacity-80'
-                             : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'
-                       }`}
-                       disabled={!isLoggedIn || hasUserPledged}
-                       onClick={() => {
-                         if (isLoggedIn && !hasUserPledged) {
-                           setShowPledgeDialog(true);
-                         } else {
-                           // Prevent dialog from opening for non-logged users or users with existing pledge
-                           setShowPledgeDialog(false);
-                         }
-                       }}
-                     >
-                  {!isLoggedIn 
-                    ? (
-                      <>
-                        <span className="hidden xs-mobile:inline">НЭВТРЭХ ШААРДЛАГАТАЙ</span>
-                        <span className="xs-mobile:hidden">НЭВТРЭХ</span>
-                      </>
-                    )
-                    : hasUserPledged 
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-3">
+                  <Button
+                    className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isLoggedIn && hasUserPledged
+                        ? 'bg-[#FF4405] hover:bg-[#E63D04] text-white'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                    disabled={!isLoggedIn || !hasUserPledged}
+                    onClick={() => setShowBidDialog(true)}
+                  >
+                    <Image src="/svg/bid.svg" alt="Bid" width={16} height={16} className="hidden xs-mobile:block w-4 h-4 xs-mobile:w-5 xs-mobile:h-5 mr-2 xs-mobile:mr-3" />
+                    <span className="hidden xs-mobile:inline">ҮНИЙН САНАЛ ИЛГЭЭХ</span>
+                    <span className="xs-mobile:hidden">ҮНИЙН САНАЛ</span>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className={`py-3 xs-mobile:py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${!isLoggedIn
+                        ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                        : hasUserPledged
+                          ? 'bg-green-100 text-green-700 border-green-300 cursor-not-allowed opacity-80'
+                          : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'
+                      }`}
+                    disabled={!isLoggedIn || hasUserPledged}
+                    onClick={() => {
+                      if (isLoggedIn && !hasUserPledged) {
+                        setShowPledgeDialog(true);
+                      } else {
+                        // Prevent dialog from opening for non-logged users or users with existing pledge
+                        setShowPledgeDialog(false);
+                      }
+                    }}
+                  >
+                    {!isLoggedIn
                       ? (
                         <>
-                          <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛСАН</span>
-                          <span className="xs-mobile:hidden">БАЙРШУУЛСАН</span>
+                          <span className="hidden xs-mobile:inline">НЭВТРЭХ ШААРДЛАГАТАЙ</span>
+                          <span className="xs-mobile:hidden">НЭВТРЭХ</span>
                         </>
                       )
-                      : (
-                        <>
-                          <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛАХ</span>
-                          <span className="xs-mobile:hidden">БАЙРШУУЛАХ</span>
-                        </>
-                      )
-                  }
-                </Button>
-                     
-                                           <PledgeDialog
-                        isOpen={showPledgeDialog && isLoggedIn}
-                        onOpenChange={setShowPledgeDialog}
-                        auctionItem={auctionItem}
-                        isLoggedIn={isLoggedIn}
-                        onPledgeConfirm={handlePledgeConfirm}
-                      />
-                      
-                      <BidDialog
-                        isOpen={showBidDialog}
-                        onOpenChange={setShowBidDialog}
-                        auctionItem={auctionItem}
-                        isLoggedIn={isLoggedIn}
-                        onBidConfirm={handleBidConfirm}
-                      />
-              </div>
+                      : hasUserPledged
+                        ? (
+                          <>
+                            <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛСАН</span>
+                            <span className="xs-mobile:hidden">БАЙРШУУЛСАН</span>
+                          </>
+                        )
+                        : (
+                          <>
+                            <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛАХ</span>
+                            <span className="xs-mobile:hidden">БАЙРШУУЛАХ</span>
+                          </>
+                        )
+                    }
+                  </Button>
 
-                  {!isLoggedIn && (
-                    <div className="text-center">
-                      <Link href={`/auth/login?redirect=${encodeURIComponent(`/auction/${unwrappedParams.id}`)}`} className="text-[#FF4405] hover:text-[#E63D04] font-medium text-sm underline">
-                        Нэвтрэх эсвэл бүртгүүлэх
-                      </Link>
-                    </div>
-                  )}
+                  <PledgeDialog
+                    isOpen={showPledgeDialog && isLoggedIn}
+                    onOpenChange={setShowPledgeDialog}
+                    auctionItem={auctionItem}
+                    lotId={auctionItem.id}
+                    isLoggedIn={isLoggedIn}
+                    onPledgeConfirm={handlePledgeConfirm}
+                  />
 
-                                                          {isLoggedIn && !hasUserPledged && (
-                       <div className="text-center">
-                         <p className="text-gray-600 text-sm mb-2">
-                           Дэнчин: {auctionItem.startingPrice} × 10% = {(parseInt(auctionItem.startingPrice.replace(/[^\d]/g, '')) * 0.1).toLocaleString() + '₮'}
-                         </p>
-                         <p className="text-blue-600 text-xs">
-                           Дэнчин байршуулсны дараа үнийн санал илгээх боломжтой болно
-                         </p>
-                       </div>
-                     )}
+                  <BidDialog
+                    isOpen={showBidDialog}
+                    onOpenChange={setShowBidDialog}
+                    auctionItem={auctionItem}
+                    lotId={auctionItem.id}
+                    isLoggedIn={isLoggedIn}
+                    onBidConfirm={handleBidConfirm}
+                  />
                 </div>
+
+                {!isLoggedIn && (
+                  <div className="text-center">
+                    <Link href={`/auth/login?redirect=${encodeURIComponent(`/auction/${unwrappedParams.id}`)}`} className="text-[#FF4405] hover:text-[#E63D04] font-medium text-sm underline">
+                      Нэвтрэх эсвэл бүртгүүлэх
+                    </Link>
+                  </div>
+                )}
+
+                {isLoggedIn && !hasUserPledged && (
+                  <div className="text-center">
+                    <p className="text-gray-600 text-sm mb-2">
+                      Дэнчин: {auctionItem.startingPrice} × 10% = {(parseInt(auctionItem.startingPrice.replace(/[^\d]/g, '')) * 0.1).toLocaleString() + '₮'}
+                    </p>
+                    <p className="text-blue-600 text-xs">
+                      Дэнчин байршуулсны дараа үнийн санал илгээх боломжтой болно
+                    </p>
+                  </div>
+                )}
+              </div>
 
               {/* Warning Text */}
               <div className="bg-white border border-gray-200 rounded-xl p-4">
@@ -574,7 +588,7 @@ export default function AuctionItemPage({ params }) {
                 </div>
               </div>
 
-             
+
             </div>
           </div>
         </div>
@@ -584,7 +598,7 @@ export default function AuctionItemPage({ params }) {
       <div className="py-8 xs-mobile:py-10 sm:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xs-mobile:gap-8">
-            
+
             {/* Specifications */}
             <div>
               <h3 className="text-2xl font-bold text-gray-900 mb-6 font-tt-firs-neue-variable tracking-[2.4%]">
@@ -606,81 +620,76 @@ export default function AuctionItemPage({ params }) {
 
             {/* Bids */}
             <div>
-               <div className="flex items-center justify-between mb-6">
-                 <h3 className="text-2xl font-bold text-gray-900 font-tt-firs-neue-variable tracking-[2.4%]">
-                Оролцогчдын үнийн саналууд
-              </h3>
-                 <div className="flex items-center space-x-2">
-                   <div className="w-3 h-3 bg-[#FF4405] rounded-full animate-pulse"></div>
-                   <span className="text-sm text-gray-500 font-medium">Идэвхтэй</span>
-                 </div>
-               </div>
-               <Card className="border-0 shadow-xl rounded-2xl overflow-hidden bg-gradient-to-br from-white to-gray-50">
-                 <CardContent className="p-0">
-                   <div className="bg-gradient-to-r from-[#FF4405] to-[#E63D04] px-6 py-4">
-                     <div className="flex items-center justify-between text-white">
-                       <h4 className="font-bold text-lg font-tt-firs-neue-variable">Нийт {auctionItem.bids.length} оролцогч</h4>
-                       <div className="flex items-center space-x-2">
-                         <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                         <span className="text-sm font-medium">Шинэчлэгдэж байна</span>
-                       </div>
-                     </div>
-                   </div>
-                   <div className="p-6">
-                     <div className="space-y-3">
-                       {auctionItem.bids.map((bid, index) => (
-                         <div 
-                           key={bid.id} 
-                           className={`flex items-center space-x-4 p-4 rounded-xl transition-all duration-200 hover:shadow-md ${
-                             index === 0 
-                               ? 'bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200' 
-                               : 'bg-white border border-gray-100 hover:border-gray-200'
-                           }`}
-                         >
-                           <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                             index === 0 
-                               ? 'bg-gradient-to-r from-[#FF4405] to-[#E63D04] shadow-lg' 
-                               : 'bg-gray-100'
-                           }`}>
-                             <span className={`text-sm font-bold ${
-                               index === 0 ? 'text-white' : 'text-gray-600'
-                             }`}>
-                               {bid.id}
-                             </span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                             <p className={`font-medium truncate ${
-                               index === 0 ? 'text-gray-900' : 'text-gray-700'
-                             }`}>
-                               {bid.email}
-                             </p>
-                             <p className="text-sm text-gray-500 flex items-center space-x-2">
-                               <span>{bid.date}</span>
-                               {index === 0 && (
-                                 <>
-                                   <span className="w-1 h-1 bg-[#FF4405] rounded-full"></span>
-                                   <span className="text-[#FF4405] font-medium text-xs">Хамгийн өндөр үнэ</span>
-                                 </>
-                               )}
-                             </p>
-                           </div>
-                           <div className="text-right flex-shrink-0">
-                             <span className={`font-bold text-lg ${
-                               index === 0 ? 'text-[#FF4405]' : 'text-gray-700'
-                             }`}>
-                               {bid.amount}
-                             </span>
-                             {index === 0 && (
-                               <div className="mt-1">
-                                 <span className="text-xs text-[#FF4405] font-medium bg-orange-100 px-2 py-1 rounded-full">
-                                   🏆 Тэргүүлэгч
-                                 </span>
-                               </div>
-                             )}
-                        </div>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 font-tt-firs-neue-variable tracking-[2.4%]">
+                  Оролцогчдын үнийн саналууд
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-[#FF4405] rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-500 font-medium">Идэвхтэй</span>
+                </div>
+              </div>
+              <Card className="border-0 shadow-xl rounded-2xl overflow-hidden bg-gradient-to-br from-white to-gray-50">
+                <CardContent className="p-0">
+                  <div className="bg-gradient-to-r from-[#FF4405] to-[#E63D04] px-6 py-4">
+                    <div className="flex items-center justify-between text-white">
+                      <h4 className="font-bold text-lg font-tt-firs-neue-variable">Нийт {auctionItem.bids.length} оролцогч</h4>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium">Шинэчлэгдэж байна</span>
                       </div>
-                    ))}
-                     </div>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="space-y-3">
+                      {auctionItem.bids.map((bid, index) => (
+                        <div
+                          key={bid.id}
+                          className={`flex items-center space-x-4 p-4 rounded-xl transition-all duration-200 hover:shadow-md ${index === 0
+                              ? 'bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200'
+                              : 'bg-white border border-gray-100 hover:border-gray-200'
+                            }`}
+                        >
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${index === 0
+                              ? 'bg-gradient-to-r from-[#FF4405] to-[#E63D04] shadow-lg'
+                              : 'bg-gray-100'
+                            }`}>
+                            <span className={`text-sm font-bold ${index === 0 ? 'text-white' : 'text-gray-600'
+                              }`}>
+                              {bid.id}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`font-medium truncate ${index === 0 ? 'text-gray-900' : 'text-gray-700'
+                              }`}>
+                              {bid.email}
+                            </p>
+                            <p className="text-sm text-gray-500 flex items-center space-x-2">
+                              <span>{bid.date}</span>
+                              {index === 0 && (
+                                <>
+                                  <span className="w-1 h-1 bg-[#FF4405] rounded-full"></span>
+                                  <span className="text-[#FF4405] font-medium text-xs">Хамгийн өндөр үнэ</span>
+                                </>
+                              )}
+                            </p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <span className={`font-bold text-lg ${index === 0 ? 'text-[#FF4405]' : 'text-gray-700'
+                              }`}>
+                              {bid.amount}
+                            </span>
+                            {index === 0 && (
+                              <div className="mt-1">
+                                <span className="text-xs text-[#FF4405] font-medium bg-orange-100 px-2 py-1 rounded-full">
+                                  🏆 Тэргүүлэгч
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

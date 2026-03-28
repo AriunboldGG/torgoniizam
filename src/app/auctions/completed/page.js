@@ -5,96 +5,49 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 
+function mapCompletedLot(lot) {
+  const rawImages = Array.isArray(lot.images) ? lot.images : []
+  const image = rawImages.length > 0
+    ? (typeof rawImages[0] === 'string' ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? '/images/completed-section.png')
+    : (lot.thumbnail ?? '/images/completed-section.png')
+  return {
+    id: lot.id,
+    title: lot.name ?? '',
+    finalPrice: lot.final_price != null ? Number(lot.final_price) : (lot.current_bid != null ? Number(lot.current_bid) : 0),
+    startingPrice: lot.starting_price != null ? Number(lot.starting_price) : 0,
+    endDate: lot.end_date ?? '',
+    bidders: lot.bidder_count ?? 0,
+    image,
+    category: lot.category?.value ?? lot.category?.name ?? '',
+    location: lot.city?.value ?? 'Улаанбаатар',
+    winner: lot.winner?.value ?? lot.winner?.name ?? '',
+    isCompleted: true,
+  }
+}
+
 export default function CompletedAuctionsPage() {
   const [completedAuctions, setCompletedAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Mock data for completed auctions
+  // Fetch expired and sold lots from backend
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      setCompletedAuctions([
-        {
-          id: 1,
-          title: "Toyota Land Cruiser 2020",
-          finalPrice: 52000000,
-          startingPrice: 40000000,
-          endDate: "2024-01-15",
-          bidders: 15,
-          image: "/images/completed-section.png",
-          category: "АВТОМАШИН",
-          location: "Улаанбаатар",
-          winner: "Бат-Эрдэнэ",
-          isCompleted: true
-        },
-        {
-          id: 2,
-          title: "iPhone 15 Pro Max 256GB",
-          finalPrice: 3200000,
-          startingPrice: 2500000,
-          endDate: "2024-01-14",
-          bidders: 12,
-          image: "/images/completed-section.png",
-          category: "ГАР УТАС & ТАБЛЕТ",
-          location: "Улаанбаатар",
-          winner: "Сүхээ",
-          isCompleted: true
-        },
-        {
-          id: 3,
-          title: "MacBook Pro M3 14-inch",
-          finalPrice: 9500000,
-          startingPrice: 8000000,
-          endDate: "2024-01-13",
-          bidders: 18,
-          image: "/images/completed-section.png",
-          category: "КОМПЬЮТЕР",
-          location: "Улаанбаатар",
-          winner: "Төгс",
-          isCompleted: true
-        },
-        {
-          id: 4,
-          title: "Diamond Ring 2.5 Carat",
-          finalPrice: 13800000,
-          startingPrice: 12000000,
-          endDate: "2024-01-12",
-          bidders: 8,
-          image: "/images/completed-section.png",
-          category: "ҮНЭТ ЭДЛЭЛ",
-          location: "Улаанбаатар",
-          winner: "Алтанцэцэг",
-          isCompleted: true
-        },
-        {
-          id: 5,
-          title: "Samsung 65\" QLED TV",
-          finalPrice: 3800000,
-          startingPrice: 3000000,
-          endDate: "2024-01-11",
-          bidders: 11,
-          image: "/images/completed-section.png",
-          category: "ЦАХИЛГААН БАРАА",
-          location: "Улаанбаатар",
-          winner: "Болд",
-          isCompleted: true
-        },
-        {
-          id: 6,
-          title: "Mercedes-Benz S-Class 2021",
-          finalPrice: 72000000,
-          startingPrice: 65000000,
-          endDate: "2024-01-10",
-          bidders: 22,
-          image: "/images/completed-section.png",
-          category: "АВТОМАШИН",
-          location: "Улаанбаатар",
-          winner: "Мөнх-Эрдэнэ",
-          isCompleted: true
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
+    const fetchLots = async () => {
+      try {
+        const [expiredRes, soldRes] = await Promise.all([
+          fetch('/api/lot/list?status=expired&limit=100&offset=0'),
+          fetch('/api/lot/list?status=sold&limit=100&offset=0'),
+        ])
+        const [expiredJson, soldJson] = await Promise.all([expiredRes.json(), soldRes.json()])
+        const expiredList = expiredJson?.results ?? expiredJson?.data ?? (Array.isArray(expiredJson) ? expiredJson : [])
+        const soldList = soldJson?.results ?? soldJson?.data ?? (Array.isArray(soldJson) ? soldJson : [])
+        setCompletedAuctions([...expiredList, ...soldList].map(mapCompletedLot))
+      } catch (err) {
+        console.error('Failed to fetch completed lots:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchLots()
   }, []);
 
   const formatPrice = (price) => {

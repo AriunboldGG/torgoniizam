@@ -7,6 +7,37 @@ import Link from "next/link";
 import CategoryFilter from "@/components/auction/CategoryFilter";
 import FilterSection from "@/components/auction/FilterSection";
 
+function computeTimeLeft(endDate) {
+  if (!endDate) return '0:0:0'
+  const diff = new Date(endDate).getTime() - Date.now()
+  if (diff <= 0) return '0:0:0'
+  const h = Math.floor(diff / 3600000)
+  const m = Math.floor((diff % 3600000) / 60000)
+  const s = Math.floor((diff % 60000) / 1000)
+  return `${h}:${m}:${s}`
+}
+
+function mapActiveLot(lot) {
+  const rawImages = Array.isArray(lot.images) ? lot.images : []
+  const image = rawImages.length > 0
+    ? (typeof rawImages[0] === 'string' ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? '/images/live1.png')
+    : (lot.thumbnail ?? '/images/live1.png')
+  return {
+    id: lot.id,
+    title: lot.name ?? '',
+    image,
+    currentBid: lot.current_bid != null ? Number(lot.current_bid) : 0,
+    startingPrice: lot.starting_price != null ? Number(lot.starting_price) : 0,
+    timeLeft: computeTimeLeft(lot.end_date),
+    bidders: lot.bidder_count ?? 0,
+    category: lot.category?.value ?? lot.category?.name ?? '',
+    subcategory: lot.subcategory?.value ?? lot.subcategory?.name ?? '',
+    location: lot.city?.value ?? 'Улаанбаатар',
+    isLive: true,
+    date: lot.end_date ? new Date(lot.end_date) : new Date(),
+  }
+}
+
 export default function LiveAuctionsPage() {
   const [liveAuctions, setLiveAuctions] = useState([]);
   const [filteredAuctions, setFilteredAuctions] = useState([]);
@@ -23,73 +54,21 @@ export default function LiveAuctionsPage() {
 
   // Mock data for live auctions - Generate 50 items
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      const generateLiveAuctions = () => {
-        const auctions = [];
-        const categories = ["АВТОМАШИН", "ГАР УТАС & ТАБЛЕТ", "КОМПЬЮТЕР", "ҮНЭТ ЭДЛЭЛ", "ЦАХИЛГААН БАРАА"];
-        const images = ["/images/live1.png", "/images/live2.png", "/images/live3.png", "/images/live4.png"];
-        const titles = [
-          "Toyota Land Cruiser 2020", "iPhone 15 Pro Max 256GB", "MacBook Pro M3 14-inch", "Diamond Ring 2.5 Carat",
-          "Samsung 65\" QLED TV", "Mercedes-Benz S-Class 2021", "Sony PlayStation 5", "Gaming Computer RTX 4090",
-          "Honda Civic 2022", "iPad Pro M2", "Canon EOS R5", "Rolex Submariner", "Tesla Model 3", "MacBook Air M2",
-          "Samsung Galaxy S24", "Nike Air Jordan", "Louis Vuitton Bag", "Apple Watch Series 9", "Dell XPS 15",
-          "BMW X5 2023", "Sony WH-1000XM5", "Gaming Monitor 27\"", "Wireless Earbuds", "Smart Home Hub",
-          "Electric Scooter", "Fitness Tracker", "Bluetooth Speaker", "Portable Charger", "USB-C Cable",
-          "Wireless Mouse", "Mechanical Keyboard", "Gaming Headset", "Webcam 4K", "Microphone USB",
-          "Tablet Stand", "Phone Mount", "Car Charger", "Power Bank", "Cable Organizer", "Desk Lamp",
-          "Office Chair", "Standing Desk", "Monitor Arm", "Laptop Stand", "Keyboard Tray", "Mouse Pad"
-        ];
-
-        for (let i = 1; i <= 50; i++) {
-          const category = categories[i % categories.length];
-          const image = images[i % images.length];
-          const title = titles[i % titles.length];
-          const currentBid = Math.floor(Math.random() * 50000000) + 1000000;
-          const startingPrice = Math.floor(currentBid * 0.8);
-          const timeLeft = `${Math.floor(Math.random() * 24)}:${Math.floor(Math.random() * 60)}:${Math.floor(Math.random() * 60)}`;
-          const bidders = Math.floor(Math.random() * 20) + 5;
-
-          // Define subcategories for each category
-          const subcategories = {
-            "АВТОМАШИН": ["Toyota", "Lexus", "Mercedes-Benz", "BMW", "Honda", "Nissan", "Ford", "Hyundai"],
-            "ГАР УТАС & ТАБЛЕТ": ["iPhone", "Samsung", "Xiaomi", "Huawei", "Tablet", "Accessories"],
-            "КОМПЬЮТЕР": ["Суурин компьютер", "Notebook", "PS, XBox, Nintendo", "Принтер, хувилагч", "Сэлбэг"],
-            "ҮНЭТ ЭДЛЭЛ": ["Зүү", "Бөгж", "Мөнгө", "Цагаан алт", "Хүрэл", "Эрдэнийн чулуу"],
-            "ЦАХИЛГААН БАРАА": ["Телевизор", "Хөргөгч", "Угаалгын машин", "Агааржуулагч", "Микровейв", "Кофе машин"]
-          };
-          
-          const categorySubcategories = subcategories[category] || [];
-          const subcategory = categorySubcategories[i % categorySubcategories.length];
-
-          // Generate random date for filtering
-          const startDate = new Date();
-          const randomDays = Math.floor(Math.random() * 30);
-          const auctionDate = new Date(startDate.getTime() + (randomDays * 24 * 60 * 60 * 1000));
-
-          auctions.push({
-            id: i + 1000, // Start from ID 1000 to avoid conflicts
-            title: `${title} ${i}`,
-            currentBid,
-            startingPrice,
-            timeLeft,
-            bidders,
-            image,
-            category,
-            subcategory,
-            location: "Улаанбаатар",
-            isLive: true,
-            date: auctionDate
-          });
-        }
-        return auctions;
-      };
-
-      const generatedAuctions = generateLiveAuctions();
-      setLiveAuctions(generatedAuctions);
-      setFilteredAuctions(generatedAuctions);
-      setLoading(false);
-    }, 1000);
+    const fetchLots = async () => {
+      try {
+        const res = await fetch('/api/lot/list?status=active&limit=100&offset=0')
+        const json = await res.json()
+        const list = json?.results ?? json?.data ?? (Array.isArray(json) ? json : [])
+        const mapped = list.map(mapActiveLot)
+        setLiveAuctions(mapped)
+        setFilteredAuctions(mapped)
+      } catch (err) {
+        console.error('Failed to fetch live lots:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchLots()
   }, []);
 
   // Filter auctions based on selected filters

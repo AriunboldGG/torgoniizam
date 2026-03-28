@@ -29,6 +29,7 @@ export default function CompletedAuctionPage({ params }) {
           finalPrice: lot.final_price != null ? Number(lot.final_price) : (lot.current_bid != null ? Number(lot.current_bid) : 0),
           startingPrice: lot.starting_price != null ? Number(lot.starting_price) : 0,
           endDate: lot.end_date ?? "",
+          startDate: lot.start_date ?? "",
           bidders: lot.bidder_count ?? 0,
           images,
           category: lot.category?.value ?? "",
@@ -49,11 +50,14 @@ export default function CompletedAuctionPage({ params }) {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('mn-MN', {
+    return date.toLocaleString('mn-MN', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -200,6 +204,12 @@ export default function CompletedAuctionPage({ params }) {
                     <span className="text-gray-600">Ялагч:</span>
                     <span className="text-lg font-medium text-purple-600">
                       {auctionItem.winner}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Эхлэх огноо:</span>
+                    <span className="text-lg font-medium text-gray-900">
+                      {formatDate(auctionItem.startDate)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">

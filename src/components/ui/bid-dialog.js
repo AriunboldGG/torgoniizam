@@ -13,19 +13,22 @@ import {
 export default function BidDialog({ 
   isOpen, 
   onOpenChange, 
-  auctionItem, 
+  auctionItem,
+  lotId,
   onBidConfirm 
 }) {
   const [bidAmount, setBidAmount] = useState('');
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get current highest price (remove currency symbol and commas)
   const getCurrentHighestPrice = () => {
     return parseInt(auctionItem.lastPrice.replace(/[^\d]/g, ''));
   };
 
-  const handleBidConfirm = () => {
+  const handleBidConfirm = async () => {
     // Validate bid amount (remove commas for calculation)
     const bidValue = parseInt(bidAmount.replace(/,/g, ''));
     const currentHighest = getCurrentHighestPrice();
@@ -40,24 +43,46 @@ export default function BidDialog({
       return;
     }
 
-    // Clear error and proceed
     setError('');
-    console.log('Bid confirmed:', bidAmount);
-    
-    // Show success message
-    setShowSuccess(true);
-    
-    // Call the parent's onBidConfirm function with formatted amount
-    if (onBidConfirm) {
-      onBidConfirm(bidAmount);
+    setIsSubmitting(true);
+
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      const res = await fetch(`/api/lot/bid/${lotId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ amount: bidValue }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data?.detail ?? data?.message ?? 'Үнийн санал илгээхэд алдаа гарлаа. Дахин оролдоно уу.');
+        return;
+      }
+
+      const msg = data?.message ?? data?.detail ?? `Таны үнийн санал ${bidAmount}₮ системд бүртгэгдлээ.`;
+      setSuccessMessage(msg);
+      setShowSuccess(true);
+
+      if (onBidConfirm) {
+        onBidConfirm(bidAmount);
+      }
+
+      setTimeout(() => {
+        setBidAmount('');
+        setShowSuccess(false);
+        setSuccessMessage('');
+        onOpenChange(false);
+      }, 2000);
+    } catch {
+      setError('Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.');
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    // Reset form and close dialog after 2 seconds
-    setTimeout(() => {
-      setBidAmount('');
-      setShowSuccess(false);
-      onOpenChange(false);
-    }, 2000);
   };
 
   const handleInputChange = (e) => {
@@ -93,6 +118,8 @@ export default function BidDialog({
     setBidAmount('');
     setError('');
     setShowSuccess(false);
+    setSuccessMessage('');
+    setIsSubmitting(false);
     onOpenChange(false);
   };
 
@@ -118,7 +145,7 @@ export default function BidDialog({
                  Үнийн санал амжилттай илгээгдлээ!
                </h3>
                <p className="text-green-700 text-sm">
-                 Таны үнийн санал {bidAmount}₮ системд бүртгэгдлээ.
+                 {successMessage}
                </p>
              </div>
            ) : (
@@ -175,9 +202,9 @@ export default function BidDialog({
                <Button 
                  className="bg-[#FF4405] hover:bg-[#E63D04] text-white font-tt-firs-neue-variable font-bold"
                  onClick={handleBidConfirm}
-                 disabled={!bidAmount.trim() || error}
+                 disabled={!bidAmount.trim() || !!error || isSubmitting}
                >
-                 Үнийн санал илгээх
+                 {isSubmitting ? 'Илгээж байна...' : 'Үнийн санал илгээх'}
                </Button>
              </>
            )}

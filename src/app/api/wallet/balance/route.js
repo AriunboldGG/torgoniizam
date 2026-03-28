@@ -6,10 +6,15 @@ export async function GET(request) {
   try {
     const authHeader = request.headers.get("authorization")
 
-    const response = await fetch(`${API_URL}/api/v1/wallet/balance`, {
-      headers: { Authorization: authHeader },
-      redirect: "follow",
-    })
+    let response = await fetch(`${API_URL}/api/v1/wallet/balance`, { headers: { Authorization: authHeader }, redirect: "manual" })
+
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location")
+      if (location) {
+        const redirectUrl = location.startsWith("http") ? location : `${API_URL}${location}`
+        response = await fetch(redirectUrl, { headers: { Authorization: authHeader }, redirect: "manual" })
+      }
+    }
 
     const data = await response.json()
 

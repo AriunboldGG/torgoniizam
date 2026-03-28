@@ -11,10 +11,16 @@ export async function GET(request) {
     const backendUrl = `${API_URL}/api/v1/bank/list`
     console.log("[bank/list] Fetching:", backendUrl)
 
-    const response = await fetch(backendUrl, {
-      headers,
-      redirect: "follow",
-    })
+    let response = await fetch(backendUrl, { headers, redirect: "manual" })
+
+    // Follow redirect manually so auth header is preserved
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location")
+      if (location) {
+        const redirectUrl = location.startsWith("http") ? location : `${API_URL}${location}`
+        response = await fetch(redirectUrl, { headers, redirect: "manual" })
+      }
+    }
 
     const text = await response.text()
     console.log("[bank/list] Status:", response.status, "Body:", text.slice(0, 200))

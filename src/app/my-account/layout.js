@@ -29,11 +29,11 @@ export default function MyAccountLayout({ children }) {
               
               {/* User Avatar and Name */}
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-orange-500 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-bold text-lg">{user?.avatar || "ГБ"}</span>
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900 text-sm">{user?.fullName || "B.АЛТАНЗУЛ"}</p>
+                  <p className="font-semibold text-gray-900 text-sm">{user?.first_name || "B.АЛТАНЗУЛ"}</p>
                   <p className="text-xs text-gray-500">Хэрэглэгч</p>
                 </div>
               </div>

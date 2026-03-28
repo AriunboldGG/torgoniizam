@@ -7,8 +7,9 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get("status") ?? ""
     const offset = searchParams.get("offset") ?? "0"
+    const limit = searchParams.get("limit") ?? ""
 
-    const url = `${API_URL}/api/v1/lot/list?offset=${offset}${status ? `&status=${status}` : ""}`
+    const url = `${API_URL}/api/v1/lot/list?offset=${offset}${limit ? `&limit=${limit}` : ""}${status ? `&status=${status}` : ""}`
 
     const response = await fetch(url, { redirect: "follow" })
     const text = await response.text()

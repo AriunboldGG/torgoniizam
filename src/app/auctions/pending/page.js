@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
@@ -9,7 +9,40 @@ import { Separator } from "@/components/ui/separator"
 import CategoryFilter from "@/components/auction/CategoryFilter"
 import FilterSection from "@/components/auction/FilterSection"
 
+function computeStartCountdown(startDate) {
+  if (!startDate) return 'Удахгүй'
+  const diff = new Date(startDate).getTime() - Date.now()
+  if (diff <= 0) return 'Эхэлсэн'
+  const d = Math.floor(diff / 86400000)
+  const h = Math.floor((diff % 86400000) / 3600000)
+  const m = Math.floor((diff % 3600000) / 60000)
+  const s = Math.floor((diff % 60000) / 1000)
+  return d > 0 ? `${d}өдөр ${h}ц` : `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+}
+
+function mapPendingLot(lot) {
+  const rawImages = Array.isArray(lot.images) ? lot.images : []
+  const image = rawImages.length > 0
+    ? (typeof rawImages[0] === 'string' ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? '/images/pending1.png')
+    : (lot.thumbnail ?? '/images/pending1.png')
+  const price = lot.starting_price != null ? Number(lot.starting_price) : 0
+  return {
+    id: lot.id,
+    image,
+    badge: 'ХҮЛЭЭГДЭЖ БУЙ',
+    countdown: computeStartCountdown(lot.start_date),
+    category: lot.category?.value ?? lot.category?.name ?? '',
+    subcategory: lot.subcategory?.value ?? lot.subcategory?.name ?? '',
+    title: lot.name ?? '',
+    price: `${price.toLocaleString('mn-MN')}₮`,
+    currentBid: price,
+    date: lot.start_date ? new Date(lot.start_date) : new Date(),
+  }
+}
+
 export default function PendingAuctions() {
+  const [allPendingAuctions, setAllPendingAuctions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
@@ -20,41 +53,29 @@ export default function PendingAuctions() {
   const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 50;
 
-  // Define subcategories for each category
-  const subcategories = {
-    "Үнэт эдлэл": ["Зүү", "Бөгж", "Мөнгө", "Цагаан алт", "Хүрэл", "Эрдэнийн чулуу"],
-    "Цахилгаан бараа": ["Телевизор", "Хөргөгч", "Угаалгын машин", "Агааржуулагч", "Микровейв", "Кофе машин"],
-    "Компьютер": ["Суурин компьютер", "Notebook", "PS, XBox, Nintendo", "Принтер, хувилагч", "Сэлбэг"],
-    "Автомашин": ["Toyota", "Lexus", "Mercedes-Benz", "BMW", "Honda", "Nissan", "Ford", "Hyundai"],
-    "Гар утас, таблет": ["iPhone", "Samsung", "Xiaomi", "Huawei", "Tablet", "Accessories"]
-  };
+  useEffect(() => {
+    const fetchLots = async () => {
+      try {
+        const res = await fetch('/api/lot/list?status=pending&limit=100&offset=0')
+        const json = await res.json()
+        const list = json?.results ?? json?.data ?? (Array.isArray(json) ? json : [])
 
-  // Mock data for pending auctions with proper structure (100 items for pagination demo)
-  const allPendingAuctions = Array.from({ length: 100 }, (_, index) => {
-    const categories = ["Үнэт эдлэл", "Цахилгаан бараа", "Компьютер", "Автомашин", "Гар утас, таблет"];
-    const category = categories[index % 5];
-    const categorySubcategories = subcategories[category] || [];
-    const subcategory = categorySubcategories[index % categorySubcategories.length];
-    
-    // Generate random date for filtering
-    const startDate = new Date();
-    const randomDays = Math.floor(Math.random() * 30);
-    const auctionDate = new Date(startDate.getTime() + (randomDays * 24 * 60 * 60 * 1000));
-    const price = Math.random() * 50000000 + 100000;
+        // Exclude lots starting within the next 24 hours (those belong to "Today" page)
+        const in24h = Date.now() + 24 * 60 * 60 * 1000
+        const pending = list.filter(lot => {
+          if (!lot.start_date) return true
+          return new Date(lot.start_date).getTime() > in24h
+        })
 
-    return {
-      id: index + 101, // Start from ID 101 to avoid conflicts
-      image: `/images/${index % 8 === 0 ? 'pending1' : index % 8 === 1 ? 'pending2' : index % 8 === 2 ? 'pending3' : index % 8 === 3 ? 'pending4' : index % 8 === 4 ? 'end1' : index % 8 === 5 ? 'end2' : index % 8 === 6 ? 'end3' : 'end4'}.png`,
-      badge: "ХҮЛЭЭГДЭЖ БУЙ",
-      countdown: `${Math.floor(Math.random() * 24)} ${Math.floor(Math.random() * 60)} ${Math.floor(Math.random() * 60)} ${Math.floor(Math.random() * 60)}`,
-      category,
-      subcategory,
-      title: `Хүлээгдэж буй бараа ${index + 1} - ${["ДАМАСКУС ГАН", "САМСУНГ ГАЛАКСИ S24", "ЦЭНХЭР ЭРДЭНИЙН ЧУЛУУ", "ЭППЛ МАКБУК ПРО M3", "ТОЙОТА ЛЭНД КРУЗЕР", "УХААЛАГ ГАР УТАС", "ХАР LAPTOP", "УГААЛГЫН МАШИН"][index % 8]}`,
-      price: `${price.toLocaleString('en-US', { maximumFractionDigits: 0 })}₮`,
-      currentBid: price,
-      date: auctionDate
-    };
-  });
+        setAllPendingAuctions(pending.map(mapPendingLot))
+      } catch (err) {
+        console.error('Failed to fetch pending lots:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchLots()
+  }, []);
 
   // Filter auctions based on selected filters
   let filteredAuctions = [...allPendingAuctions].filter(auction => {
@@ -235,6 +256,19 @@ export default function PendingAuctions() {
     return buttons;
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Уншиж байна...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Hero Section */}
@@ -245,9 +279,7 @@ export default function PendingAuctions() {
           >
             Хүлээгдэж буй дуудлага худалдаа
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-           Тун удахгүй.
-          </p>
+          
           <div className="flex flex-wrap justify-center gap-4">
             <Badge variant="secondary" className="px-4 py-2 text-lg">
               Нийт: {filteredAuctions.length} дуудлага
