@@ -55,7 +55,6 @@ export default function CompletedAuctionSection() {
         const expList = expData?.data?.results ?? expData?.results ?? (Array.isArray(expData?.data) ? expData.data : null) ?? []
         const soldList = soldData?.data?.results ?? soldData?.results ?? (Array.isArray(soldData?.data) ? soldData.data : null) ?? []
         const combined = [...expList, ...soldList]
-        const data = { results: combined }
         const list = combined
         if (Array.isArray(list)) {
           setAllCompletedAuctions(
