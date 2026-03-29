@@ -60,7 +60,9 @@ export default function BidDialog({
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data?.detail ?? data?.message ?? 'Үнийн санал илгээхэд алдаа гарлаа. Дахин оролдоно уу.');
+        // Show the full backend error message for easier debugging
+        const errMsg = data?.detail ?? data?.message ?? data?.error ?? JSON.stringify(data);
+        setError(errMsg || 'Үнийн санал илгээхэд алдаа гарлаа. Дахин оролдоно уу.');
         return;
       }
 

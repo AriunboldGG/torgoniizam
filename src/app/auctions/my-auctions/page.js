@@ -47,6 +47,8 @@ function mapLot(lot) {
 export default function MyAuctionsPage() {
   const { isLoggedIn, isLoading } = useUser()
   const [lots, setLots] = useState([])
+  const [wonLotIds, setWonLotIds] = useState(new Set())
+  const [wonLotData, setWonLotData] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -71,7 +73,41 @@ export default function MyAuctionsPage() {
         }
 
         const list = json?.results ?? json?.data ?? (Array.isArray(json) ? json : [])
-        setLots(list.map(mapLot))
+        const mapped = list.map(mapLot)
+        setLots(mapped)
+
+        // For completed lots, fetch won status in parallel
+        const completedLots = mapped.filter(l => l.status === 'expired' || l.status === 'sold')
+        if (completedLots.length > 0) {
+          const wonResults = await Promise.allSettled(
+            completedLots.map(async (lot) => {
+              const wonRes = await fetch(`/api/bid/won/${lot.id}`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+              })
+              const wonJson = await wonRes.json().catch(() => null)
+              return { id: lot.id, data: wonJson, ok: wonRes.ok }
+            })
+          )
+          const wonIds = new Set()
+          const wonData = {}
+          wonResults.forEach((result) => {
+            if (result.status === 'fulfilled' && result.value.ok) {
+              const { id, data } = result.value
+              // API responds with data if user won — non-null, non-empty array, or has fields
+              const isWon = data !== null &&
+                data !== undefined &&
+                !(Array.isArray(data) && data.length === 0) &&
+                !(typeof data === 'object' && Object.keys(data).length === 0) &&
+                data?.detail == null
+              if (isWon) {
+                wonIds.add(id)
+                wonData[id] = Array.isArray(data) ? data[0] : data
+              }
+            }
+          })
+          setWonLotIds(wonIds)
+          setWonLotData(wonData)
+        }
       } catch (err) {
         console.error('Failed to fetch my lots:', err)
         setError('Серверт холбогдоход алдаа гарлаа.')
@@ -153,6 +189,9 @@ export default function MyAuctionsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {lots.map((lot) => {
                 const statusInfo = STATUS_LABEL[lot.status] ?? { text: lot.status, color: 'bg-gray-400' }
+                const isCompleted = lot.status === 'expired' || lot.status === 'sold'
+                const userWon = isCompleted && wonLotIds.has(lot.id)
+                const wonInfo = wonLotData[lot.id]
                 return (
                   <Link key={lot.id} href={getDetailHref(lot)} className="block">
                     <Card className="overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 bg-white border border-gray-200 cursor-pointer group">
@@ -164,8 +203,8 @@ export default function MyAuctionsPage() {
                           height={300}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
-                        <div className={`absolute top-2 right-2 ${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold`}>
-                          {statusInfo.text}
+                        <div className={`absolute top-2 right-2 ${userWon ? 'bg-yellow-500' : statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold`}>
+                          {userWon ? '🏆 ЯЛАГЧ' : statusInfo.text}
                         </div>
                       </div>
 
@@ -185,6 +224,27 @@ export default function MyAuctionsPage() {
                             <span className="text-xs text-gray-500">Одоогийн үнэ</span>
                             <span className="text-sm font-bold text-[#FF4405]">{lot.currentBid}</span>
                           </div>
+                          {userWon && wonInfo && (
+                            <div className="mt-2 pt-2 border-t border-yellow-200 bg-yellow-50 rounded-lg px-2 py-1 space-y-1">
+                              {wonInfo.amount != null && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs text-yellow-700 font-medium">Ялсан үнэ</span>
+                                  <span className="text-xs font-bold text-yellow-800">{Number(wonInfo.amount).toLocaleString('mn-MN')}₮</span>
+                                </div>
+                              )}
+                              {wonInfo.created_at && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs text-yellow-700">Огноо</span>
+                                  <span className="text-xs text-yellow-800">{new Date(wonInfo.created_at).toLocaleDateString('mn-MN')}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {userWon && !wonInfo && (
+                            <div className="mt-2 pt-2 border-t border-yellow-200 bg-yellow-50 rounded-lg px-2 py-1 text-center">
+                              <span className="text-xs text-yellow-700 font-medium">Та энэ дуудлага худалдааг ялсан!</span>
+                            </div>
+                          )}
                         </div>
                         {lot.endDate && (
                           <p className="text-xs text-gray-400 mt-2">

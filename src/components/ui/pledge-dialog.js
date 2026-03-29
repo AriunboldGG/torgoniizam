@@ -54,17 +54,29 @@ export default function PledgeDialog({
       });
 
       const joinData = await joinRes.json().catch(() => ({}));
-      console.log('joindata.message');
       
 
       if (!joinRes.ok) {
-        const errMsg = joinData?.detail ?? joinData?.message ?? 'Дэнчин байршуулахад алдаа гарлаа. Дахин оролдоно уу.';
-        setError(errMsg);
+        const errMsg = joinData?.detail ?? joinData?.msg ?? '';
+        // If API says already participating, treat as already pledged — close and enable bid
+        const alreadyJoined = errMsg && (
+          errMsg.toLowerCase().includes('аль хэдийн') ||
+          errMsg.toLowerCase().includes('already') ||
+          errMsg.toLowerCase().includes('orolcoj') ||
+          errMsg.toLowerCase().includes('оролцож')
+        );
+        if (alreadyJoined) {
+          if (onPledgeConfirm) onPledgeConfirm(calculatePledgeAmount(auctionItem.startingPrice));
+          onOpenChange(false);
+          setIsProcessing(false);
+          return;
+        }
+        setError(errMsg || 'Дэнчин байршуулахад алдаа гарлаа. Дахин оролдоно уу.');
         setIsProcessing(false);
         return;
       }
 
-      const successMsg = joinData?.message ?? joinData?.detail ?? 'Дэнчин амжилттай байршуулагдлаа.';
+      const successMsg = joinData?.msg ?? joinData?.detail ?? 'Дэнчин амжилттай байршуулагдлаа.';
 
       // Deduct pledge amount from local wallet state
       const result = deductAmount(pledgeAmount);

@@ -178,6 +178,7 @@ export default function AuctionItemPage({ params }) {
   const [showPledgeDialog, setShowPledgeDialog] = useState(false);
   const [showBidDialog, setShowBidDialog] = useState(false);
   const [hasUserPledged, setHasUserPledged] = useState(hasExistingPledge); // Initialize with existing pledge status
+  const [pledgeStatusLoading, setPledgeStatusLoading] = useState(false);
   const [auctionItem, setAuctionItem] = useState(null); // State to track auction item
   const [showImageZoom, setShowImageZoom] = useState(false); // State to control image zoom modal
 
@@ -264,6 +265,39 @@ export default function AuctionItemPage({ params }) {
     fetchLot()
   }, [unwrappedParams.id]);
 
+  // Fetch pledge status from API when lot is loaded and user is logged in
+  useEffect(() => {
+    if (!unwrappedParams.id || !isLoggedIn) return;
+    const fetchPledgeStatus = async () => {
+      setPledgeStatusLoading(true);
+      try {
+        const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await fetch(`/api/lot/pledged/${unwrappedParams.id}`, { headers });
+        const data = await res.json().catch(() => null);
+        // 200 response = user has pledged (API returns pledge object or array)
+        // Non-200 (e.g. 404) = not pledged
+        let pledged = false;
+        if (res.ok && data !== null) {
+          if (Array.isArray(data)) {
+            pledged = data.length > 0;
+          } else if (typeof data === 'object') {
+            // Only treat as not-pledged if it's purely an error detail
+            pledged = data?.detail == null || data?.id != null || data?.lot != null || data?.amount != null;
+          } else {
+            pledged = true;
+          }
+        }
+        setHasUserPledged(pledged);
+      } catch {
+        // On error keep existing state
+      } finally {
+        setPledgeStatusLoading(false);
+      }
+    };
+    fetchPledgeStatus();
+  }, [unwrappedParams.id, isLoggedIn]);
+
   // Close dialogs if user is not logged in
   useEffect(() => {
     if (!isLoggedIn) {
@@ -273,7 +307,7 @@ export default function AuctionItemPage({ params }) {
   }, [isLoggedIn]);
 
   // Show loading if auction item is not loaded yet or authentication is loading
-  if (!auctionItem || isLoading) {
+  if (!auctionItem || isLoading || pledgeStatusLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
