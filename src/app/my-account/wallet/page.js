@@ -4,6 +4,17 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { useWallet } from "@/contexts/WalletContext"
+import { fetchWithAuth } from "@/lib/api"
+import {
+  MdArrowDownward,
+  MdArrowUpward,
+  MdAccountBalanceWallet,
+  MdLock,
+  MdLockOpen,
+  MdGavel,
+  MdShoppingBag,
+  MdCardGiftcard,
+} from "react-icons/md"
 import {
   Dialog,
   DialogClose,
@@ -19,7 +30,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function WalletPage() {
-  const { walletBalance, heldBalance, isLoadingBalance } = useWallet()
+  const { walletBalance, heldBalance, isLoadingBalance, refetchBalance } = useWallet()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isWithdrawDialogOpen, setIsWithdrawDialogOpen] = useState(false)
   const [isRechargeDialogOpen, setIsRechargeDialogOpen] = useState(false)
@@ -39,10 +50,7 @@ export default function WalletPage() {
   useEffect(() => {
     const fetchBanks = async () => {
       try {
-        const accessToken = localStorage.getItem("access_token")
-        const response = await fetch("/api/bank/list", {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
+        const response = await fetchWithAuth("/api/bank/list")
         const data = await response.json()
         const list = data?.data ?? data
         if (Array.isArray(list)) {
@@ -55,16 +63,13 @@ export default function WalletPage() {
 
     const fetchAccounts = async () => {
       try {
-        const accessToken = localStorage.getItem("access_token")
-        const response = await fetch("/api/account/list", {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
+        const response = await fetchWithAuth("/api/account/list")
         const data = await response.json()
         const list = data?.data ?? data
         if (Array.isArray(list)) {
           setConnectedAccounts(
             list.map((a) => ({
-              value: a.account_no,
+              value: String(a.id),
               label: a.account_no,
               bank: a.bank?.name ?? a.bank_name ?? "",
             }))
@@ -75,18 +80,13 @@ export default function WalletPage() {
       }
     }
 
-    fetchBanks()
-    fetchAccounts()
-
     const fetchTransactions = async () => {
       try {
-        const accessToken = localStorage.getItem("access_token")
-        const response = await fetch("/api/wallet/transactions", {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
+        const response = await fetchWithAuth("/api/wallet/transactions")
         const data = await response.json()
         const list = data?.results ?? data?.data ?? data
         if (Array.isArray(list)) {
+          console.log("Transaction keys:", list.map((t) => t.txn_type?.key ?? t.type))
           setTransactions(list)
         }
       } catch (error) {
@@ -95,6 +95,9 @@ export default function WalletPage() {
         setIsLoadingTransactions(false)
       }
     }
+
+    fetchBanks()
+    fetchAccounts()
     fetchTransactions()
   }, [])
 
@@ -145,13 +148,9 @@ export default function WalletPage() {
     }
     setIsConnectLoading(true)
     try {
-      const accessToken = localStorage.getItem("access_token")
-      const response = await fetch("/api/account/add", {
+      const response = await fetchWithAuth("/api/account/add", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bank: Number(selectedBank), account_no: accountNumber }),
       })
       const data = await response.json()
@@ -161,12 +160,11 @@ export default function WalletPage() {
       }
       alert(data?.message ?? data?.detail ?? "Данс амжилттай холбогдлоо!")
       // Refresh connected accounts
-      const accessToken2 = localStorage.getItem("access_token")
-      const res = await fetch("/api/account/list", { headers: { Authorization: `Bearer ${accessToken2}` } })
+      const res = await fetchWithAuth("/api/account/list")
       const d = await res.json()
       const lst = d?.data ?? d
       if (Array.isArray(lst)) {
-        setConnectedAccounts(lst.map((a) => ({ value: a.account_no, label: a.account_no, bank: a.bank?.name ?? a.bank_name ?? "" })))
+        setConnectedAccounts(lst.map((a) => ({ value: String(a.id), label: a.account_no, bank: a.bank?.name ?? a.bank_name ?? "" })))
       }
       setIsDialogOpen(false)
       setSelectedBank("")
@@ -199,24 +197,23 @@ export default function WalletPage() {
     }
     setIsWithdrawLoading(true)
     try {
-      const accessToken = localStorage.getItem("access_token")
-      const response = await fetch("/api/wallet/withdraw", {
+      const response = await fetchWithAuth("/api/wallet/withdraw/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bank_account: selectedAccount, amount: String(amount) }),
       })
       const data = await response.json()
+      console.log('data withdraw log==>', data);
+      
       if (!response.ok) {
-        alert(data?.detail || "Таталт хийхэд алдаа гарлаа. Дахин оролдоно уу.")
+        alert(data?.detail || data?.msg || "Таталт хийхэд алдаа гарлаа. Дахин оролдоно уу.")
         return
       }
       alert(data?.message ?? data?.detail ?? "Таталт амжилттай хийгдлээ!")
       setIsWithdrawDialogOpen(false)
       setSelectedAccount("")
       setWithdrawAmount("")
+      refetchBalance()
     } catch (error) {
       console.error("Withdraw error:", error)
       alert("Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.")
@@ -233,13 +230,9 @@ export default function WalletPage() {
     }
     setIsTopupLoading(true)
     try {
-      const accessToken = localStorage.getItem("access_token")
-      const response = await fetch("/api/wallet/topup", {
+      const response = await fetchWithAuth("/api/wallet/topup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount }),
       })
       const data = await response.json()
@@ -463,7 +456,7 @@ export default function WalletPage() {
                        </Label>
                        {connectedAccounts.length > 0 ? (
                          <Select value={selectedAccount} onValueChange={setSelectedAccount}>
-                           <SelectTrigger className="w-full">
+                           <SelectTrigger className="w-full [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-all">
                              <SelectValue placeholder="Дансаа сонгоно уу" />
                            </SelectTrigger>
                            <SelectContent className="select-dropdown-fix max-h-[300px] z-[100] bg-white border border-gray-200 rounded-lg shadow-lg">
@@ -619,22 +612,34 @@ export default function WalletPage() {
             ) : (
               transactions.map((transaction, index) => {
                 const txnKey = transaction.txn_type?.key ?? transaction.type ?? ""
-                const isTopup = txnKey !== "WITHDRAWAL"
+                const k = txnKey.toUpperCase()
+                const isDebit = k.includes("WITHDRAW") || (k.includes("PLEDGE") && !k.includes("RELEASE")) || k === "BID_HOLD" || k.includes("BID_HOLD")
                 const amount = parseFloat(transaction.amount ?? 0)
-                const formattedAmount = `${isTopup ? "+" : "-"}${amount.toLocaleString()}₮`
+                const formattedAmount = `${isDebit ? "-" : "+"}${amount.toLocaleString()}₮`
                 const date = transaction.created_at
                   ? new Date(transaction.created_at).toLocaleDateString("mn-MN")
                   : ""
-                const description = transaction.txn_type?.value ?? (isTopup ? "Хэтэвч цэнэглэлт хийгдсэн" : "Таталт хийгдсэн")
+                const description = transaction.txn_type?.value ?? (isDebit ? "Таталт хийгдсэн" : "Хэтэвч цэнэглэлт хийгдсэн")
+
+                // Pick icon + colour by transaction type key
+                const iconConfig = (() => {
+                  if (k.includes("WITHDRAW"))   return { Icon: MdArrowDownward,  bg: "bg-red-500" }
+                  if (k.includes("BID_HOLD"))   return { Icon: MdGavel,           bg: "bg-red-500" }
+                  if (k === "TOPUP" || k === "DEPOSIT" || k.includes("TOPUP")) return { Icon: MdArrowUpward, bg: "bg-green-500" }
+                  if (k.includes("PLEDGE") && !k.includes("RELEASE")) return { Icon: MdLock, bg: "bg-blue-500" }
+                  if (k.includes("RELEASE") || k.includes("REFUND")) return { Icon: MdLockOpen, bg: "bg-teal-500" }
+                  if (k.includes("BID") || k.includes("WIN"))  return { Icon: MdGavel, bg: "bg-purple-500" }
+                  if (k.includes("PURCHASE") || k.includes("ORDER")) return { Icon: MdShoppingBag, bg: "bg-indigo-500" }
+                  if (k.includes("BONUS") || k.includes("GIFT")) return { Icon: MdCardGiftcard, bg: "bg-pink-500" }
+                  // default: credit = wallet icon
+                  return { Icon: MdAccountBalanceWallet, bg: "bg-orange-500" }
+                })()
+
                 return (
                   <div key={transaction.id ?? index} className="flex items-center justify-between p-2 xs-mobile:p-3 lg:p-4 border border-gray-200 rounded-lg">
                     <div className="flex items-center gap-3 lg:gap-4 min-w-0 flex-1">
-                      <div className={`w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        isTopup ? "bg-orange-500" : "bg-gray-800"
-                      }`}>
-                        <span className="text-white text-xs lg:text-sm font-bold">
-                          {isTopup ? "+" : "↓"}
-                        </span>
+                      <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center flex-shrink-0 ${iconConfig.bg}`}>
+                        <iconConfig.Icon className="text-white text-base lg:text-lg" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-gray-900 text-sm lg:text-base truncate">{description}</p>
@@ -642,7 +647,7 @@ export default function WalletPage() {
                       </div>
                     </div>
                     <span className={`font-bold text-base lg:text-lg flex-shrink-0 ml-2 ${
-                      isTopup ? "text-orange-500" : "text-gray-900"
+                      isDebit ? "text-red-500" : "text-orange-500"
                     }`}>
                       {formattedAmount}
                     </span>

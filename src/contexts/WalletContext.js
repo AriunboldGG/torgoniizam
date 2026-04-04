@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect } from "react"
+import { fetchWithAuth } from "@/lib/api"
 
 const WalletContext = createContext()
 
@@ -16,12 +17,10 @@ export function WalletProvider({ children }) {
       return
     }
     try {
-      const response = await fetch("/api/wallet/balance", {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
+      // fetchWithAuth auto-refreshes the token on 401
+      const response = await fetchWithAuth("/api/wallet/balance")
       if (!response.ok) throw new Error("Failed to fetch balance")
       const data = await response.json()
-      // API may wrap in { data: { available, held } } or return directly
       const payload = data?.data ?? data
       setWalletBalance(parseFloat(payload?.available ?? 0))
       setHeldBalance(parseFloat(payload?.held ?? 0))

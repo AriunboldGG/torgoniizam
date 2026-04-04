@@ -17,7 +17,7 @@ export function MyAccountSidebar() {
   const menuItems = [
     { title: "Хувийн мэдээлэл", url: "/my-account", icon: "/svg/my-info.svg" },
     { title: "Хэтэвч", url: "/my-account/wallet", icon: "/svg/wallet.svg" },
-    { title: "Дуудлага худалдаа", url: "/my-account/auctions", icon: "/svg/bid1.svg" },
+    { title: "Дуудлага худалдаа", url: "/auctions/my-auctions", icon: "/svg/bid1.svg" },
     { title: "Тохиргоо", url: "/my-account/settings", icon: "/svg/settings.svg" },
     { title: "Системээс гарах", action: handleLogout, icon: "/svg/logout.svg" }
   ]
@@ -25,7 +25,7 @@ export function MyAccountSidebar() {
   const isActive = (url) => {
     if (url === "/my-account" && pathname === "/my-account") return true
     if (url === "/my-account/wallet" && pathname === "/my-account/wallet") return true
-    if (url === "/my-account/auctions" && pathname === "/my-account/auctions") return true
+    if (url === "/auctions/my-auctions" && pathname.startsWith("/auctions/my-auctions")) return true
     if (url === "/my-account/settings" && pathname === "/my-account/settings") return true
     return false
   }

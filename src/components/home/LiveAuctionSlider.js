@@ -6,6 +6,8 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearch } from "@/contexts/SearchContext";
+import useSWR from "swr";
+import { publicFetcher } from "@/lib/fetcher";
 
 // Countdown Timer Component
 function CountdownTimer({ endTime, onEnd }) {
@@ -97,43 +99,39 @@ export default function LiveAuctionSlider() {
     }
   }, []);
 
-  const [allLiveAuctions, setAllLiveAuctions] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  // SWR caches the response — re-navigating to this page within 5 min
+  // skips the network request entirely.
+  const { data: rawData, isLoading: swrLoading } = useSWR(
+    "/api/lot/list?status=active&limit=25&offset=0",
+    publicFetcher,
+    { dedupingInterval: 300_000, revalidateOnFocus: false }
+  )
 
-  useEffect(() => {
-    const fetchLots = async () => {
-      try {
-        const response = await fetch("/api/lot/list?status=active&limit=25&offset=0")
-        const data = await response.json()
-        const list = data?.data?.results ?? data?.results ?? (Array.isArray(data?.data) ? data.data : null) ?? []
-        if (Array.isArray(list)) {
-          setAllLiveAuctions(
-            list.map((lot) => ({
-              id: lot.id,
-              imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
-              category: lot.category?.value ?? "",
-              title: lot.name ?? "",
-              lastPrice: lot.current_bid != null
-                ? `${Number(lot.current_bid).toLocaleString()}₮`
-                : lot.starting_price != null
-                ? `${Number(lot.starting_price).toLocaleString()}₮`
-                : "",
-              endTime: lot.end_date ?? null,
-            }))
-          )
-        }
-      } catch (error) {
-        console.error("Failed to fetch live auctions:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchLots()
-  }, [])
+  // useMemo is the right tool here: transform raw API data only when it changes.
+  const allLiveAuctions_ = useMemo(() => {
+    const list =
+      rawData?.data?.results ??
+      rawData?.results ??
+      (Array.isArray(rawData?.data) ? rawData.data : null) ??
+      []
+    return list.map((lot) => ({
+      id: lot.id,
+      imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
+      category: lot.category?.value ?? "",
+      title: lot.name ?? "",
+      lastPrice:
+        lot.current_bid != null
+          ? `${Number(lot.current_bid).toLocaleString()}₮`
+          : lot.starting_price != null
+          ? `${Number(lot.starting_price).toLocaleString()}₮`
+          : "",
+      endTime: lot.end_date ?? null,
+    }))
+  }, [rawData])
 
   // Filter auctions based on search query and category
   const liveAuctions = useMemo(() => {
-    let filtered = allLiveAuctions;
+    let filtered = allLiveAuctions_;
 
     // Filter by search query
     if (searchQuery.trim()) {
@@ -167,7 +165,7 @@ export default function LiveAuctionSlider() {
     }
 
     return filtered;
-  }, [allLiveAuctions, searchQuery, selectedCategory]);
+  }, [allLiveAuctions_, searchQuery, selectedCategory]);
 
   return (
     <section className="py-16 bg-gray-50">
@@ -211,7 +209,7 @@ export default function LiveAuctionSlider() {
 
           {/* Horizontal Scrollable Cards Row */}
           <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
-            {isLoading ? (
+            {swrLoading ? (
               <div className="w-full text-center py-12 text-gray-400">Уншиж байна...</div>
             ) : liveAuctions.length > 0 ? (
               liveAuctions.map((auction) => (

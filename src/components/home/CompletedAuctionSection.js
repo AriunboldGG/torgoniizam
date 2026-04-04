@@ -6,6 +6,8 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearch } from "@/contexts/SearchContext";
+import useSWR from "swr";
+import { publicFetcher } from "@/lib/fetcher";
 
 export default function CompletedAuctionSection() {
   const scrollContainerRef = useRef(null);
@@ -41,45 +43,44 @@ export default function CompletedAuctionSection() {
     }
   }, []);
 
-  const [allCompletedAuctions, setAllCompletedAuctions] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  // Two SWR keys — each is cached independently for 5 minutes.
+  const { data: expData, isLoading: expLoading } = useSWR(
+    "/api/lot/list?status=expired&limit=25&offset=0",
+    publicFetcher,
+    { dedupingInterval: 300_000, revalidateOnFocus: false }
+  )
+  const { data: soldData, isLoading: soldLoading } = useSWR(
+    "/api/lot/list?status=sold&limit=25&offset=0",
+    publicFetcher,
+    { dedupingInterval: 300_000, revalidateOnFocus: false }
+  )
+  const swrLoading = expLoading || soldLoading
 
-  useEffect(() => {
-    const fetchLots = async () => {
-      try {
-        const [expRes, soldRes] = await Promise.all([
-          fetch("/api/lot/list?status=expired&limit=25&offset=0"),
-          fetch("/api/lot/list?status=sold&limit=25&offset=0"),
-        ])
-        const [expData, soldData] = await Promise.all([expRes.json(), soldRes.json()])
-        const expList = expData?.data?.results ?? expData?.results ?? (Array.isArray(expData?.data) ? expData.data : null) ?? []
-        const soldList = soldData?.data?.results ?? soldData?.results ?? (Array.isArray(soldData?.data) ? soldData.data : null) ?? []
-        const combined = [...expList, ...soldList]
-        const list = combined
-        if (Array.isArray(list)) {
-          setAllCompletedAuctions(
-            list.map((lot) => ({
-              id: lot.id,
-              imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
-              category: lot.category?.value ?? "",
-              title: lot.name ?? "",
-              finalPrice: lot.final_price != null
-                ? `${Number(lot.final_price).toLocaleString()}₮`
-                : lot.current_bid != null
-                ? `${Number(lot.current_bid).toLocaleString()}₮`
-                : "",
-              status: "ДУУССАН",
-            }))
-          )
-        }
-      } catch (error) {
-        console.error("Failed to fetch completed auctions:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchLots()
-  }, [])
+  const allCompletedAuctions = useMemo(() => {
+    const expList =
+      expData?.data?.results ??
+      expData?.results ??
+      (Array.isArray(expData?.data) ? expData.data : null) ??
+      []
+    const soldList =
+      soldData?.data?.results ??
+      soldData?.results ??
+      (Array.isArray(soldData?.data) ? soldData.data : null) ??
+      []
+    return [...expList, ...soldList].map((lot) => ({
+      id: lot.id,
+      imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
+      category: lot.category?.value ?? "",
+      title: lot.name ?? "",
+      finalPrice:
+        lot.final_price != null
+          ? `${Number(lot.final_price).toLocaleString()}₮`
+          : lot.current_bid != null
+          ? `${Number(lot.current_bid).toLocaleString()}₮`
+          : "",
+      status: "ДУУССАН",
+    }))
+  }, [expData, soldData])
 
   // Filter auctions based on search query and category
   const completedAuctions = useMemo(() => {
@@ -157,7 +158,7 @@ export default function CompletedAuctionSection() {
 
           {/* Horizontal Scrollable Cards Row */}
           <div ref={scrollContainerRef} className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-            {isLoading ? (
+            {swrLoading ? (
               <div className="w-full text-center py-12">
                 <div className="text-gray-400 text-lg">Уншиж байна...</div>
               </div>

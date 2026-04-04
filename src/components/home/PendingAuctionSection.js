@@ -6,6 +6,8 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearch } from "@/contexts/SearchContext";
+import useSWR from "swr";
+import { publicFetcher } from "@/lib/fetcher";
 
 // Countdown Timer Component
 function CountdownTimer({ endTime }) {
@@ -84,40 +86,29 @@ export default function PendingAuctionSection() {
     }
   }, []);
 
-  const [allPendingAuctions, setAllPendingAuctions] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { data: rawData, isLoading: swrLoading } = useSWR(
+    "/api/lot/list?status=pending&limit=25&offset=0",
+    publicFetcher,
+    { dedupingInterval: 300_000, revalidateOnFocus: false }
+  )
 
-  useEffect(() => {
-    const fetchLots = async () => {
-      try {
-        const response = await fetch("/api/lot/list?status=pending&limit=25&offset=0")
-        const data = await response.json()
-        const list = data?.data?.results ?? data?.results ?? (Array.isArray(data?.data) ? data.data : null) ?? []
-        if (Array.isArray(list)) {
-          setAllPendingAuctions(
-            list.map((lot) => ({
-              id: lot.id,
-              imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
-              category: lot.category?.value ?? "",
-              title: lot.name ?? "",
-              startingPrice: lot.starting_price != null
-                ? `${Number(lot.starting_price).toLocaleString()}₮`
-                : "",
-              endTime: new Date(lot.end_date ?? Date.now()).getTime(),
-              status: "ТУН УДАХГҮЙ",
-            }))
-          )
-        }
-      } catch (error) {
-        console.error("Failed to fetch pending auctions:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchLots()
-  }, [])
-
-
+  const allPendingAuctions = useMemo(() => {
+    const list =
+      rawData?.data?.results ??
+      rawData?.results ??
+      (Array.isArray(rawData?.data) ? rawData.data : null) ??
+      []
+    return list.map((lot) => ({
+      id: lot.id,
+      imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
+      category: lot.category?.value ?? "",
+      title: lot.name ?? "",
+      startingPrice:
+        lot.starting_price != null ? `${Number(lot.starting_price).toLocaleString()}₮` : "",
+      endTime: new Date(lot.end_date ?? Date.now()).getTime(),
+      status: "ТУН УДАХГҮЙ",
+    }))
+  }, [rawData])
 
   // Filter auctions based on search query and category
   const pendingAuctions = useMemo(() => {
@@ -195,7 +186,7 @@ export default function PendingAuctionSection() {
 
           {/* Horizontal Scrollable Cards Row */}
           <div ref={scrollContainerRef} className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-            {isLoading ? (
+            {swrLoading ? (
               <div className="w-full text-center py-12">
                 <div className="text-gray-400 text-lg">Уншиж байна...</div>
               </div>
