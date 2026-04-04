@@ -35,9 +35,7 @@ export function MyAccountSidebar() {
       {/* Header */}
       <div className="p-4 lg:p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 lg:h-12 lg:w-12 rounded-full bg-orange-500 flex items-center justify-center">
-            <span className="text-white font-bold text-lg lg:text-xl">{user?.avatar || "ГБ"}</span>
-          </div>
+       
           <div>
             <p className="font-semibold text-gray-900 text-sm lg:text-base">{user?.first_name || "B.АЛТАНЗУЛ"}</p>
             <p className="text-xs lg:text-sm text-gray-500">Хэрэглэгч</p>

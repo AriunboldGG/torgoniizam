@@ -153,9 +153,8 @@ export default function MyAuctionsPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 font-tt-firs-neue-variable">
-              МИНИЙ ДУУДЛАГА ХУДАЛДААНУУД
+              Таны оролцсон дуудлага худалдаанууд
             </h1>
-            <p className="text-gray-500 mt-1 text-sm">Та оролцсон бүх дуудлага худалдааны жагсаалт</p>
           </div>
 
           {/* Error */}
