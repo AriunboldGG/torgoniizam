@@ -13,7 +13,6 @@ export function SearchProvider({ children }) {
   };
 
   const updateSelectedCategory = (category) => {
-    console.log('SearchContext: updateSelectedCategory called with:', category);
     setSelectedCategory(category);
   };
 

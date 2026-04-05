@@ -28,6 +28,7 @@ export default function SignupPage() {
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [showTermsDialog, setShowTermsDialog] = useState(false)
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const router = useRouter()
 
@@ -97,13 +98,48 @@ export default function SignupPage() {
     }
 
     setIsLoading(true)
-    
-    // Simulate API call delay
-    setTimeout(() => {
+
+    try {
+      const res = await fetch(`/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone: formData.phone,
+          register_no: formData.registrationNumber,
+          email: formData.email,
+          password: formData.password,
+          re_password: formData.confirmPassword,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        // Surface field-level errors from the API
+        const apiErrors = {}
+        if (data?.email) apiErrors.email = Array.isArray(data.email) ? data.email[0] : data.email
+        if (data?.phone) apiErrors.phone = Array.isArray(data.phone) ? data.phone[0] : data.phone
+        if (data?.register_no) apiErrors.registrationNumber = Array.isArray(data.register_no) ? data.register_no[0] : data.register_no
+        if (data?.password) apiErrors.password = Array.isArray(data.password) ? data.password[0] : data.password
+        if (data?.re_password) apiErrors.confirmPassword = Array.isArray(data.re_password) ? data.re_password[0] : data.re_password
+        if (data?.first_name) apiErrors.firstName = Array.isArray(data.first_name) ? data.first_name[0] : data.first_name
+        if (data?.last_name) apiErrors.lastName = Array.isArray(data.last_name) ? data.last_name[0] : data.last_name
+        if (Object.keys(apiErrors).length > 0) {
+          setErrors(apiErrors)
+        } else {
+          setErrors({ general: data?.detail ?? data?.message ?? "Бүртгэл амжилтгүй боллоо. Дахин оролдоно уу." })
+        }
+        return
+      }
+
+      setShowSuccessDialog(true)
+    } catch {
+      setErrors({ general: "Сервертэй холбогдоход алдаа гарлаа. Дахин оролдоно уу." })
+    } finally {
       setIsLoading(false)
-      // Redirect to coming soon page
-      router.push("/coming-soon")
-    }, 1000)
+    }
   }
 
   return (
@@ -112,9 +148,7 @@ export default function SignupPage() {
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">БҮРТГҮҮЛЭХ</CardTitle>
-            <CardDescription>
-              ТОРГОНЫ ЗАМ системд бүртгүүлж, дуудлага худалдаанд оролцоорой
-            </CardDescription>
+        
           </CardHeader>
           
           <CardContent>
@@ -260,6 +294,10 @@ export default function SignupPage() {
                 </div>
               </div>
 
+              {errors.general && (
+                <p className="text-sm text-red-500 text-center">{errors.general}</p>
+              )}
+
               <Button 
                 type="submit" 
                 className="w-full"
@@ -271,7 +309,7 @@ export default function SignupPage() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Хэдийн бүртгэлтэй юу?{" "}
+                Та бүртгэлтэй юу? Тэгвэл{" "}
                 <Button variant="link" className="p-0 text-blue-600" onClick={() => router.push("/auth/login")}>
                   Нэвтрэх
                 </Button>
@@ -384,6 +422,35 @@ export default function SignupPage() {
               onClick={() => setShowTermsDialog(false)}
             >
               Хаах
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={() => {}}>
+        <DialogContent className="max-w-sm text-center" hideClose>
+          <DialogHeader>
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            <DialogTitle className="text-xl font-bold text-gray-900">
+              Бүртгэл амжилттай!
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mt-2">
+              Таны бүртгэл амжилттай үүслээ. Одоо нэвтрэх боломжтой.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4 flex justify-center">
+            <Button
+              className="bg-[#FF4405] hover:bg-[#E63D04] text-white w-full"
+              onClick={() => router.push("/auth/login")}
+            >
+              Нэвтрэх хуудас руу очих
             </Button>
           </DialogFooter>
         </DialogContent>

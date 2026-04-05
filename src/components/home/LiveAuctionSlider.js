@@ -68,7 +68,6 @@ export default function LiveAuctionSlider() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const { searchQuery, selectedCategory } = useSearch();
   
-  console.log('LiveAuctionSlider: selectedCategory =', selectedCategory);
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -143,7 +142,6 @@ export default function LiveAuctionSlider() {
 
     // Filter by category
     if (selectedCategory) {
-      console.log('LiveAuctionSlider: Filtering by category:', selectedCategory);
       // Map dropdown category IDs to actual category names
       const categoryMapping = {
         'car': 'Автомашин',
@@ -154,13 +152,11 @@ export default function LiveAuctionSlider() {
       };
       
       const categoryName = categoryMapping[selectedCategory];
-      console.log('LiveAuctionSlider: Mapped to:', categoryName);
       if (categoryName) {
         const beforeFilter = filtered.length;
         filtered = filtered.filter(auction => 
           auction.category === categoryName
         );
-        console.log(`LiveAuctionSlider: Filtered from ${beforeFilter} to ${filtered.length} auctions`);
       }
     }
 

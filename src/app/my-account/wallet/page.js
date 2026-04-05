@@ -86,7 +86,6 @@ export default function WalletPage() {
         const data = await response.json()
         const list = data?.results ?? data?.data ?? data
         if (Array.isArray(list)) {
-          console.log("Transaction keys:", list.map((t) => t.txn_type?.key ?? t.type))
           setTransactions(list)
         }
       } catch (error) {
@@ -203,7 +202,6 @@ export default function WalletPage() {
         body: JSON.stringify({ bank_account: selectedAccount, amount: String(amount) }),
       })
       const data = await response.json()
-      console.log('data withdraw log==>', data);
       
       if (!response.ok) {
         alert(data?.detail || data?.msg || "Таталт хийхэд алдаа гарлаа. Дахин оролдоно уу.")

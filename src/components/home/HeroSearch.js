@@ -28,7 +28,6 @@ export default function HeroSearch() {
   const handleSearch = () => {
     // Search functionality is handled by the context
     // This can be used for additional search actions if needed
-    console.log('Searching for:', localSearchQuery, 'in category:', localSelectedCategory);
   };
 
   return (

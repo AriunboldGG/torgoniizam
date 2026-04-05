@@ -9,7 +9,6 @@ export async function GET(request) {
     if (authHeader) headers["Authorization"] = authHeader
 
     const backendUrl = `${API_URL}/api/v1/bank/list`
-    console.log("[bank/list] Fetching:", backendUrl)
 
     let response = await fetch(backendUrl, { headers, redirect: "manual" })
 
@@ -23,7 +22,6 @@ export async function GET(request) {
     }
 
     const text = await response.text()
-    console.log("[bank/list] Status:", response.status, "Body:", text.slice(0, 200))
 
     let data
     try {
@@ -34,7 +32,6 @@ export async function GET(request) {
 
     return NextResponse.json(data, { status: response.status })
   } catch (error) {
-    console.error("[bank/list] Proxy error:", error.message)
     return NextResponse.json(
       { detail: "Банкны жагсаалт авахад алдаа гарлаа.", error: error.message },
       { status: 500 }

@@ -8,7 +8,6 @@ import CategoryFilter from "./CategoryFilter";
 import Image from "next/image";
 
 export default function SearchFilters({ onSearch, onFilterChange, activeFilters = [] }) {
-  console.log("SearchFilters component rendered with props:", { onSearch, onFilterChange, activeFilters });
   
   // Test alert to see if component loads
   useEffect(() => {
@@ -74,7 +73,6 @@ export default function SearchFilters({ onSearch, onFilterChange, activeFilters 
   ];
 
   const handleSearch = (query) => {
-    console.log("Search query:", query);
     setSearchQuery(query);
     if (onSearch) {
       onSearch(query);
@@ -82,13 +80,11 @@ export default function SearchFilters({ onSearch, onFilterChange, activeFilters 
   };
 
   const handleSearchButtonClick = () => {
-    console.log("Search button clicked with query:", searchQuery);
     if (searchQuery.trim()) {
       if (onSearch) {
         onSearch(searchQuery);
       } else {
         // Default search behavior if no callback provided
-        console.log("Performing default search for:", searchQuery);
         // You can add default search logic here
         alert(`Хайлт хийж байна: ${searchQuery}`);
       }
@@ -98,7 +94,6 @@ export default function SearchFilters({ onSearch, onFilterChange, activeFilters 
   };
 
   const handleCategorySelect = (category) => {
-    console.log("Category selected:", category);
     setSelectedCategory(category.name);
     setIsCategoryDropdownOpen(false);
     if (onFilterChange) {
@@ -123,7 +118,6 @@ export default function SearchFilters({ onSearch, onFilterChange, activeFilters 
   };
 
   const handleSubcategorySelect = (data) => {
-    console.log("Selected subcategory:", data);
     // Handle subcategory selection
   };
 

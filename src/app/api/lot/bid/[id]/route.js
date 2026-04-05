@@ -37,12 +37,10 @@ export async function POST(request, { params }) {
     let response = null
     for (const url of BID_URL_CANDIDATES(id)) {
       response = await tryFetch(url, fetchOptions)
-      console.log(`[lot/bid] tried ${url} → ${response.status}`)
       if (response.status !== 404) break
     }
 
     const text = await response.text()
-    console.log(`[lot/bid] backend response ${response.status}: ${text.substring(0, 300)}`)
 
     let data
     try {

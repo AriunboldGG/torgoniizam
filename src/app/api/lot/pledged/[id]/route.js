@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 
+export const dynamic = "force-dynamic" // never cache — pledge status must always be fresh
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export async function GET(request, { params }) {
@@ -20,26 +22,21 @@ export async function GET(request, { params }) {
       "Authorization": authHeader,
     }
 
-    const url = `${API_URL}/api/v1/lots/pledged/${id}/`
-    console.log("[pledged proxy] GET", url)
+    const url = `${API_URL}/api/v1/lots/pledged/${id}`
 
-    let response = await fetch(url, { headers, redirect: "manual" })
-    console.log("[pledged proxy] initial status:", response.status)
+    let response = await fetch(url, { headers, redirect: "manual", cache: "no-store" })
 
     // Follow up to 3 redirects manually so Authorization header is preserved
     let redirectCount = 0
     while (response.status >= 300 && response.status < 400 && redirectCount < 3) {
       const location = response.headers.get("location")
-      console.log("[pledged proxy] redirect ->", location)
       if (!location) break
       const redirectUrl = location.startsWith("http") ? location : `${API_URL}${location}`
-      response = await fetch(redirectUrl, { headers, redirect: "manual" })
-      console.log("[pledged proxy] after redirect status:", response.status)
+      response = await fetch(redirectUrl, { headers, redirect: "manual", cache: "no-store" })
       redirectCount++
     }
 
     const text = await response.text()
-    console.log("[pledged proxy] final status:", response.status, "body:", text.slice(0, 300))
 
     if (!text || !text.trim()) {
       return NextResponse.json({ status_code: "not_found" }, { status: response.status })
@@ -49,13 +46,11 @@ export async function GET(request, { params }) {
     try {
       data = JSON.parse(text)
     } catch {
-      console.error("[pledged proxy] Non-JSON body:", text.slice(0, 300))
       return NextResponse.json({ status_code: "not_found" }, { status: 200 })
     }
 
     return NextResponse.json(data, { status: response.status })
   } catch (error) {
-    console.error("[lot/pledged] Proxy error:", error.message)
     return NextResponse.json(
       { detail: "Дэнчин шалгахад алдаа гарлаа.", error: error.message },
       { status: 500 }

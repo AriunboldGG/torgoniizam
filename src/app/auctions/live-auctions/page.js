@@ -30,12 +30,13 @@ function mapActiveLot(lot) {
     currentBid: lot.current_bid != null ? Number(lot.current_bid) : 0,
     startingPrice: lot.starting_price != null ? Number(lot.starting_price) : 0,
     timeLeft: computeTimeLeft(lot.end_date),
-    bidders: lot.bidder_count ?? 0,
+    bidders: lot.bid_count ??  0,
     category: lot.category?.value ?? lot.category?.name ?? '',
     subcategory: lot.subcategory?.value ?? lot.subcategory?.name ?? '',
     location: lot.city?.value ?? 'Улаанбаатар',
     isLive: true,
     date: lot.end_date ? new Date(lot.end_date) : new Date(),
+    
   }
 }
 

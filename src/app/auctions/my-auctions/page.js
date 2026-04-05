@@ -19,7 +19,11 @@ function getDetailHref(lot) {
   return `/auction/completed/${lot.id}`
 }
 
-function mapLot(lot) {
+function mapBidHistory(entry) {
+  console.log('bid history entry =>', entry)
+
+  // API may return the lot directly at entry.lot, or the entry itself may be the lot
+  const lot = entry.lot ?? entry
   const rawImages = Array.isArray(lot.images) ? lot.images : []
   const image =
     rawImages.length > 0
@@ -30,17 +34,26 @@ function mapLot(lot) {
 
   const startingPrice = lot.starting_price != null ? Number(lot.starting_price) : 0
   const currentBid = lot.current_bid != null ? Number(lot.current_bid) : startingPrice
+  const bidAmount = entry.amount != null ? Number(entry.amount) : null
+
+  const lotStatus = typeof lot.status === 'string' ? lot.status : (lot.status?.key ?? 'pending')
+  const bidStatus = typeof entry.status === 'string' ? entry.status : (entry.status?.key ?? '')
 
   return {
-    id: lot.id,
+    id: lot.id ?? entry.id,
+    bidId: entry.id,
     image,
-    status: typeof lot.status === 'string' ? lot.status : (lot.status?.key ?? 'pending'),
+    status: lotStatus,
+    bidStatus,
     category: lot.category?.value ?? lot.category?.name ?? '',
     title: lot.name ?? '',
     startingPrice: `${startingPrice.toLocaleString('mn-MN')}₮`,
     currentBid: `${currentBid.toLocaleString('mn-MN')}₮`,
+    myBidAmount: bidAmount != null ? `${bidAmount.toLocaleString('mn-MN')}₮` : null,
     startDate: lot.start_date ?? null,
     endDate: lot.end_date ?? null,
+    wonAmount: entry.winning_amount != null ? Number(entry.winning_amount) : null,
+    createdAt: entry.created_at ?? null,
   }
 }
 
@@ -62,7 +75,7 @@ export default function MyAuctionsPage() {
     const fetchMyLots = async () => {
       try {
         const token = localStorage.getItem('access_token')
-        const res = await fetch('/api/lot/my-list?limit=100&offset=0', {
+        const res = await fetch('/api/bid/history', {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
         const json = await res.json()
@@ -73,44 +86,45 @@ export default function MyAuctionsPage() {
         }
 
         const list = json?.results ?? json?.data ?? (Array.isArray(json) ? json : [])
-        const mapped = list.map(mapLot)
-        setLots(mapped)
+        const mapped = list.map(mapBidHistory)
 
-        // For completed lots, fetch won status in parallel
-        const completedLots = mapped.filter(l => l.status === 'expired' || l.status === 'sold')
-        if (completedLots.length > 0) {
-          const wonResults = await Promise.allSettled(
-            completedLots.map(async (lot) => {
-              const wonRes = await fetch(`/api/bid/won/${lot.id}`, {
-                headers: token ? { Authorization: `Bearer ${token}` } : {},
-              })
-              const wonJson = await wonRes.json().catch(() => null)
-              return { id: lot.id, data: wonJson, ok: wonRes.ok }
-            })
-          )
-          const wonIds = new Set()
-          const wonData = {}
-          wonResults.forEach((result) => {
-            if (result.status === 'fulfilled' && result.value.ok) {
-              const { id, data } = result.value
-              // API responds with data if user won — non-null, non-empty array, or has fields
-              const isWon = data !== null &&
-                data !== undefined &&
-                !(Array.isArray(data) && data.length === 0) &&
-                !(typeof data === 'object' && Object.keys(data).length === 0) &&
-                data?.detail == null
-              if (isWon) {
-                wonIds.add(id)
-                wonData[id] = Array.isArray(data) ? data[0] : data
+        // Deduplicate by lot id — keep the entry with the highest bid amount per lot
+        const lotMap = new Map()
+        mapped.forEach((entry) => {
+          const existing = lotMap.get(entry.id)
+          if (!existing) {
+            lotMap.set(entry.id, entry)
+          } else {
+            const newAmt = entry.myBidAmount ? parseFloat(entry.myBidAmount.replace(/[^\d.]/g, '')) : 0
+            const exAmt = existing.myBidAmount ? parseFloat(existing.myBidAmount.replace(/[^\d.]/g, '')) : 0
+            if (newAmt > exAmt) lotMap.set(entry.id, entry)
+          }
+        })
+        const deduped = Array.from(lotMap.values())
+        setLots(deduped)
+
+        // Extract won lots directly from bid status
+        const wonIds = new Set()
+        const wonData = {}
+        mapped.forEach((entry) => {
+          if (entry.bidStatus === 'won' || entry.bidStatus === 'active') {
+            const isCompleted = entry.status === 'expired' || entry.status === 'sold'
+            if (isCompleted) {
+              wonIds.add(entry.id)
+              if (!wonData[entry.id] || entry.wonAmount != null) {
+                wonData[entry.id] = {
+                  amount: entry.wonAmount ?? (entry.myBidAmount ? parseFloat(entry.myBidAmount.replace(/[^\d.]/g, '')) : null),
+                  created_at: entry.createdAt,
+                }
               }
             }
-          })
-          setWonLotIds(wonIds)
-          setWonLotData(wonData)
-        }
+          }
+        })
+        setWonLotIds(wonIds)
+        setWonLotData(wonData)
       } catch (err) {
-        console.error('Failed to fetch my lots:', err)
-        setError('Серверт холбогдоход алдаа гарлаа.')
+        console.error('Failed to fetch bid history:', err)
+        setError(err?.messag)
       } finally {
         setLoading(false)
       }
@@ -186,6 +200,7 @@ export default function MyAuctionsPage() {
           {/* Grid */}
           {lots.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              
               {lots.map((lot) => {
                 const statusInfo = STATUS_LABEL[lot.status] ?? { text: lot.status, color: 'bg-gray-400' }
                 const isCompleted = lot.status === 'expired' || lot.status === 'sold'
@@ -223,6 +238,12 @@ export default function MyAuctionsPage() {
                             <span className="text-xs text-gray-500">Одоогийн үнэ</span>
                             <span className="text-sm font-bold text-[#FF4405]">{lot.currentBid}</span>
                           </div>
+                          {lot.myBidAmount && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs text-gray-500">Миний санал</span>
+                              <span className="text-sm font-bold text-blue-600">{lot.myBidAmount}</span>
+                            </div>
+                          )}
                           {userWon && wonInfo && (
                             <div className="mt-2 pt-2 border-t border-yellow-200 bg-yellow-50 rounded-lg px-2 py-1 space-y-1">
                               {wonInfo.amount != null && (
@@ -241,7 +262,7 @@ export default function MyAuctionsPage() {
                           )}
                           {userWon && !wonInfo && (
                             <div className="mt-2 pt-2 border-t border-yellow-200 bg-yellow-50 rounded-lg px-2 py-1 text-center">
-                              <span className="text-xs text-yellow-700 font-medium">Та энэ дуудлага худалдааг ялсан!</span>
+                              <span className="text-xs text-yellow-700 font-medium">Та энэ дуудлага худалдаанд ялсан байна!</span>
                             </div>
                           )}
                         </div>
