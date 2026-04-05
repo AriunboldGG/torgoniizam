@@ -296,10 +296,11 @@ export default function AuctionItemPage({ params }) {
             })
             const pledgedData = await pledgedRes.json().catch(() => null)
             console.log("[PledgeCheck] HTTP:", pledgedRes.status, "body:", JSON.stringify(pledgedData))
-            // Treat as pledged if: status_code is "ok" with data, OR HTTP 200 and no error detail
+            // 200 with status_code "ok" = pledged
+            // 409 Conflict = backend signals user already pledged this lot
             const pledged =
-              (pledgedData?.status_code === "ok" && pledgedData?.data != null) ||
-              (pledgedRes.ok && pledgedData != null && !pledgedData?.detail && pledgedData?.status_code !== "not_found")
+              pledgedRes.status === 409 ||
+              (pledgedData?.status_code === "ok" && pledgedData?.data != null)
             console.log("[PledgeCheck] pledged:", pledged)
             setHasUserPledged(pledged)
           } catch (pledgeErr) {
