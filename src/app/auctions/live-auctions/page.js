@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CategoryFilter from "@/components/auction/CategoryFilter";
 import FilterSection from "@/components/auction/FilterSection";
+import { MdAlarm, MdVisibility, MdLocationOn } from "react-icons/md";
 
 function computeTimeLeft(endDate) {
   if (!endDate) return '0:0:0'
@@ -340,8 +341,8 @@ export default function LiveAuctionsPage() {
                 
                 {/* Timer */}
                 <div className="absolute top-3 right-3 z-10">
-                  <div className="bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-sm font-bold">
-                    ⏰ {formatTime(auction.timeLeft)}
+                  <div className="bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                    <MdAlarm className="text-base" /> {formatTime(auction.timeLeft)}
                   </div>
                 </div>
 
@@ -372,7 +373,7 @@ export default function LiveAuctionsPage() {
 
                 {/* Location */}
                 <div className="flex items-center text-gray-600 text-sm mb-4">
-                  <Image src="/svg/header/main-logo.svg" alt="Location" width={16} height={16} className="w-4 h-4 mr-2" />
+                  <MdLocationOn className="w-4 h-4 mr-1 text-orange-500" />
                   {auction.location}
                 </div>
 
@@ -401,8 +402,8 @@ export default function LiveAuctionsPage() {
                 {/* Action Buttons */}
                 <div className="flex space-x-3">
                   <Link href={`/auction/${auction.id}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" className="px-4 font-tt-firs-neue-variable font-medium text-base leading-6 text-gray-600 hover:bg-gray-50">
-                      👁️ Дэлгэрэнгүй
+                    <Button variant="outline" className="px-4 font-tt-firs-neue-variable font-medium text-base leading-6 text-gray-600 hover:bg-gray-50 flex items-center gap-1.5">
+                      <MdVisibility className="text-lg" /> Дэлгэрэнгүй
                     </Button>
                   </Link>
                 </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { MdCalendarToday, MdLocationOn, MdBarChart } from "react-icons/md";
 
 function mapCompletedLot(lot) {
   const rawImages = Array.isArray(lot.images) ? lot.images : []
@@ -114,8 +115,8 @@ export default function CompletedAuctionsPage() {
                 
                 {/* End Date */}
                 <div className="absolute top-3 right-3 z-10">
-                  <div className="bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-bold">
-                    📅 {formatDate(auction.endDate)}
+                  <div className="bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                    <MdCalendarToday className="text-base" /> {formatDate(auction.endDate)}
                   </div>
                 </div>
 
@@ -146,7 +147,7 @@ export default function CompletedAuctionsPage() {
 
                 {/* Location */}
                 <div className="flex items-center text-gray-600 text-sm mb-4">
-                  <Image src="/svg/header/main-logo.svg" alt="Location" width={16} height={16} className="w-4 h-4 mr-2" />
+                  <MdLocationOn className="w-4 h-4 mr-1 text-orange-500" />
                   {auction.location}
                 </div>
 
@@ -181,8 +182,8 @@ export default function CompletedAuctionsPage() {
                 {/* Action Buttons */}
                 <div className="flex space-x-3">
                   <Link href={`/auction/completed/${auction.id}`} target="_blank" rel="noopener noreferrer">
-                    <Button className="flex-1 bg-green-500 hover:bg-green-600 text-white">
-                      📊 Дэлгэрэнгүй
+                    <Button className="flex-1 bg-green-500 hover:bg-green-600 text-white flex items-center gap-1.5">
+                      <MdBarChart className="text-lg" /> Дэлгэрэнгүй
                     </Button>
                   </Link>
                 </div>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter, usePathname } from "next/navigation";
+import { MdPerson } from "react-icons/md";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -224,7 +225,7 @@ export default function Header() {
                     className="flex items-center space-x-3 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors"
                   >
                     <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">{user.avatar}</span>
+                      <MdPerson className="text-white text-xl" />
                     </div>
                     <span className="font-medium text-gray-900">{user.fullName}</span>
                     <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
