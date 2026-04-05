@@ -163,24 +163,50 @@ export default function AuctionItemPage({ params }) {
   const { user, isLoggedIn, isLoading } = useUser(); // Get real authentication state
   const searchParams = useSearchParams();
 
-  // Check if user came from auction history (has existing pledge)
-  const hasExistingPledge = searchParams.get('hasPledge') === 'true';
+  // Check if user came from auction history
   const fromHistory = searchParams.get('from') === 'history';
 
   // Debug logging
   console.log('Auction Page - User:', user);
   console.log('Auction Page - isLoggedIn:', isLoggedIn);
   console.log('Auction Page - isLoading:', isLoading);
-  console.log('Auction Page - hasExistingPledge:', hasExistingPledge);
   console.log('Auction Page - fromHistory:', fromHistory);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [showPledgeDialog, setShowPledgeDialog] = useState(false);
   const [showBidDialog, setShowBidDialog] = useState(false);
-  const [hasUserPledged, setHasUserPledged] = useState(hasExistingPledge); // Initialize with existing pledge status
-  const [pledgeStatusLoading, setPledgeStatusLoading] = useState(false);
+  const [hasUserPledged, setHasUserPledged] = useState(false);
+  const [pledgeStatusLoading, setPledgeStatusLoading] = useState(true); // true until first check resolves
   const [auctionItem, setAuctionItem] = useState(null); // State to track auction item
   const [showImageZoom, setShowImageZoom] = useState(false); // State to control image zoom modal
+
+  const resolvePledgedStatus = (payload, isOkResponse) => {
+    if (!isOkResponse || !payload) return false;
+
+    // Primary: standard backend envelope { status_code: "ok", data: { id, lot, deposit_amount, ... } }
+    if (payload?.status_code === "ok" && payload?.data != null) return true;
+    // Explicit failure envelope
+    if (payload?.status_code && payload?.status_code !== "ok") return false;
+
+    // Fallback: unwrap data if present
+    const body = payload?.data ?? payload;
+
+    if (typeof body?.is_pledged === "boolean") return body.is_pledged;
+    if (typeof body?.hasPledged === "boolean") return body.hasPledged;
+    if (typeof body?.pledged === "boolean") return body.pledged;
+
+    if (Array.isArray(body)) return body.length > 0;
+    if (typeof body === "object" && body !== null) {
+      return (
+        body?.id != null ||
+        body?.lot != null ||
+        body?.deposit_amount != null ||
+        body?.amount != null
+      );
+    }
+
+    return false;
+  };
 
   const handlePledgeConfirm = (pledgeAmount) => {
     // Handle pledge confirmation here
@@ -212,7 +238,9 @@ export default function AuctionItemPage({ params }) {
 
 
 
-  // Get auction data from API
+  // Get auction data and pledge status together in one pass.
+  // Merging both calls prevents the dual-effect race condition where the
+  // pledge check fires before/after auth settles and resets hasUserPledged.
   useEffect(() => {
     const fetchLot = async () => {
       try {
@@ -227,7 +255,6 @@ export default function AuctionItemPage({ params }) {
           ? rawImages.map((img) => (typeof img === "string" ? img : img.url ?? img.image ?? ""))
           : [lot.thumbnail ?? "/images/end4.png"]
 
-        // attributes is a plain object: { "Өнгө": "Хүрэн", ... }
         const specs = lot.attributes && typeof lot.attributes === "object" && !Array.isArray(lot.attributes)
           ? Object.entries(lot.attributes).map(([label, value]) => ({ label, value: String(value) }))
           : []
@@ -258,45 +285,35 @@ export default function AuctionItemPage({ params }) {
           images: images.length > 0 ? images : ["/images/end4.png"],
           bids,
         })
+
+        // Check pledge status using the URL id (guaranteed correct) and the same token.
+        if (token) {
+          try {
+            const pledgeId = lot.id ?? unwrappedParams.id
+            console.log("[PledgeCheck] calling pledged API for id:", pledgeId)
+            const pledgedRes = await fetch(`/api/lot/pledged/${pledgeId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            const pledgedData = await pledgedRes.json().catch(() => null)
+            console.log("[PledgeCheck] HTTP:", pledgedRes.status, "body:", JSON.stringify(pledgedData))
+            // Treat as pledged if: status_code is "ok" with data, OR HTTP 200 and no error detail
+            const pledged =
+              (pledgedData?.status_code === "ok" && pledgedData?.data != null) ||
+              (pledgedRes.ok && pledgedData != null && !pledgedData?.detail && pledgedData?.status_code !== "not_found")
+            console.log("[PledgeCheck] pledged:", pledged)
+            setHasUserPledged(pledged)
+          } catch (pledgeErr) {
+            console.error("[PledgeCheck] error:", pledgeErr)
+          }
+        }
       } catch (error) {
         console.error("Failed to fetch lot detail:", error)
+      } finally {
+        setPledgeStatusLoading(false)
       }
     }
     fetchLot()
   }, [unwrappedParams.id]);
-
-  // Fetch pledge status from API when lot is loaded and user is logged in
-  useEffect(() => {
-    if (!unwrappedParams.id || !isLoggedIn) return;
-    const fetchPledgeStatus = async () => {
-      setPledgeStatusLoading(true);
-      try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const res = await fetch(`/api/lot/pledged/${unwrappedParams.id}`, { headers });
-        const data = await res.json().catch(() => null);
-        // 200 response = user has pledged (API returns pledge object or array)
-        // Non-200 (e.g. 404) = not pledged
-        let pledged = false;
-        if (res.ok && data !== null) {
-          if (Array.isArray(data)) {
-            pledged = data.length > 0;
-          } else if (typeof data === 'object') {
-            // Only treat as not-pledged if it's purely an error detail
-            pledged = data?.detail == null || data?.id != null || data?.lot != null || data?.amount != null;
-          } else {
-            pledged = true;
-          }
-        }
-        setHasUserPledged(pledged);
-      } catch {
-        // On error keep existing state
-      } finally {
-        setPledgeStatusLoading(false);
-      }
-    };
-    fetchPledgeStatus();
-  }, [unwrappedParams.id, isLoggedIn]);
 
   // Close dialogs if user is not logged in
   useEffect(() => {

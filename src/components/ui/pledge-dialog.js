@@ -58,13 +58,17 @@ export default function PledgeDialog({
 
       if (!joinRes.ok) {
         const errMsg = joinData?.detail ?? joinData?.msg ?? '';
-        // If API says already participating, treat as already pledged — close and enable bid
-        const alreadyJoined = errMsg && (
-          errMsg.toLowerCase().includes('аль хэдийн') ||
-          errMsg.toLowerCase().includes('already') ||
-          errMsg.toLowerCase().includes('orolcoj') ||
-          errMsg.toLowerCase().includes('оролцож')
-        );
+
+        // 409 Conflict = user already pledged this lot — treat as success
+        const alreadyJoined =
+          joinRes.status === 409 ||
+          (errMsg && (
+            errMsg.toLowerCase().includes('аль хэдийн') ||
+            errMsg.toLowerCase().includes('already') ||
+            errMsg.toLowerCase().includes('orolcoj') ||
+            errMsg.toLowerCase().includes('оролцож')
+          ));
+
         if (alreadyJoined) {
           if (onPledgeConfirm) onPledgeConfirm(calculatePledgeAmount(auctionItem.startingPrice));
           onOpenChange(false);

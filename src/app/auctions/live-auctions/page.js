@@ -288,7 +288,7 @@ export default function LiveAuctionsPage() {
            
           </div>
           <p className="text-gray-600 mt-2">
-            Одоо {filteredAuctions.length} дуудлага худалдаа явагдаж байна • Хуудас {currentPage} / {totalPages}
+            Одоо {filteredAuctions.length} дуудлага худалдаа явагдаж байна
             {selectedCategory && (
               <span className="ml-2 text-orange-600">
                 • {selectedCategory.name}
@@ -418,7 +418,7 @@ export default function LiveAuctionsPage() {
             {/* Pagination Info */}
             <div className="text-center mb-6 text-gray-600">
               <span className="text-sm">
-                Хуудас {currentPage} / {totalPages} • Нийт {liveAuctions.length} бараа
+                 • Нийт {liveAuctions.length} бараа
               </span>
             </div>
             

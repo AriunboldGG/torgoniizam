@@ -393,7 +393,7 @@ export default function TodayAuctions() {
           {/* Page Info */}
           <div className="text-center mt-6 text-gray-600">
             <span className="text-sm">
-              Хуудас {currentPage} / {totalPages} • Нийт {filteredAuctions.length} бараа
+               Нийт {filteredAuctions.length} бараа
             </span>
           </div>
         </div>
