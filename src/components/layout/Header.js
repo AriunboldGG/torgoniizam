@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter, usePathname } from "next/navigation";
 import { MdPerson } from "react-icons/md";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -202,8 +203,11 @@ export default function Header() {
 
             {/* Desktop User Actions */}
             <div className="hidden md:flex items-center space-x-4">
+              {/* Dark / Light mode toggle */}
+              <ThemeToggle />
+
               {/* Notification Icon */}
-              <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors bg-gray-100 hover:bg-gray-200 rounded-lg">
+              <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors bg-gray-100 hover:bg-gray-200 dark:bg-[#252840] dark:hover:bg-[#2d3450] dark:text-gray-300 rounded-lg">
                 <Image 
                   src="/svg/notif.svg" 
                   alt="Notifications" 
@@ -411,7 +415,15 @@ export default function Header() {
 
                 {/* Mobile User Actions */}
                 <div className="pt-2 sm:pt-6 border-t border-gray-200" style={{ marginBottom: '10px' }}>
-                  {/* Mobile Notification Icon */}
+                  {/* Dark / Light mode toggle (mobile) */}
+                  <div className="px-4 py-3 mb-2 sm:mb-4">
+                    <div className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-full dark:bg-[#1e2030]">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Харанхуй горим</span>
+                      <ThemeToggle />
+                    </div>
+                  </div>
+
+                {/* Mobile Notification Icon */}
                   <div className="px-4 py-3 mb-2 sm:mb-4">
                     <button className="relative flex items-center space-x-3 w-full p-3 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
                       <Image 
