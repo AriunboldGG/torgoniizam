@@ -19,7 +19,7 @@ export async function GET(request) {
     try {
       data = JSON.parse(text)
     } catch {
-      return NextResponse.json({ detail: "Invalid JSON from backend" }, { status: 502 })
+      return NextResponse.json({ detail: "Invalid JSON from backend", raw: text.slice(0, 200) }, { status: 502 })
     }
 
     return NextResponse.json(data, { status: response.status })
