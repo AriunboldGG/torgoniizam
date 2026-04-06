@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.torgoniizam.mn"
 
 // Candidate URLs tried in order — first non-404 wins
 const BID_URL_CANDIDATES = (id) => [
