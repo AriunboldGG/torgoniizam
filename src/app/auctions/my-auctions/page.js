@@ -262,7 +262,7 @@ export default function MyAuctionsPage() {
                           )}
                           {userWon && !wonInfo && (
                             <div className="mt-2 pt-2 border-t border-yellow-200 bg-yellow-50 rounded-lg px-2 py-1 text-center">
-                              <span className="text-xs text-yellow-700 font-medium">Та энэ дуудлага худалдаанд ялсан байна!</span>
+                              <span className="text-xs text-yellow-700 font-medium">Та энэ дуудлага худалдаанд ялсан байна-*=-!</span>
                             </div>
                           )}
                         </div>
