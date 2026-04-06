@@ -5,6 +5,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
 import { useUser } from "@/contexts/UserContext"
+import { FaAward } from "react-icons/fa"
 
 const STATUS_LABEL = {
   active:  { text: "ИДЭВХТЭЙ",      color: "bg-green-500"  },
@@ -105,8 +106,8 @@ function DetailModal({ entry, onClose }) {
             {/* Image */}
             <div className="relative w-full aspect-video bg-gray-50 overflow-hidden">
               <Image src={image} alt={entry.title} fill className="object-contain" />
-              <div className={`absolute top-3 right-3 ${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold shadow`}>
-                {isWon ? "🏆 ЯЛСАН" : statusInfo.text}
+              <div className={`absolute top-3 right-3 ${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold shadow flex items-center gap-1`}>
+                {isWon ? <><FaAward className="w-3.5 h-3.5" /> ЯЛСАН</> : statusInfo.text}
               </div>
             </div>
 
@@ -160,7 +161,7 @@ function DetailModal({ entry, onClose }) {
               {/* Won banner */}
               {isWon && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                  <p className="text-sm font-bold text-yellow-800">🏆 Та энэ дуудлага худалдаанд ялсан!</p>
+                  <p className="text-sm font-bold text-yellow-800 flex items-center gap-1.5"><FaAward className="w-4 h-4" /> Та энэ дуудлага худалдаанд ялсан!</p>
                 </div>
               )}
 
@@ -297,8 +298,8 @@ export default function MyAuctionsPage() {
                         <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <div className={`absolute top-2 right-2 ${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold`}>
-                          {isWon ? "🏆 ЯЛСАН" : statusInfo.text}
+                        <div className={`absolute top-2 right-2 ${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1`}>
+                          {isWon ? <><FaAward className="w-3.5 h-3.5" /> ЯЛСАН</> : statusInfo.text}
                         </div>
                       </div>
                       <CardContent className="p-4">
