@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 export const dynamic = "force-dynamic" // never cache — pledge status must always be fresh
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.torgoniizam.mn"
 
 export async function GET(request, { params }) {
   try {

@@ -1,9 +1,29 @@
 ﻿"use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
+import { FaCar, FaMobileAlt, FaLaptop, FaGem, FaBolt, FaPhone, FaTag } from "react-icons/fa"
+import { MdTv, MdWatch, MdHomeWork, MdSportsBasketball, MdDirectionsBike } from "react-icons/md"
+import { GiClothes, GiSofa, GiBookshelf } from "react-icons/gi"
 
-const DEFAULT_ICON = "/svg/filter/car.svg"
+// Map Mongolian category names → react-icon component
+function getCategoryIcon(name = "") {
+  const n = name.toLowerCase()
+  if (n.includes("автомашин") || n.includes("машин") || n.includes("авто")) return FaCar
+  if (n.includes("гар утас") || n.includes("утас") && n.includes("гар"))   return FaMobileAlt
+  if (n.includes("компьютер") || n.includes("ноутбук") || n.includes("laptop")) return FaLaptop
+  if (n.includes("үнэт") || n.includes("үнэт эдлэл") || n.includes("зүүлт")) return FaGem
+  if (n.includes("цахилгаан") || n.includes("электрон"))                    return FaBolt
+  if (n.includes("утасны дугаар") || n.includes("дугаар"))                  return FaPhone
+  if (n.includes("телевиз") || n.includes("tv") || n.includes("дэлгэц"))    return MdTv
+  if (n.includes("цаг") || n.includes("watch"))                             return MdWatch
+  if (n.includes("хувцас") || n.includes("гутал"))                          return GiClothes
+  if (n.includes("тавилга") || n.includes("гэр") || n.includes("орон"))     return GiSofa
+  if (n.includes("номын") || n.includes("ном") || n.includes("дэвтэр"))     return GiBookshelf
+  if (n.includes("спорт") || n.includes("тоглоом"))                         return MdSportsBasketball
+  if (n.includes("дугуй") || n.includes("унадаг"))                          return MdDirectionsBike
+  if (n.includes("байр") || n.includes("үл хөдлөх"))                       return MdHomeWork
+  return FaTag
+}
 
 export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, selectedCategory, selectedSubcategory }) {
   const [categories, setCategories] = useState([])
@@ -21,7 +41,6 @@ export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, 
             list.map((cat) => ({
               id: String(cat.key ?? cat.id),
               name: cat.value ?? cat.name ?? "",
-              icon: cat.icon ?? DEFAULT_ICON,
               count: cat.count ?? cat.lot_count ?? 0,
             }))
           )
@@ -36,8 +55,12 @@ export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, 
   const [localSelectedCategory, setLocalSelectedCategory] = useState(null)
   const currentSelectedCategory = selectedCategory || localSelectedCategory
 
+  // Match by id first, fall back to name (connector passes id:null)
+  const isSameCategory = (a, b) =>
+    a && b && (a.id != null ? a.id === b.id : a.name === b.name)
+
   const handleCategoryClick = async (category) => {
-    if (currentSelectedCategory?.id === category.id) {
+    if (isSameCategory(currentSelectedCategory, category)) {
       if (onCategorySelect) onCategorySelect(null)
       else setLocalSelectedCategory(null)
       setSubcategories([])
@@ -88,30 +111,29 @@ export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, 
             <div
               key={category.id}
               className={`flex flex-col items-center cursor-pointer transition-all duration-200 ${
-                currentSelectedCategory?.id === category.id ? 'scale-105' : ''
+                isSameCategory(currentSelectedCategory, category) ? 'scale-105' : ''
               }`}
               onClick={() => handleCategoryClick(category)}
             >
               <div
                 className={`relative w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full flex items-center justify-center transition-all duration-200 ${
-                  currentSelectedCategory?.id === category.id
+                  isSameCategory(currentSelectedCategory, category)
                     ? 'bg-[#131316]'
                     : 'bg-[#F4F4F5] hover:bg-[#131316]'
                 }`}
               >
-                <Image
-                  src={category.icon}
-                  alt={category.name}
-                  width={40}
-                  height={40}
-                  className={`w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 transition-all duration-200 ${
-                    currentSelectedCategory?.id === category.id
-                      ? 'filter brightness-0 invert saturate-0'
-                      : ''
-                  }`}
-                />
+              {(() => {
+                const Icon = getCategoryIcon(category.name)
+                return (
+                  <Icon className={`w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 transition-all duration-200 ${
+                    isSameCategory(currentSelectedCategory, category)
+                      ? 'text-white'
+                      : 'text-gray-600'
+                  }`} />
+                )
+              })()}
                 <div className={`absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  currentSelectedCategory?.id === category.id
+                  isSameCategory(currentSelectedCategory, category)
                     ? 'bg-white text-[#131316]'
                     : 'bg-[#131316] text-white'
                 }`}>
@@ -119,7 +141,7 @@ export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, 
                 </div>
               </div>
               <span className={`text-xs sm:text-sm font-medium mt-1 sm:mt-2 text-center transition-colors duration-200 ${
-                currentSelectedCategory?.id === category.id
+                isSameCategory(currentSelectedCategory, category)
                   ? 'text-[#131316]'
                   : 'text-gray-700'
               }`}>

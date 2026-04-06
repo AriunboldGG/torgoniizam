@@ -55,7 +55,7 @@ function CountdownTimer({ endTime }) {
 export default function PendingAuctionSection() {
   const scrollContainerRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const { searchQuery, selectedCategory } = useSearch();
+  const { searchQuery, selectedCategory, selectedSubcategory } = useSearch();
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -110,39 +110,29 @@ export default function PendingAuctionSection() {
     }))
   }, [rawData])
 
-  // Filter auctions based on search query and category
+  // Filter auctions based on search query, category and subcategory
   const pendingAuctions = useMemo(() => {
     let filtered = allPendingAuctions;
 
-    // Filter by search query
     if (searchQuery.trim()) {
-      filtered = filtered.filter(auction => 
+      filtered = filtered.filter(auction =>
         auction.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         auction.category.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    // Filter by category
-    if (selectedCategory) {
-      // Map dropdown category IDs to actual category names
-      const categoryMapping = {
-        'car': 'Автомашин',
-        'phone': 'Цахилгаан бараа', // Using electric category for phones
-        'computer': 'Компьютер',
-        'accessory': 'Үнэт эдлэл',
-        'electric': 'Цахилгаан бараа'
-      };
-      
-      const categoryName = categoryMapping[selectedCategory];
-      if (categoryName) {
-        filtered = filtered.filter(auction => 
-          auction.category === categoryName
-        );
-      }
+    if (selectedSubcategory) {
+      filtered = filtered.filter(auction =>
+        auction.category.toLowerCase() === selectedSubcategory.name.toLowerCase()
+      );
+    } else if (selectedCategory) {
+      filtered = filtered.filter(auction =>
+        auction.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
     }
 
     return filtered;
-  }, [allPendingAuctions, searchQuery, selectedCategory]);
+  }, [allPendingAuctions, searchQuery, selectedCategory, selectedSubcategory]);
 
   return (
     <section className="py-16 bg-white">
