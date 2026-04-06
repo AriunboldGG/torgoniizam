@@ -23,7 +23,6 @@ function mapEntry(entry) {
   const title    = dashIdx !== -1 ? lotValue.slice(dashIdx + 3) : lotValue
   const lotCode  = dashIdx !== -1 ? lotValue.slice(0, dashIdx) : ""
 
-  const deposit  = entry.deposit_amount != null ? Number(entry.deposit_amount) : 0
   const bidStatus = typeof entry.status === "object" ? (entry.status?.key ?? "") : (entry.status ?? "")
 
   return {
@@ -33,7 +32,6 @@ function mapEntry(entry) {
     lotCode,
     bidStatus,
     bidStatusLabel: typeof entry.status === "object" ? (entry.status?.value ?? bidStatus) : bidStatus,
-    deposit:       `${deposit.toLocaleString("mn-MN")}₮`,
     createdAt:     entry.created_at ?? null,
     updatedAt:     entry.updated_at ?? null,
   }
@@ -71,6 +69,7 @@ function DetailModal({ entry, onClose }) {
   const startingPrice = detail?.starting_price != null ? Number(detail.starting_price) : null
   const currentBid    = detail?.current_bid    != null ? Number(detail.current_bid)    : null
   const category      = detail?.category?.value ?? detail?.category?.name ?? ""
+  const description   = detail?.description ?? ""
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
@@ -112,61 +111,76 @@ function DetailModal({ entry, onClose }) {
             </div>
 
             <div className="p-5 space-y-4">
+              {/* Category */}
               {category && (
-                <span className="inline-block text-xs font-semibold text-[#FF4405] bg-orange-50 px-3 py-1 rounded-full">{category}</span>
+                <span className="inline-block text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">{category}</span>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
-                {startingPrice != null && (
-                  <div className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-xs text-gray-500 mb-1">Эхлэх үнэ</p>
-                    <p className="text-sm font-bold text-gray-800">{startingPrice.toLocaleString("mn-MN")}₮</p>
-                  </div>
-                )}
-                {currentBid != null && (
-                  <div className="bg-orange-50 rounded-xl p-3">
-                    <p className="text-xs text-gray-500 mb-1">Одоогийн үнэ</p>
-                    <p className="text-sm font-bold text-[#FF4405]">{currentBid.toLocaleString("mn-MN")}₮</p>
-                  </div>
-                )}
-                <div className="bg-blue-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-500 mb-1">Миний барьцаа</p>
-                  <p className="text-sm font-bold text-blue-600">{entry.deposit}</p>
+              {/* Description */}
+              {description && (
+                <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
+              )}
+
+              {/* Pricing */}
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-4 border border-orange-100">
+                <div className="grid grid-cols-2 gap-4">
+                  {startingPrice != null && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Эхлэх үнэ</p>
+                      <p className="text-base font-bold text-gray-800">{startingPrice.toLocaleString("mn-MN")}₮</p>
+                    </div>
+                  )}
+                  {currentBid != null && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Сүүлийн үнэ</p>
+                      <p className="text-base font-bold text-[#FF4405]">{currentBid.toLocaleString("mn-MN")}₮</p>
+                    </div>
+                  )}
                 </div>
-                {detail?.start_date && (
-                  <div className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-xs text-gray-500 mb-1">Эхлэх огноо</p>
-                    <p className="text-sm font-semibold text-gray-700">{new Date(detail.start_date).toLocaleDateString("mn-MN")}</p>
-                  </div>
-                )}
-                {detail?.end_date && (
-                  <div className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-xs text-gray-500 mb-1">Дуусах огноо</p>
-                    <p className="text-sm font-semibold text-gray-700">{new Date(detail.end_date).toLocaleDateString("mn-MN")}</p>
-                  </div>
-                )}
               </div>
 
-              {isWon && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 space-y-1">
-                  <p className="text-sm font-bold text-yellow-800">🏆 Та энэ дуудлага худалдаанд ялсан!</p>
-                  <div className="flex justify-between">
-                    <span className="text-xs text-yellow-700">Барьцаа</span>
-                    <span className="text-sm font-bold text-yellow-900">{entry.deposit}</span>
-                  </div>
-                  {entry.updatedAt && (
-                    <div className="flex justify-between">
-                      <span className="text-xs text-yellow-700">Шинэчлэгдсэн</span>
-                      <span className="text-xs text-yellow-800">{new Date(entry.updatedAt).toLocaleDateString("mn-MN")}</span>
+              {/* Dates */}
+              {(detail?.start_date || detail?.end_date) && (
+                <div className="grid grid-cols-2 gap-3">
+                  {detail?.start_date && (
+                    <div className="bg-gray-50 rounded-xl p-3">
+                      <p className="text-xs text-gray-500 mb-1">Эхлэх огноо</p>
+                      <p className="text-sm font-semibold text-gray-700">{new Date(detail.start_date).toLocaleDateString("mn-MN")}</p>
+                    </div>
+                  )}
+                  {detail?.end_date && (
+                    <div className="bg-gray-50 rounded-xl p-3">
+                      <p className="text-xs text-gray-500 mb-1">Дуусах огноо</p>
+                      <p className="text-sm font-semibold text-gray-700">{new Date(detail.end_date).toLocaleDateString("mn-MN")}</p>
                     </div>
                   )}
                 </div>
               )}
 
+              {/* Won banner */}
+              {isWon && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                  <p className="text-sm font-bold text-yellow-800">🏆 Та энэ дуудлага худалдаанд ялсан!</p>
+                </div>
+              )}
+
+              {/* Status row */}
               <div className="text-xs text-gray-400 flex justify-between pt-1">
                 <span>Оролцсон: {entry.createdAt ? new Date(entry.createdAt).toLocaleDateString("mn-MN") : "-"}</span>
                 <span className={`font-semibold ${isWon ? "text-yellow-600" : "text-gray-500"}`}>{entry.bidStatusLabel}</span>
               </div>
+
+              {/* Watch more button */}
+              <Link
+                href={`/auction/${entry.lotId}`}
+                onClick={onClose}
+                className="flex items-center justify-center gap-2 w-full bg-[#FF4405] hover:bg-[#E63D04] text-white py-3 rounded-xl font-bold text-sm transition-colors"
+              >
+                Дэлгэрэнгүй үзэх
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
             </div>
           </>
         )}
@@ -192,11 +206,13 @@ export default function MyAuctionsPage() {
         const res   = await fetch("/api/bid/history", {
           headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         })
+        console.log('history data==>', res);
+        
         const json  = await res.json()
         console.log("[bid/history] raw response =>", json)
 
         if (!res.ok) {
-          setError(json?.detail ?? json?.message ?? "Дуудлагын жагсаалт авахад алдаа гарлаа.")
+          setError(json?.detail ?? json?.message)
           return
         }
 
@@ -293,10 +309,6 @@ export default function MyAuctionsPage() {
                           {entry.title}
                         </CardTitle>
                         <div className="space-y-1">
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs text-gray-500">Барьцаа</span>
-                            <span className="text-sm font-bold text-blue-600">{entry.deposit}</span>
-                          </div>
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-gray-500">Төлөв</span>
                             <span className={`text-xs font-semibold ${isWon ? "text-yellow-600" : "text-gray-600"}`}>{entry.bidStatusLabel}</span>
