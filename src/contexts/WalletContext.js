@@ -5,16 +5,33 @@ import { fetchWithAuth } from "@/lib/api"
 
 const WalletContext = createContext()
 
+const BALANCE_CACHE_KEY = "wallet_balance_cache"
+const BALANCE_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
 export function WalletProvider({ children }) {
   const [walletBalance, setWalletBalance] = useState(0)
   const [heldBalance, setHeldBalance] = useState(0)
   const [isLoadingBalance, setIsLoadingBalance] = useState(true)
 
-  const fetchBalance = async () => {
+  const fetchBalance = async (skipCache = false) => {
     const accessToken = localStorage.getItem("access_token")
     if (!accessToken) {
       setIsLoadingBalance(false)
       return
+    }
+    if (!skipCache) {
+      try {
+        const cached = sessionStorage.getItem(BALANCE_CACHE_KEY)
+        if (cached) {
+          const { available, held, ts } = JSON.parse(cached)
+          if (Date.now() - ts < BALANCE_CACHE_TTL) {
+            setWalletBalance(available)
+            setHeldBalance(held)
+            setIsLoadingBalance(false)
+            return
+          }
+        }
+      } catch {}
     }
     try {
       // fetchWithAuth auto-refreshes the token on 401
@@ -22,8 +39,11 @@ export function WalletProvider({ children }) {
       if (!response.ok) throw new Error("Failed to fetch balance")
       const data = await response.json()
       const payload = data?.data ?? data
-      setWalletBalance(parseFloat(payload?.available ?? 0))
-      setHeldBalance(parseFloat(payload?.held ?? 0))
+      const available = parseFloat(payload?.available ?? 0)
+      const held = parseFloat(payload?.held ?? 0)
+      setWalletBalance(available)
+      setHeldBalance(held)
+      sessionStorage.setItem(BALANCE_CACHE_KEY, JSON.stringify({ available, held, ts: Date.now() }))
     } catch (error) {
       console.error("Error fetching wallet balance:", error)
     } finally {
@@ -65,7 +85,7 @@ export function WalletProvider({ children }) {
     updateBalance,
     deductAmount,
     addAmount,
-    refetchBalance: fetchBalance,
+    refetchBalance: () => fetchBalance(true),
   }
 
   return (

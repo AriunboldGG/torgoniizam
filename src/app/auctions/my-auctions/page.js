@@ -47,8 +47,7 @@ function DetailModal({ entry, onClose }) {
   useEffect(() => {
     if (!entry?.lotId) { setFetching(false); return }
     const token = localStorage.getItem("access_token")
-    const API = process.env.NEXT_PUBLIC_API_URL
-    fetch(`${API}/api/v1/lot/detail/${entry.lotId}`, {
+    fetch(`/api/lot/detail/${entry.lotId}`, {
       headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     })
       .then(r => r.json())
@@ -190,8 +189,7 @@ export default function MyAuctionsPage() {
     const load = async () => {
       try {
         const token = localStorage.getItem("access_token")
-        const API = process.env.NEXT_PUBLIC_API_URL
-        const res   = await fetch(`${API}/api/v1/bid/history`, {
+        const res   = await fetch("/api/bid/history", {
           headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         })
         const json  = await res.json()
