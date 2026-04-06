@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 export async function GET() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.torgoniizam.mn"
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL
   const clientId = process.env.OAUTH_CLIENT_ID
   const clientSecret = process.env.OAUTH_CLIENT_SECRET
   const grantType = process.env.OAUTH_GRANT_TYPE
