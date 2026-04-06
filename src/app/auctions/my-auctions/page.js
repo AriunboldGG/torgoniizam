@@ -38,7 +38,7 @@ function mapEntry(entry) {
   }
 }
 
-function DetailModal({ entry, onClose }) {
+function DetailModal({ entry, onClose, onGetProduct }) {
   const [detail, setDetail]   = useState(null)
   const [fetching, setFetching] = useState(true)
   const [fetchErr, setFetchErr] = useState(null)
@@ -161,7 +161,7 @@ function DetailModal({ entry, onClose }) {
               {/* Won banner */}
               {isWon && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                  <p className="text-sm font-bold text-yellow-800 flex items-center gap-1.5"><FaAward className="w-4 h-4" /> Та энэ дуудлага худалдаанд ялсан!</p>
+                  <p className="text-sm font-bold text-yellow-800 flex items-center gap-1.5"><FaAward className="w-4 h-4" /> Та энэ дуудлага худалдаанд ялсан байна!</p>
                 </div>
               )}
 
@@ -171,17 +171,28 @@ function DetailModal({ entry, onClose }) {
                 <span className={`font-semibold ${isWon ? "text-yellow-600" : "text-gray-500"}`}>{entry.bidStatusLabel}</span>
               </div>
 
-              {/* Watch more button */}
-              <Link
-                href={`/auction/${entry.lotId}`}
-                onClick={onClose}
-                className="flex items-center justify-center gap-2 w-full bg-[#FF4405] hover:bg-[#E63D04] text-white py-3 rounded-xl font-bold text-sm transition-colors"
-              >
-                Дэлгэрэнгүй үзэх
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </Link>
+              {/* Buttons */}
+              <div className={`grid gap-3 ${isWon ? "grid-cols-2" : "grid-cols-1"}`}>
+                {isWon && (
+                  <button
+                    onClick={() => onGetProduct(entry)}
+                    className="flex items-center justify-center gap-2 w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl font-bold text-sm transition-colors"
+                  >
+                    <FaAward className="w-4 h-4" />
+                    Бараа авах
+                  </button>
+                )}
+                <Link
+                  href={`/auction/${entry.lotId}`}
+                  onClick={onClose}
+                  className="flex items-center justify-center gap-2 w-full bg-[#FF4405] hover:bg-[#E63D04] text-white py-3 rounded-xl font-bold text-sm transition-colors"
+                >
+                  Дэлгэрэнгүй үзэх
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </Link>
+              </div>
             </div>
           </>
         )}
@@ -190,12 +201,110 @@ function DetailModal({ entry, onClose }) {
   )
 }
 
+function GetProductModal({ entry, onClose }) {
+  const [data, setData]     = useState(null)
+  const [fetching, setFetching] = useState(true)
+  const [fetchErr, setFetchErr] = useState(null)
+
+  useEffect(() => {
+    if (!entry?.lotId) { setFetching(false); return }
+    const token = localStorage.getItem("access_token")
+    fetch(`/api/bid/won/${entry.lotId}`, {
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    })
+      .then(r => r.json())
+      .then(d => {
+        console.log("[bid/won] response =>", d)
+        setData(d)
+      })
+      .catch(e => setFetchErr(e.message))
+      .finally(() => setFetching(false))
+  }, [entry?.lotId])
+
+  const Row = ({ label, value }) => value ? (
+    <div className="flex justify-between items-start gap-4 py-2 border-b border-gray-100 last:border-0">
+      <span className="text-xs text-gray-500 flex-shrink-0">{label}</span>
+      <span className="text-xs font-semibold text-gray-800 text-right">{value}</span>
+    </div>
+  ) : null
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <FaAward className="w-5 h-5 text-yellow-500" />
+            <div>
+              <h2 className="text-base font-bold text-gray-900">Бараа авах</h2>
+              <p className="text-xs text-gray-400 line-clamp-1">{entry.title}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500 ml-3">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {fetching && (
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-yellow-500" />
+          </div>
+        )}
+
+        {!fetching && fetchErr && (
+          <div className="p-5 text-sm text-red-600 bg-red-50 m-4 rounded-xl">{fetchErr}</div>
+        )}
+
+        {!fetching && !fetchErr && data && (
+          <div className="p-5 space-y-4">
+            {/* Winner banner */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center gap-3">
+              <FaAward className="w-8 h-8 text-yellow-500 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-yellow-800">Та энэ дуудлага худалдаанд ялсан!</p>
+                <p className="text-xs text-yellow-700 mt-0.5">{entry.lotCode}</p>
+              </div>
+            </div>
+
+            {/* All fields from API */}
+            <div className="bg-gray-50 rounded-xl p-4">
+              <Row label="Бид ID"      value={data.id} />
+              <Row label="Хэрэглэгч"    value={data.user?.value ?? (data.user?.email ?? data.user?.username)} />
+              <Row label="Төлбөр"      value={data.status?.value ?? data.status} />
+              <Row label="Дэнчин"      value={data.deposit_amount != null ? `${Number(data.deposit_amount).toLocaleString("mn-MN")}₮` : null} />
+              <Row label="Эцсийн үнэ"  value={data.final_price != null ? `${Number(data.final_price).toLocaleString("mn-MN")}₮` : (data.amount != null ? `${Number(data.amount).toLocaleString("mn-MN")}₮` : null)} />
+              <Row label="Оролцсон"    value={data.created_at ? new Date(data.created_at).toLocaleDateString("mn-MN") : null} />
+              <Row label="Шинэчлэгдсэн" value={data.updated_at ? new Date(data.updated_at).toLocaleDateString("mn-MN") : null} />
+              {/* Any extra fields the API returns */}
+              {data.payment_method  && <Row label="Төлбөрийн арга" value={data.payment_method} />}
+              {data.delivery_method && <Row label="Хүргэлтийн арга" value={data.delivery_method} />}
+              {data.pickup_address  && <Row label="Хуриах хаяггі" value={data.pickup_address} />}
+              {data.note            && <Row label="Тайлбар"     value={data.note} />}
+              {data.contact_phone   && <Row label="Утасны дугаар" value={data.contact_phone} />}
+            </div>
+
+            <button
+              onClick={onClose}
+              className="w-full border border-gray-200 hover:bg-gray-50 text-gray-700 py-3 rounded-xl font-semibold text-sm transition-colors"
+            >
+              Хаах
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function MyAuctionsPage() {
   const { isLoggedIn, isLoading } = useUser()
-  const [entries, setEntries]     = useState([])
-  const [loading, setLoading]     = useState(true)
-  const [error, setError]         = useState("")
-  const [selected, setSelected]   = useState(null)
+  const [entries, setEntries]         = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [error, setError]             = useState("")
+  const [selected, setSelected]       = useState(null)
+  const [getProductEntry, setGetProductEntry] = useState(null)
 
   useEffect(() => {
     if (isLoading) return
@@ -257,7 +366,8 @@ export default function MyAuctionsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {selected && <DetailModal entry={selected} onClose={() => setSelected(null)} />}
+      {selected && <DetailModal entry={selected} onClose={() => setSelected(null)} onGetProduct={(e) => { setSelected(null); setGetProductEntry(e) }} />}
+      {getProductEntry && <GetProductModal entry={getProductEntry} onClose={() => setGetProductEntry(null)} />}
 
       <section className="py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
