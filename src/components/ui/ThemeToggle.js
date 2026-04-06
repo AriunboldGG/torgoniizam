@@ -21,7 +21,7 @@ export default function ThemeToggle({ className = "" }) {
   return (
     <button
       onClick={toggleTheme}
-      aria-label={isDark ? "Гэрлэлт горим руу шилжих" : "Харанхуй горим руу шилжих"}
+      aria-label={isDark ? "Гэрлэлтэй горим руу шилжих" : "Харанхуй горим руу шилжих"}
       title={isDark ? "Light mode" : "Dark mode"}
       className={`relative p-2 rounded-lg transition-colors duration-200
         bg-gray-100 hover:bg-gray-200 dark:bg-[#252840] dark:hover:bg-[#2d3450]

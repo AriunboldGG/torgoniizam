@@ -302,7 +302,6 @@ export default function Header() {
                   <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
                     <Image src="/svg/header/main-logo.svg" alt="Logo" width={80} height={50} className="w-[80px] h-[50px] cursor-pointer hover:opacity-80 transition-opacity" />
                   </Link>
-                  <span className="text-lg font-bold text-gray-900">Цэс</span>
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -415,26 +414,23 @@ export default function Header() {
 
                 {/* Mobile User Actions */}
                 <div className="pt-2 sm:pt-6 border-t border-gray-200" style={{ marginBottom: '10px' }}>
-                  {/* Dark / Light mode toggle (mobile) */}
-                  <div className="px-4 py-3 mb-2 sm:mb-4">
-                    <div className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-full dark:bg-[#1e2030]">
-                      <span className="font-medium text-gray-700 dark:text-gray-300">Харанхуй горим</span>
+                  {/* Dark / Light mode toggle + Notification — side by side */}
+                  <div className="px-4 py-3 mb-2 sm:mb-4 flex gap-3">
+                    {/* Theme toggle */}
+                    <div className="flex items-center justify-center p-3 bg-gray-50 rounded-full dark:bg-[#1e2030] flex-shrink-0">
                       <ThemeToggle />
                     </div>
-                  </div>
 
-                {/* Mobile Notification Icon */}
-                  <div className="px-4 py-3 mb-2 sm:mb-4">
-                    <button className="relative flex items-center space-x-3 w-full p-3 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
-                      <Image 
-                        src="/svg/notif.svg" 
-                        alt="Notifications" 
-                        width={20} 
-                        height={20} 
+                    {/* Notification */}
+                    <button className="relative flex items-center space-x-3 flex-1 p-3 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors dark:bg-[#1e2030] dark:hover:bg-[#252840]">
+                      <Image
+                        src="/svg/notif.svg"
+                        alt="Notifications"
+                        width={20}
+                        height={20}
                         className="w-5 h-5 text-gray-600"
                       />
-                      <span className="font-medium text-gray-700">Мэдэгдэл</span>
-                      {/* Notification Badge */}
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Мэдэгдэл</span>
                       <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         3
                       </span>
