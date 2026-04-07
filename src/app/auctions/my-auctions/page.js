@@ -53,7 +53,7 @@ function DetailModal({ entry, onClose, onGetProduct }) {
       .then(d => {
         setDetail(d)
       })
-      .catch(e => setFetchErr(e.message))
+      .catch(e => setFetchErr(e?.message ?? "Алдаа гарлаа."))
       .finally(() => setFetching(false))
   }, [entry?.lotId])
 
@@ -199,7 +199,7 @@ function GetProductModal({ entry, onClose }) {
         const d = raw?.data ?? raw
         setData(d)
       })
-      .catch(e => setFetchErr(e.message))
+      .catch(e => setFetchErr(e?.message ?? "Алдаа гарлаа."))
       .finally(() => setFetching(false))
   }, [entry?.lotId])
 
@@ -331,7 +331,7 @@ export default function MyAuctionsPage() {
         const json  = await res.json()
 
         if (!res.ok) {
-          setError(json?.detail ?? json?.message)
+          setError(json?.detail ?? json?.message ?? "Алдаа гарлаа.")
           return
         }
 
@@ -349,7 +349,7 @@ export default function MyAuctionsPage() {
 
   if (isLoading || loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF4405] mx-auto mb-4" />
           <p className="text-gray-600">Уншиж байна...</p>
@@ -358,26 +358,13 @@ export default function MyAuctionsPage() {
     )
   }
 
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-700 font-medium mb-4">Энэ хуудсыг үзэхийн тулд нэвтрэнэ үү.</p>
-          <Link href="/auth/login?redirect=/auctions/my-auctions" className="bg-[#FF4405] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#E63D04] transition-colors">
-            Нэвтрэх
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-white">
+    <div className="p-3 xs-mobile:p-4 lg:p-6">
       {selected && <DetailModal entry={selected} onClose={() => setSelected(null)} onGetProduct={(e) => { setSelected(null); setGetProductEntry(e) }} />}
       {getProductEntry && <GetProductModal entry={getProductEntry} onClose={() => setGetProductEntry(null)} />}
 
-      <section className="py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-4 lg:py-6">
+        <div className="max-w-full">
           <div className="mb-8">
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 font-tt-firs-neue-variable mb-5">
               Таны оролцсон дуудлага худалдаанууд
@@ -426,7 +413,7 @@ export default function MyAuctionsPage() {
               <p className="text-gray-500 text-lg font-medium">Оролцсон дуудлага байхгүй байна</p>
               <p className="text-gray-400 text-sm mt-1 mb-6">Та одоогоор ямар нэг дуудлага худалдаанд оролцоогүй байна.</p>
               <Link href="/auctions/live-auctions" className="bg-[#FF4405] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#E63D04] transition-colors">
-                Дуудлага үзэх
+                Дуудлага худалдаа үзэх
               </Link>
             </div>
           )}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,7 +30,12 @@ export default function PledgeDialog({
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const { walletBalance, deductAmount } = useWallet(); // Get dynamic wallet balance
+  const { walletBalance, deductAmount, refetchBalance } = useWallet();
+
+  // Fetch real-time balance when dialog opens
+  useEffect(() => {
+    if (isOpen) refetchBalance()
+  }, [isOpen])
 
   const handlePledgeConfirm = async () => {
     setError("");

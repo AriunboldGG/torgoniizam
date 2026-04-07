@@ -37,8 +37,10 @@ export function MyAccountSidebar() {
         <div className="flex items-center gap-3">
        
           <div>
-            <p className="font-semibold text-gray-900 text-sm lg:text-base">{user?.first_name || "B.АЛТАНЗУЛ"}</p>
-            <p className="text-xs lg:text-sm text-gray-500">Хэрэглэгч</p>
+            <p className="font-semibold text-gray-900 text-sm lg:text-base">{user?.first_name || "*"}</p>
+            {user?.email && (
+              <p className="text-xs text-gray-400 mt-0.5 truncate">{user.email}</p>
+            )}
           </div>
         </div>
       </div>
@@ -97,18 +99,7 @@ export function MyAccountSidebar() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="p-4 lg:p-6 border-t border-gray-200 mt-auto">
-        <div className="text-center text-xs lg:text-sm text-gray-500 space-y-2">
-          <div className="flex items-center justify-center mb-2 lg:mb-3">
-            <div className="h-6 w-6 lg:h-8 lg:w-8 rounded-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-600 font-bold text-xs lg:text-sm">N</span>
-            </div>
-          </div>
-          <p className="font-medium">ТОРГОНЫ ЗАМ</p>
-          <p className="text-xs lg:text-sm">Дуудлага худалдааны систем</p>
-        </div>
-      </div>
+   
     </div>
   )
 }

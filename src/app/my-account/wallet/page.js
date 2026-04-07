@@ -15,6 +15,9 @@ import {
   MdShoppingBag,
   MdCardGiftcard,
 } from "react-icons/md"
+import { CiWallet } from "react-icons/ci"
+import { PiHandWithdraw } from "react-icons/pi"
+import { TbDeviceDesktopUp } from "react-icons/tb"
 import {
   Dialog,
   DialogClose,
@@ -46,6 +49,12 @@ export default function WalletPage() {
   const [connectedAccounts, setConnectedAccounts] = useState([])
   const [transactions, setTransactions] = useState([])
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true)
+  const [topupId, setTopupId] = useState("")
+
+  // Fetch real-time balance every time this page is visited
+  useEffect(() => {
+    refetchBalance()
+  }, [])
 
   useEffect(() => {
     const fetchBanks = async () => {
@@ -95,9 +104,23 @@ export default function WalletPage() {
       }
     }
 
+    const fetchTopupId = async () => {
+      try {
+        const response = await fetchWithAuth("/api/auth/userinfo")
+        const data = await response.json()
+        const user = data?.data ?? data
+        if (user?.topup_id) {
+          setTopupId(user.topup_id)
+        }
+      } catch (error) {
+        console.error("Failed to fetch topup_id:", error)
+      }
+    }
+
     fetchBanks()
     fetchAccounts()
     fetchTransactions()
+    fetchTopupId()
   }, [])
 
   // Custom styles for better dropdown visibility
@@ -137,7 +160,7 @@ export default function WalletPage() {
     bank: "Хаан банк",
     accountNumber: "5040647892",
     accountName: "Торгоны зам ХХК",
-    transactionPurpose: "AOjasd456as"
+    transactionPurpose: topupId
   }
 
   const handleConnectAccount = async () => {
@@ -238,7 +261,8 @@ export default function WalletPage() {
         alert(data?.detail || "Цэнэглэхэд алдаа гарлаа. Дахин оролдоно уу.")
         return
       }
-      alert(data?.message ?? data?.detail ?? "Цэнэглэлтийн хүсэлт амжилттай илгээгдлээ!")
+      console.log("Topup response:", data);
+      alert(data?.message ?? data?.detail ?? "Цэнэглэлтийн хүсэлт амжилттай илгээгдлээ!. Систэм таны гүйлгээг баталгаажуулсны дараа үлдэгдэл тань шинэчлэгдэх болно.")
       setIsRechargeDialogOpen(false)
       setRechargeAmount("")
     } catch (error) {
@@ -285,7 +309,9 @@ export default function WalletPage() {
             
             {/* Current Balance */}
             <div className="text-3xl lg:text-5xl font-bold mb-2">
-              {isLoadingBalance ? "..." : `${walletBalance.toLocaleString()}₮`}
+              {isLoadingBalance
+                ? <span className="inline-block w-48 h-10 lg:h-14 bg-white/20 rounded-lg animate-pulse" />
+                : `${walletBalance.toLocaleString()}₮`}
             </div>
 
             {/* Held Balance */}
@@ -301,7 +327,7 @@ export default function WalletPage() {
                              <Dialog open={isRechargeDialogOpen} onOpenChange={setIsRechargeDialogOpen}>
                  <DialogTrigger asChild>
                    <button className="bg-gray-800 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
-                     <span className="text-lg lg:text-xl">+</span>
+                     <TbDeviceDesktopUp className="text-xl lg:text-2xl" />
                      <span>Цэнэглэх</span>
                    </button>
                  </DialogTrigger>
@@ -323,7 +349,7 @@ export default function WalletPage() {
                          <div>
                            <div className="font-bold text-red-700 text-sm mb-2">САНАМЖ</div>
                            <p className="text-red-600 text-sm leading-relaxed">
-                             Та гүйлгээний утга дээр нэвтрэх нэрээ оруулан, дараах банкын данс руу шилжүүлж хэтэвчээ цэнэглэнэ үү.
+                             Та гүйлгээний утга дээрх өөрийн кодыг оруулан, дараах банкын данс руу шилжүүлж хэтэвчээ цэнэглэнэ үү.
                            </p>
                          </div>
                        </div>
@@ -428,7 +454,7 @@ export default function WalletPage() {
                              <Dialog open={isWithdrawDialogOpen} onOpenChange={setIsWithdrawDialogOpen}>
                  <DialogTrigger asChild>
                    <button className="bg-gray-800 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
-                     <span className="text-lg lg:text-xl">↓</span>
+                     <PiHandWithdraw className="text-xl lg:text-2xl" />
                      <span>Таталт хийх</span>
                    </button>
                  </DialogTrigger>
@@ -527,7 +553,7 @@ export default function WalletPage() {
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <button className="bg-gray-800 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
-                    <span className="text-lg lg:text-xl">🔗</span>
+                    <CiWallet className="text-xl lg:text-2xl" />
                     <span>Данс холбох</span>
                   </button>
                 </DialogTrigger>
@@ -600,7 +626,7 @@ export default function WalletPage() {
 
         {/* Transaction History */}
         <div className="bg-white rounded-lg shadow-sm border p-3 xs-mobile:p-4 lg:p-6">
-          <h2 className="text-lg lg:text-xl font-semibold text-gray-900 mb-4 lg:mb-6">ГҮЙЛГЭЭНИЙ мэдээлэл</h2>
+          <h2 className="text-lg lg:text-xl font-semibold text-gray-900 mb-4 lg:mb-6">Гүйлгээний мэдээлэл</h2>
           
           <div className="space-y-2 xs-mobile:space-y-3 lg:space-y-4">
             {isLoadingTransactions ? (

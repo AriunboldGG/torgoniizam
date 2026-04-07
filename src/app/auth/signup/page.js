@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useUser } from "@/contexts/UserContext"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -30,7 +32,10 @@ export default function SignupPage() {
   const [showTermsDialog, setShowTermsDialog] = useState(false)
   const [showSuccessDialog, setShowSuccessDialog] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
+  const { login } = useUser()
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -134,7 +139,14 @@ export default function SignupPage() {
         return
       }
 
-      setShowSuccessDialog(true)
+      // Registration succeeded — attempt auto-login with the same credentials
+      const loginResult = await login(formData.email, formData.password)
+      if (loginResult.success) {
+        router.push("/my-account")
+      } else {
+        // Auto-login failed (e.g. account needs activation) — show success dialog
+        setShowSuccessDialog(true)
+      }
     } catch {
       setErrors({ general: "Сервертэй холбогдоход алдаа гарлаа. Дахин оролдоно уу." })
     } finally {
@@ -237,15 +249,25 @@ export default function SignupPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="password">Нууц үг</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Нууц үг"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={errors.password ? "border-red-500" : ""}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Нууц үг"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`pr-10 ${errors.password ? "border-red-500" : ""}`}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-sm text-red-500">{errors.password}</p>
                 )}
@@ -253,15 +275,25 @@ export default function SignupPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Нууц үг давтах</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  placeholder="Нууц үг давтах"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={errors.confirmPassword ? "border-red-500" : ""}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Нууц үг давтах"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className={`pr-10 ${errors.confirmPassword ? "border-red-500" : ""}`}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {errors.confirmPassword && (
                   <p className="text-sm text-red-500">{errors.confirmPassword}</p>
                 )}
