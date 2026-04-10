@@ -637,7 +637,7 @@ export default function WalletPage() {
               transactions.map((transaction, index) => {
                 const txnKey = transaction.txn_type?.key ?? transaction.type ?? ""
                 const k = txnKey.toUpperCase()
-                const isCredit = k.includes("TOPUP") || k === "DEPOSIT" || k.includes("RECHARGE")
+                const isCredit = k.includes("TOPUP") || k === "DEPOSIT" || k.includes("RECHARGE") || k.includes("RELEASE") || k.includes("REFUND")
                 const isDebit = !isCredit
                 const amount = parseFloat(transaction.amount ?? 0)
                 const formattedAmount = `${isDebit ? "-" : "+"}${amount.toLocaleString()}₮`

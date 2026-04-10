@@ -103,6 +103,16 @@ export function LoginForm() {
               </button>
             </div>
           </div>
+          <div className="flex justify-end -mt-1 mb-1">
+            <Button
+              type="button"
+              variant="link"
+              className="p-0 text-sm text-blue-600 hover:text-blue-800 h-auto"
+              onClick={() => router.push("/auth/forgot-password")}
+            >
+              Нууц үгээ мартсан уу?
+            </Button>
+          </div>
           <Button 
             type="submit" 
             className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"

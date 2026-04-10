@@ -34,14 +34,54 @@ export default function SignupPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  // Registration number picker state
+  const [regLetter1, setRegLetter1] = useState("")
+  const [regLetter2, setRegLetter2] = useState("")
+  const [regDigits, setRegDigits] = useState("")
+  const [activePicker, setActivePicker] = useState(null) // 1 | 2 | null
   const router = useRouter()
   const { login } = useUser()
 
+  const MONGOLIAN_LETTERS = [
+    "А","Б","В","Г","Д","Е","Ё",
+    "Ж","З","И","Й","К","Л","М",
+    "Н","О","Ө","П","Р","С","Т",
+    "У","Ү","Ф","Х","Ц","Ч","Ш",
+    "Щ","Ъ","Ы","Ь","Э","Ю","Я",
+  ]
+
+  const handleLetterSelect = (letter) => {
+    if (activePicker === 1) {
+      setRegLetter1(letter)
+      setActivePicker(2)
+    } else {
+      setRegLetter2(letter)
+      setActivePicker(null)
+    }
+    const l1 = activePicker === 1 ? letter : regLetter1
+    const l2 = activePicker === 2 ? letter : regLetter2
+    const combined = l1 + l2 + regDigits
+    setFormData(prev => ({ ...prev, registrationNumber: combined }))
+    if (errors.registrationNumber) setErrors(prev => ({ ...prev, registrationNumber: "" }))
+  }
+
+  const handleRegDigits = (e) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 6)
+    setRegDigits(digits)
+    const combined = regLetter1 + regLetter2 + digits
+    setFormData(prev => ({ ...prev, registrationNumber: combined }))
+    if (errors.registrationNumber) setErrors(prev => ({ ...prev, registrationNumber: "" }))
+  }
+
   const handleInputChange = (e) => {
     const { name, value } = e.target
+    const processed =
+      name === "registrationNumber" ? value.toUpperCase().slice(0, 8) :
+      name === "phone"             ? value.replace(/\D/g, "").slice(0, 8) :
+      value
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: processed
     }))
     // Clear error when user starts typing
     if (errors[name]) {
@@ -81,10 +121,14 @@ export default function SignupPage() {
 
     if (!formData.registrationNumber.trim()) {
       newErrors.registrationNumber = "Регистрийн дугаар оруулна уу"
+    } else if (!/^[А-ЯӨҮа-яөү]{2}\d{6}$/.test(formData.registrationNumber)) {
+      newErrors.registrationNumber = "Эхний 2 тэмдэгт Монгол үсэг (жн: АБ), сүүлийн 6 тэмдэгт тоо байх ёстой"
     }
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Утасны дугаар оруулна уу"
+    } else if (!/^\d{8}$/.test(formData.phone)) {
+      newErrors.phone = "Утасны дугаар 8 оронтой тоо байх ёстой"
     }
 
     if (!acceptedTerms) {
@@ -216,16 +260,69 @@ export default function SignupPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="registrationNumber">Регистрийн дугаар</Label>
-                <Input
-                  id="registrationNumber"
-                  name="registrationNumber"
-                  type="text"
-                  placeholder="TA12345678"
-                  value={formData.registrationNumber}
-                  onChange={handleInputChange}
-                  className={errors.registrationNumber ? "border-red-500" : ""}
-                />
+                <Label>Регистрийн дугаар</Label>
+                <div className="flex items-center gap-2">
+                  {/* Letter 1 */}
+                  <button
+                    type="button"
+                    onClick={() => setActivePicker(activePicker === 1 ? null : 1)}
+                    className={`w-12 h-10 rounded-lg border-2 font-bold text-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                      activePicker === 1
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : errors.registrationNumber
+                        ? "border-red-400 bg-white text-gray-800"
+                        : "border-gray-300 bg-white text-gray-800 hover:border-blue-400"
+                    }`}
+                  >
+                    {regLetter1 || <span className="text-gray-400 text-sm">Р</span>}
+                  </button>
+                  {/* Letter 2 */}
+                  <button
+                    type="button"
+                    onClick={() => setActivePicker(activePicker === 2 ? null : 2)}
+                    className={`w-12 h-10 rounded-lg border-2 font-bold text-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                      activePicker === 2
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : errors.registrationNumber
+                        ? "border-red-400 bg-white text-gray-800"
+                        : "border-gray-300 bg-white text-gray-800 hover:border-blue-400"
+                    }`}
+                  >
+                    {regLetter2 || <span className="text-gray-400 text-sm">Д</span>}
+                  </button>
+                  {/* Digits */}
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="12345678"
+                    maxLength={8}
+                    value={regDigits}
+                    onChange={handleRegDigits}
+                    className={`flex-1 ${errors.registrationNumber ? "border-red-500" : ""}`}
+                  />
+                </div>
+
+                {/* Cyrillic letter picker popup */}
+                {activePicker !== null && (
+                  <div className="border border-blue-200 rounded-xl bg-white shadow-lg p-3">
+                    <p className="text-xs text-blue-600 text-center font-medium mb-3">
+                      {activePicker === 1 ? "Эхний үсгийг сонгоно уу" : "Хоёр дахь үсгийг сонгоно уу"}
+                    </p>
+                    <div className="grid grid-cols-7 gap-1">
+                      {MONGOLIAN_LETTERS.map((letter) => (
+                        <button
+                          key={letter}
+                          type="button"
+                          onClick={() => handleLetterSelect(letter)}
+                          className="h-9 rounded-lg border border-gray-200 text-sm font-medium text-gray-800 hover:bg-blue-50 hover:border-blue-400 transition-colors"
+                        >
+                          {letter}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {errors.registrationNumber && (
                   <p className="text-sm text-red-500">{errors.registrationNumber}</p>
                 )}
@@ -237,7 +334,9 @@ export default function SignupPage() {
                   id="phone"
                   name="phone"
                   type="tel"
-                  placeholder="9999-9999"
+                  placeholder="99999999"
+                  maxLength={8}
+                  inputMode="numeric"
                   value={formData.phone}
                   onChange={handleInputChange}
                   className={errors.phone ? "border-red-500" : ""}
