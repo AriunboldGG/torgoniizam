@@ -32,6 +32,7 @@ function mapEntry(entry) {
     lotCode,
     bidStatus,
     bidStatusLabel: typeof entry.status === "object" ? (entry.status?.value ?? bidStatus) : bidStatus,
+    depositAmount: entry.deposit_amount ?? null,
     createdAt:     entry.created_at ?? null,
     updatedAt:     entry.updated_at ?? null,
   }
@@ -101,26 +102,45 @@ function DetailModal({ entry, onClose, onGetProduct }) {
         {/* Content */}
         {!fetching && !fetchErr && (
           <>
-            {/* Image */}
-            <div className="relative w-full aspect-video bg-gray-50 overflow-hidden">
-              <Image src={image} alt={entry.title} fill className="object-contain" />
-              <div className={`absolute top-3 right-3 ${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold shadow flex items-center gap-1`}>
-                {isWon ? <><FaAward className="w-3.5 h-3.5" /> ЯЛСАН</> : statusInfo.text}
-              </div>
-            </div>
-
             <div className="p-5 space-y-4">
-              {/* Category */}
-              {category && (
-                <span className="inline-block text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">{category}</span>
-              )}
+              {/* Status badge */}
+              <div className="flex items-center justify-between">
+                <div className={`${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1`}>
+                  {isWon ? <><FaAward className="w-3.5 h-3.5" /> ЯЛСАН</> : statusInfo.text}
+                </div>
+                {category && (
+                  <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">{category}</span>
+                )}
+              </div>
 
               {/* Description */}
               {description && (
                 <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
               )}
 
-              {/* Dates */}
+              {/* Bid info fields */}
+              <div className="bg-gray-50 rounded-xl divide-y divide-gray-100">
+                {entry.depositAmount && (
+                  <div className="flex justify-between items-center px-4 py-3">
+                    <span className="text-xs text-gray-500">Дэнчингийн дүн</span>
+                    <span className="text-sm font-semibold text-gray-800">{Number(entry.depositAmount).toLocaleString()}₮</span>
+                  </div>
+                )}
+                {entry.createdAt && (
+                  <div className="flex justify-between items-center px-4 py-3">
+                    <span className="text-xs text-gray-500">Оролцсон огноо</span>
+                    <span className="text-sm font-semibold text-gray-800">{new Date(entry.createdAt).toLocaleDateString("mn-MN")}</span>
+                  </div>
+                )}
+                {entry.updatedAt && (
+                  <div className="flex justify-between items-center px-4 py-3">
+                    <span className="text-xs text-gray-500">Шинэчлэгдсэн огноо</span>
+                    <span className="text-sm font-semibold text-gray-800">{new Date(entry.updatedAt).toLocaleDateString("mn-MN")}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Lot dates */}
               {(detail?.start_date || detail?.end_date) && (
                 <div className="grid grid-cols-2 gap-3">
                   {detail?.start_date && (
@@ -144,12 +164,6 @@ function DetailModal({ entry, onClose, onGetProduct }) {
                   <p className="text-sm font-bold text-yellow-800 flex items-center gap-1.5"><FaAward className="w-4 h-4" /> Та энэ дуудлага худалдаанд ялсан байна!</p>
                 </div>
               )}
-
-              {/* Status row */}
-              <div className="text-xs text-gray-400 flex justify-between pt-1">
-                <span>Оролцсон: {entry.createdAt ? new Date(entry.createdAt).toLocaleDateString("mn-MN") : "-"}</span>
-                <span className={`font-semibold ${isWon ? "text-yellow-600" : "text-gray-500"}`}>{entry.bidStatusLabel}</span>
-              </div>
 
               {/* Buttons */}
               <div className={`grid gap-3 ${isWon ? "grid-cols-2" : "grid-cols-1"}`}>
@@ -187,17 +201,20 @@ function GetProductModal({ entry, onClose }) {
   const [fetchErr, setFetchErr] = useState(null)
 
   useEffect(() => {
-    if (!entry?.lotId) { setFetching(false); return }
+    if (!entry?.lotId) { setFetching(false); setFetchErr("Лотын ID олдсонгүй."); return }
     const token = localStorage.getItem("access_token")
     fetch(`/api/bid/won/${entry.lotId}`, {
       headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     })
-      .then(r => r.json())
-      .then(raw => {
-        // unwrap common API envelopes: { data: {...} } or { results: [...] }
-        const d = raw?.data ?? raw
-        setData(d)
+      .then(async r => {
+        const raw = await r.json()
+        if (!r.ok) {
+          throw new Error(raw?.detail ?? raw?.message ?? `Алдаа: ${r.status}`)
+        }
+        // keep raw — shape is { lot: {...}, seller: {...}, secret_value: "..." }
+        return raw
       })
+      .then(d => setData(d))
       .catch(e => setFetchErr(e?.message ?? "Алдаа гарлаа."))
       .finally(() => setFetching(false))
   }, [entry?.lotId])
@@ -238,55 +255,96 @@ function GetProductModal({ entry, onClose }) {
           <div className="p-5 text-sm text-red-600 bg-red-50 m-4 rounded-xl">{fetchErr}</div>
         )}
 
-        {!fetching && !fetchErr && data && (
+        {!fetching && !fetchErr && data && (() => {
+          // response shape: { lot: {...}, seller: {...}, secret_value: "..." }
+          const lot = data?.lot ?? data
+          const seller = data?.seller ?? lot?.seller
+          const secretValue = data?.secret_value ?? data?.secret_code
+          return (
           <>
+            {/* Lot image */}
+            {Array.isArray(lot.images) && lot.images.length > 0 && (
+              <div className="relative w-full aspect-video bg-gray-100 overflow-hidden">
+                <Image
+                  src={getAssetUrl(typeof lot.images[0] === "string" ? lot.images[0] : lot.images[0]?.url ?? "")}
+                  alt={lot.name ?? entry.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+
             <div className="p-5 space-y-4">
               {/* Winner banner */}
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center gap-3">
                 <FaAward className="w-8 h-8 text-yellow-500 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-yellow-800">Таньд баяр хүргэе!</p>
-                  <p className="text-xs text-yellow-700 mt-0.5">{entry.lotCode}</p>
+                  <p className="text-xs text-yellow-700 mt-0.5">{lot.reference_no ?? entry.lotCode}</p>
                 </div>
               </div>
 
-              {/* DEBUG: remove after confirming field names */}
-              {/* <details className="bg-gray-100 rounded-lg p-2 text-xs">
-                <summary className="cursor-pointer text-gray-500">Raw API response (debug)</summary>
-                <pre className="mt-2 overflow-auto max-h-40 text-gray-700 whitespace-pre-wrap break-all">{JSON.stringify(data, null, 2)}</pre>
-              </details> */}
-
               {/* Secret code */}
-              {data.secret_value && (
+              {secretValue && (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                   <p className="text-xs text-green-600 mb-1 font-medium">Бараа авах код</p>
-                  <p className="text-lg font-bold text-green-800 tracking-widest">{data.secret_value}</p>
+                  <p className="text-lg font-bold text-green-800 tracking-widest">{secretValue}</p>
+                </div>
+              )}
+
+              {/* Lot info */}
+              <div className="space-y-1">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Барааны мэдээлэл</p>
+                <div className="bg-gray-50 rounded-xl divide-y divide-gray-100">
+                  <Row label="Нэр"              value={lot.name} />
+                  <Row label="Ангилал"          value={lot.category?.value} />
+                  <Row label="Тайлбар"          value={lot.description} />
+                  <Row label="Эхлэх үнэ"        value={lot.starting_price != null ? `${Number(lot.starting_price).toLocaleString()}₮` : null} />
+                  <Row label="Сүүлийн үнэ"      value={lot.current_bid    != null ? `${Number(lot.current_bid).toLocaleString()}₮`    : null} />
+                  <Row label="Эхлэх огноо"      value={lot.start_date ? new Date(lot.start_date).toLocaleDateString("mn-MN") : null} />
+                  <Row label="Дуусах огноо"     value={lot.end_date   ? new Date(lot.end_date).toLocaleDateString("mn-MN")   : null} />
+                  <Row label="Нийт оролцогч"    value={lot.participant_count != null ? String(lot.participant_count) : null} />
+                  <Row label="Нийт үнийн санал" value={lot.bid_count         != null ? String(lot.bid_count)         : null} />
+                  <Row label="Хот"              value={lot.city?.value} />
+                  <Row label="Дүүрэг"           value={lot.district?.value} />
+                  <Row label="Хороо"            value={lot.quarter?.value} />
+                  <Row label="Хаяг"             value={lot.address} />
+                </div>
+              </div>
+
+              {/* Attributes */}
+              {lot.attributes && typeof lot.attributes === "object" && Object.keys(lot.attributes).length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Техникийн үзүүлэлт</p>
+                  <div className="bg-gray-50 rounded-xl divide-y divide-gray-100">
+                    {Object.entries(lot.attributes).map(([label, value]) => (
+                      <Row key={label} label={label} value={String(value)} />
+                    ))}
+                  </div>
                 </div>
               )}
 
               {/* Seller info */}
-              {data.seller && (
-                <div className="space-y-2">
+              {seller && (
+                <div className="space-y-1">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Борлуулагчийн мэдээлэл</p>
                   <div className="bg-gray-50 rounded-xl p-4">
-                    {/* Avatar + name row */}
                     <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
-                   
                       <div>
                         <p className="text-sm font-bold text-gray-800">
-                          {[data.seller.first_name, data.seller.last_name].filter(Boolean).join(" ") || data.seller.informal || data.seller.username}
+                          {[seller.first_name, seller.last_name].filter(Boolean).join(" ") || seller.informal || seller.username}
                         </p>
-                        {data.seller.informal && (
-                          <p className="text-xs text-gray-400">@{data.seller.informal}</p>
+                        {seller.informal && (
+                          <p className="text-xs text-gray-400">@{seller.informal}</p>
                         )}
                       </div>
                     </div>
-                    <Row label="Имэйл"   value={data.seller.email} />
-                    <Row label="Утас"    value={data.seller.phone} />
-                    <Row label="Хот"     value={data.seller.city} />
-                    <Row label="Дүүрэг"  value={data.seller.district} />
-                    <Row label="Хороо"   value={data.seller.quarter} />
-                    <Row label="Хаяг"    value={data.seller.address} />
+                    <Row label="Имэйл"  value={seller.email} />
+                    <Row label="Утас"   value={seller.phone} />
+                    <Row label="Хот"    value={seller.city} />
+                    <Row label="Дүүрэг" value={seller.district} />
+                    <Row label="Хороо"  value={seller.quarter} />
+                    <Row label="Хаяг"   value={seller.address} />
                   </div>
                 </div>
               )}
@@ -301,7 +359,8 @@ function GetProductModal({ entry, onClose }) {
               </button>
             </div>
           </>
-        )}
+          )
+        })()}
       </div>
     </div>
   )
@@ -433,15 +492,12 @@ export default function MyAuctionsPage() {
                 return (
                   <div key={entry.bidId} className="cursor-pointer" onClick={() => setSelected(entry)}>
                     <Card className="overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 bg-white border border-gray-200 group h-full">
-                      <div className="relative aspect-square bg-gray-100 overflow-hidden flex items-center justify-center">
-                        <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <div className={`absolute top-2 right-2 ${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1`}>
-                          {isWon ? <><FaAward className="w-3.5 h-3.5" /> ЯЛСАН</> : statusInfo.text}
-                        </div>
-                      </div>
                       <CardContent className="p-4">
+                        <div className="flex justify-end mb-2">
+                          <div className={`${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1`}>
+                            {isWon ? <><FaAward className="w-3.5 h-3.5" /> ЯЛСАН</> : statusInfo.text}
+                          </div>
+                        </div>
                         {entry.lotCode && (
                           <p className="text-xs text-gray-400 mb-1 truncate">{entry.lotCode}</p>
                         )}
