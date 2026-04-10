@@ -107,7 +107,9 @@ export default function BidDialog({
         };
       });
 
-      setSuccessMessage(`Таны үнийн санал ${Number(selectedAmount).toLocaleString()}₮ системд бүртгэгдлээ.`);
+      const currentBidNum = Number((auctionItem?.lastPrice ?? '0').replace(/[^0-9]/g, ''));
+      const finalBid = currentBidNum + Number(selectedAmount);
+      setSuccessMessage(`Таны үнийн санал ${finalBid.toLocaleString()}₮ системд бүртгэгдлээ.`);
       setShowSuccess(true);
 
       if (onBidConfirm) {

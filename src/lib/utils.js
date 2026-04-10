@@ -10,6 +10,17 @@ export function cn(...inputs) {
  * e.g. "2026 оны 4-р сарын 11, 01:00"
  * Uses manual formatting so it works regardless of ICU locale support.
  */
+/**
+ * Prepends the assets CDN domain to a backend-relative image path.
+ * Absolute URLs and local /images/ or /svg/ paths are returned unchanged.
+ */
+export function getAssetUrl(path) {
+  if (!path) return ''
+  if (path.startsWith('http://') || path.startsWith('https://')) return path
+  if (path.startsWith('/images/') || path.startsWith('/svg/')) return path
+  return `https://assets.torgoniizam.mn/${path.startsWith('/') ? path.slice(1) : path}`
+}
+
 export function formatMongolianDate(dateString, { includeTime = true } = {}) {
   if (!dateString) return '—';
   const date = new Date(dateString);

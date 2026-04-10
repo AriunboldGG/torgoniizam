@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import ImageZoom from "@/components/ui/image-zoom"
+import { getAssetUrl } from "@/lib/utils"
 
 export default function CompletedAuctionPage({ params }) {
   const unwrappedParams = use(params);
@@ -20,8 +21,8 @@ export default function CompletedAuctionPage({ params }) {
 
         const rawImages = Array.isArray(lot.images) ? lot.images : []
         const images = rawImages.length > 0
-          ? rawImages.map((img) => (typeof img === "string" ? img : img.url ?? img.image ?? ""))
-          : [lot.thumbnail ?? "/images/end1.png"]
+          ? rawImages.map((img) => getAssetUrl(typeof img === "string" ? img : img.url ?? img.image ?? ""))
+          : [getAssetUrl(lot.thumbnail ?? "/images/end1.png")]
 
         setAuctionItem({
           id: lot.id,

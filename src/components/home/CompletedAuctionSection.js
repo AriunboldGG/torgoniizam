@@ -7,8 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearch } from "@/contexts/SearchContext";
 import useSWR from "swr";
-import { publicFetcher } from "@/lib/fetcher";
-
+import { publicFetcher } from "@/lib/fetcher";import { getAssetUrl } from "@/lib/utils"
 export default function CompletedAuctionSection() {
   const scrollContainerRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -69,7 +68,7 @@ export default function CompletedAuctionSection() {
       []
     return [...expList, ...soldList].map((lot) => ({
       id: lot.id,
-      imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
+      imageUrl: getAssetUrl(lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : "")),
       category: lot.category?.value ?? "",
       title: lot.name ?? "",
       finalPrice:

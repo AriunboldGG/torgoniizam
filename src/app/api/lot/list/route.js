@@ -9,7 +9,12 @@ export async function GET(request) {
     const offset = searchParams.get("offset") ?? "0"
     const limit = searchParams.get("limit") ?? ""
 
-    const url = `${API_URL}/api/v1/lot/list?offset=${offset}${limit ? `&limit=${limit}` : ""}${status ? `&status=${status}` : ""}`
+    const params = new URLSearchParams()
+    if (status) params.set("status", status)
+    params.set("offset", offset)
+    if (limit) params.set("limit", limit)
+
+    const url = `${API_URL}/api/v1/lot/list?${params.toString()}`
 
     let response = await fetch(url, {
       headers: { Accept: "application/json" },

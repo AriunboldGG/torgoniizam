@@ -6,13 +6,12 @@ import Image from "next/image"
 import Link from "next/link"
 import { useUser } from "@/contexts/UserContext"
 import { FaAward } from "react-icons/fa"
+import { getAssetUrl } from "@/lib/utils"
 
 const STATUS_LABEL = {
-  active:  { text: "ИДЭВХТЭЙ",      color: "bg-green-500"  },
-  pending: { text: "ХҮЛЭЭГДЭЖ БУЙ", color: "bg-blue-500"   },
-  expired: { text: "ДУУССАН",        color: "bg-gray-500"   },
-  sold:    { text: "ЗАРАГДСАН",      color: "bg-orange-500" },
-  won:     { text: "ЯЛСАН",          color: "bg-yellow-500" },
+  active:   { text: "ИДЭВХТЭЙ", color: "bg-green-500"  },
+  won:      { text: "ЯЛСАН",    color: "bg-yellow-500" },
+  released: { text: "ЯЛААГҮЙ", color: "bg-gray-500"   },
 }
 
 // Parse the bid/history entry into a simpler shape
@@ -63,8 +62,8 @@ function DetailModal({ entry, onClose, onGetProduct }) {
 
   const rawImages = Array.isArray(detail?.images) ? detail.images : []
   const image = rawImages.length > 0
-    ? (typeof rawImages[0] === "string" ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? "/images/live1.png")
-    : (detail?.thumbnail ?? "/images/live1.png")
+    ? getAssetUrl(typeof rawImages[0] === "string" ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? "/images/live1.png")
+    : getAssetUrl(detail?.thumbnail ?? "/images/live1.png")
 
   const startingPrice = detail?.starting_price != null ? Number(detail.starting_price) : null
   const currentBid    = detail?.current_bid    != null ? Number(detail.current_bid)    : null
@@ -372,12 +371,10 @@ export default function MyAuctionsPage() {
             {/* Status filter tabs */}
             <div className="flex flex-wrap gap-2">
               {[
-                { key: "all",     label: "Бүгд" },
-                { key: "won",     label: "Ялсан" },
-                { key: "active",  label: "Идэвхтэй" },
-                { key: "pending", label: "Хүлээгдэж буй" },
-                { key: "expired", label: "Дууссан" },
-                { key: "sold",    label: "Зарагдсан" },
+                { key: "all",      label: "Бүгд" },
+                { key: "active",   label: "Идэвхтэй" },
+                { key: "won",      label: "Ялсан" },
+                { key: "released", label: "Ялаагүй" },
               ].map(({ key, label }) => (
                 <button
                   key={key}

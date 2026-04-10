@@ -11,6 +11,7 @@ import ImageZoom from "@/components/ui/image-zoom"
 import { useUser } from "@/contexts/UserContext"
 import { useSearchParams } from "next/navigation"
 import { FaAward } from "react-icons/fa"
+import { getAssetUrl } from "@/lib/utils"
 
 // Countdown Timer Component
 function CountdownTimer({ endTime, onEnd }) {
@@ -202,8 +203,8 @@ export default function AuctionItemPage({ params }) {
 
         const rawImages = Array.isArray(lot.images) ? lot.images : []
         const images = rawImages.length > 0
-          ? rawImages.map((img) => (typeof img === "string" ? img : img.url ?? img.image ?? ""))
-          : [lot.thumbnail ?? "/images/end4.png"]
+          ? rawImages.map((img) => getAssetUrl(typeof img === "string" ? img : img.url ?? img.image ?? ""))
+          : [getAssetUrl(lot.thumbnail ?? "/images/end4.png")]
 
         const specs = lot.attributes && typeof lot.attributes === "object" && !Array.isArray(lot.attributes)
           ? Object.entries(lot.attributes).map(([label, value]) => ({ label, value: String(value) }))
@@ -222,6 +223,7 @@ export default function AuctionItemPage({ params }) {
 
         setAuctionItem({
           id: lot.id,
+          status: lot.status?.key ?? lot.status ?? "",
           category: lot.category?.value ?? "",
           title: lot.name ?? "",
           startingPrice: `${startingPriceNum.toLocaleString()}₮`,
@@ -407,10 +409,16 @@ export default function AuctionItemPage({ params }) {
                   </div>
                 </div>
 
-                {/* Orange Badge */}
-                <div className="absolute top-4 right-4 bg-[#FF4405] text-white px-3 py-1 rounded-lg text-sm font-bold">
-                  LIVE
-                </div>
+                {/* Status Badge */}
+                {(auctionEnded || auctionItem.status === 'expired' || auctionItem.status === 'sold') ? (
+                  <div className="absolute top-4 right-4 bg-gray-700 text-white px-3 py-1 rounded-lg text-sm font-bold">
+                    ДУУССАН
+                  </div>
+                ) : (
+                  <div className="absolute top-4 right-4 bg-[#FF4405] text-white px-3 py-1 rounded-lg text-sm font-bold">
+                    LIVE
+                  </div>
+                )}
 
                 {/* Countdown Timer Overlay */}
                 <div className="absolute bottom-4 left-4">

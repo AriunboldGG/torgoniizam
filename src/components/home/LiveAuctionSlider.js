@@ -7,8 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearch } from "@/contexts/SearchContext";
 import useSWR from "swr";
-import { publicFetcher } from "@/lib/fetcher";
-
+import { publicFetcher } from "@/lib/fetcher";import { getAssetUrl } from "@/lib/utils"
 // Countdown Timer Component
 function CountdownTimer({ endTime, onEnd }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -115,7 +114,7 @@ export default function LiveAuctionSlider() {
       []
     return list.map((lot) => ({
       id: lot.id,
-      imageUrl: lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : ""),
+      imageUrl: getAssetUrl(lot.thumbnail ?? (typeof lot.images?.[0] === "string" ? lot.images[0] : "")),
       category: lot.category?.value ?? "",
       title: lot.name ?? "",
       lastPrice:
