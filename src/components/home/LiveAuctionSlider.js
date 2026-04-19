@@ -243,7 +243,7 @@ export default function LiveAuctionSlider() {
                     {/* Bid Button */}
                     <div className="flex justify-end">
                       <button 
-                        className={`${auction.buttonColor} w-10 h-10 rounded-full flex items-center justify-center hover:bg-orange-500 transition-colors duration-200`}
+                        className="bg-[#FF4405] hover:bg-[#E63D04] w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200"
                       >
                         <Image 
                           src="/svg/bid.svg" 

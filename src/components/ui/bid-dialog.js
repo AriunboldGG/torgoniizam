@@ -50,26 +50,35 @@ export default function BidDialog({
       const wsUrl = `${wsBase}/ws/${lotId}`;
       console.log('[BidDialog] Connecting to WS:', wsUrl);
 
-      await new Promise((resolve, reject) => {
+      const responseMsg = await new Promise((resolve, reject) => {
         const ws = new WebSocket(wsUrl);
         let settled = false;
+        let bidConfirmed = false;
 
         const settle = (fn, val) => {
           if (settled) return;
           settled = true;
           clearTimeout(timeout);
+          clearTimeout(updateTimeout);
+          ws.close();
           fn(val);
         };
 
+        // Hard timeout: give up entirely after 10s
         const timeout = setTimeout(() => {
-          ws.close();
           settle(reject, new Error('timeout'));
         }, 10000);
 
+        // After bid_confirmed, wait up to 3s for bid_updated broadcast with the new price
+        let updateTimeout;
+
         ws.onopen = () => {
-            ws.send(JSON.stringify({
+          const currentBidNum = Number((auctionItem?.lastPrice ?? '0').replace(/[^0-9]/g, ''));
+          const totalAmount = currentBidNum + bidValue;
+          console.log('[BidDialog] Sending bid — increment:', bidValue, '| total amount:', totalAmount, '| raw sent to backend:', String(totalAmount));
+          ws.send(JSON.stringify({
             type: 'bid',
-            amount: String(bidValue),
+            amount: String(totalAmount),
             token,
           }));
         };
@@ -77,28 +86,34 @@ export default function BidDialog({
         ws.onmessage = (event) => {
           try {
             const msg = JSON.parse(event.data);
-            if (msg?.error || msg?.type === 'error') {
-              settle(reject, new Error(msg.error ?? msg.message ?? 'Алдаа гарлаа.'));
-            } else {
+            if (msg.type === 'bid_failed') {
+              settle(reject, new Error(msg.message ?? 'Үнийн санал амжилтгүй боллоо.'));
+            } else if (msg.type === 'error') {
+              settle(reject, new Error(msg.message ?? 'Алдаа гарлаа.'));
+            } else if (msg.type === 'bid_confirmed') {
+              bidConfirmed = true;
+              // Wait briefly for the bid_updated broadcast which carries the new price
+              updateTimeout = setTimeout(() => {
+                settle(resolve, { type: 'bid_confirmed', amount: null });
+              }, 3000);
+            } else if (msg.type === 'bid_updated' && bidConfirmed) {
+              // bid_updated broadcast contains the actual new winning amount
               settle(resolve, msg);
             }
           } catch {
-            settle(resolve, {});
+            // ignore parse errors
           }
-          ws.close();
         };
 
-        ws.onerror = (ev) => {
-          console.error('[BidDialog] ws.onerror', ev);
+        ws.onerror = () => {
           settle(reject, new Error('ws_error'));
         };
 
         ws.onclose = (e) => {
           if (!settled) {
-            if (e.code === 1000 || e.code === 1001) {
-              settle(resolve, {});
+            if (bidConfirmed) {
+              settle(resolve, { type: 'bid_confirmed', amount: null });
             } else if (e.code === 1006) {
-              // 1006 = abnormal closure — server never completed the handshake
               settle(reject, new Error('ws_unreachable'));
             } else {
               settle(reject, new Error(`ws_closed_${e.code}`));
@@ -107,13 +122,15 @@ export default function BidDialog({
         };
       });
 
+      // bid.amount from bid_updated broadcast is the confirmed new winning price
+      const serverAmount = responseMsg?.bid?.amount ?? null;
       const currentBidNum = Number((auctionItem?.lastPrice ?? '0').replace(/[^0-9]/g, ''));
-      const finalBid = currentBidNum + Number(selectedAmount);
+      const finalBid = serverAmount != null ? Number(serverAmount) : currentBidNum + Number(selectedAmount);
       setSuccessMessage(`Таны үнийн санал ${finalBid.toLocaleString()}₮ системд бүртгэгдлээ.`);
       setShowSuccess(true);
 
       if (onBidConfirm) {
-        onBidConfirm(selectedAmount);
+        onBidConfirm(finalBid);
       }
 
       setTimeout(() => {

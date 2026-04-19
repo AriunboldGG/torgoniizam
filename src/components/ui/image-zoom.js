@@ -77,15 +77,15 @@ export default function ImageZoom({ images, currentImage, onClose }) {
 
       {/* Main Image */}
       <div 
-        className="relative max-w-7xl max-h-[90vh] mx-4"
+        className="relative w-full mx-4"
+        style={{ maxWidth: '90vw', maxHeight: '80vh', height: '80vh' }}
         onClick={(e) => e.stopPropagation()}
       >
         <Image
           src={images[currentIndex]}
           alt={`Auction image ${currentIndex + 1}`}
-          width={1200}
-          height={800}
-          className="object-contain max-w-full max-h-full rounded-lg"
+          fill
+          className="object-contain rounded-lg"
           priority
         />
       </div>

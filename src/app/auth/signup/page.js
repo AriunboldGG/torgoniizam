@@ -66,7 +66,7 @@ export default function SignupPage() {
   }
 
   const handleRegDigits = (e) => {
-    const digits = e.target.value.replace(/\D/g, "").slice(0, 6)
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 8)
     setRegDigits(digits)
     const combined = regLetter1 + regLetter2 + digits
     setFormData(prev => ({ ...prev, registrationNumber: combined }))
@@ -76,7 +76,7 @@ export default function SignupPage() {
   const handleInputChange = (e) => {
     const { name, value } = e.target
     const processed =
-      name === "registrationNumber" ? value.toUpperCase().slice(0, 8) :
+      name === "registrationNumber" ? value.toUpperCase().slice(0, 10) :
       name === "phone"             ? value.replace(/\D/g, "").slice(0, 8) :
       value
     setFormData(prev => ({
@@ -121,8 +121,8 @@ export default function SignupPage() {
 
     if (!formData.registrationNumber.trim()) {
       newErrors.registrationNumber = "Регистрийн дугаар оруулна уу"
-    } else if (!/^[А-ЯӨҮа-яөү]{2}\d{6}$/.test(formData.registrationNumber)) {
-      newErrors.registrationNumber = "Эхний 2 тэмдэгт Монгол үсэг (жн: АБ), сүүлийн 6 тэмдэгт тоо байх ёстой"
+    } else if (!/^[А-ЯӨҮа-яөү]{2}\d{8}$/.test(formData.registrationNumber)) {
+      newErrors.registrationNumber = "Эхний 2 тэмдэгт Монгол үсэг (жн: АБ), сүүлийн 8 тэмдэгт тоо байх ёстой"
     }
 
     if (!formData.phone.trim()) {

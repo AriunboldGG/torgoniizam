@@ -177,9 +177,12 @@ export default function AuctionItemPage({ params }) {
     setHasUserPledged(true);
   };
 
-  const handleBidConfirm = () => {
-    // Real-time update is handled by the WebSocket bid_updated message.
-    // No local mutation needed.
+  const handleBidConfirm = (finalBid) => {
+    // Immediately update the displayed price so the dialog reflects the new amount
+    // even before the WS bid_updated broadcast arrives.
+    if (finalBid != null) {
+      setAuctionItem(prev => prev ? ({ ...prev, lastPrice: `${Number(finalBid).toLocaleString()}₮` }) : prev);
+    }
   };
 
   // Single effect: wait for auth to settle, then fetch lot + check pledge in sequence.
@@ -211,9 +214,12 @@ export default function AuctionItemPage({ params }) {
           : []
 
         const rawBids = Array.isArray(lot.last_bids) ? lot.last_bids : (Array.isArray(lot.bids) ? lot.bids : [])
+        console.log('raw bids==>', rawBids);
+        console.log('lot.bid_increments==>', b.amount);
+        
         const bids = rawBids.map((b, i) => ({
             id: b.id ?? i,
-            email: b.user?.email ?? b.email ?? "user@example.com",
+            email: b.user?.value ??  "",
             date: b.created_at ? new Date(b.created_at).toLocaleDateString("mn-MN") : "",
             amount: b.amount != null ? `${Number(b.amount).toLocaleString()}₮` : "",
           }))
@@ -299,23 +305,24 @@ export default function AuctionItemPage({ params }) {
       ws.onmessage = (event) => {
         try {
           const msg = JSON.parse(event.data);
+          console.log('[WS] message:', msg);
           if (msg.type === 'bid_updated') {
             const topBids = Array.isArray(msg.top_bids) ? msg.top_bids : [];
             const newBids = topBids.map((b, i) => ({
               id: i + 1,
-              email: b.user?.value ?? '',
+              email: b.user?.value ?? b.user?.email ?? b.email ?? '',
               date: b.created_at ? new Date(b.created_at).toLocaleDateString('mn-MN') : '',
               amount: b.amount != null ? `${Number(b.amount).toLocaleString()}₮` : '',
               status: b.status?.value ?? '',
             }));
-            const newPrice = msg.bid?.amount != null
-              ? `${Number(msg.bid.amount).toLocaleString()}₮`
-              : null;
+            // Try multiple field names for the winning/current bid amount
+            const rawAmount = msg.bid?.amount ?? null;
+            const newPrice = rawAmount != null ? `${Number(rawAmount).toLocaleString()}₮` : null;
             setAuctionItem(prev => ({
               ...prev,
               ...(newPrice && { lastPrice: newPrice }),
-              bids: newBids,
-              bidCount: newBids.length,
+              bids: newBids.length > 0 ? newBids : prev.bids,
+              bidCount: msg.bid_count ?? msg.total_bids ?? (newBids.length > 0 ? newBids.length : prev.bidCount),
             }));
             attempts = 0;
           } else if (msg.type === 'bidder_count') {
@@ -386,10 +393,10 @@ export default function AuctionItemPage({ params }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xs-mobile:gap-6 sm:gap-8 lg:gap-12">
 
             {/* Left Column - Image Gallery */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* Main Image */}
               <div
-                className="relative bg-white rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
+                className="relative bg-gray-100 rounded-2xl overflow-hidden cursor-pointer group"
                 onClick={() => setShowImageZoom(true)}
               >
                 <Image
@@ -397,13 +404,13 @@ export default function AuctionItemPage({ params }) {
                   alt={auctionItem.title}
                   width={600}
                   height={600}
-                  className="w-full h-64 sm:h-80 lg:h-[500px] object-cover"
+                  className="w-full h-64 sm:h-80 lg:h-[500px] object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                 />
 
                 {/* Zoom Icon Overlay */}
-                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                  <div className="opacity-0 hover:opacity-100 transition-opacity duration-300">
-                    <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-all duration-300 flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/20 backdrop-blur-sm rounded-full p-3">
+                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                     </svg>
                   </div>
@@ -411,45 +418,49 @@ export default function AuctionItemPage({ params }) {
 
                 {/* Status Badge */}
                 {(auctionEnded || auctionItem.status === 'expired' || auctionItem.status === 'sold') ? (
-                  <div className="absolute top-4 right-4 bg-gray-700 text-white px-3 py-1 rounded-lg text-sm font-bold">
+                  <div className="absolute top-3 right-3 bg-gray-700/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide">
                     ДУУССАН
                   </div>
                 ) : (
-                  <div className="absolute top-4 right-4 bg-[#FF4405] text-white px-3 py-1 rounded-lg text-sm font-bold">
+                  <div className="absolute top-3 right-3 bg-[#FF4405]/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
                     LIVE
                   </div>
                 )}
 
                 {/* Countdown Timer Overlay */}
-                <div className="absolute bottom-4 left-4">
+                <div className="absolute bottom-3 left-3">
                   <CountdownTimer
                     endTime={auctionItem.endTime}
-                    onEnd={() => {
-                      // You can add additional logic here when an auction ends
-                    }}
+                    onEnd={() => {}}
                   />
                 </div>
               </div>
 
               {/* Thumbnail Gallery */}
-              <div className="flex space-x-3 overflow-x-auto pb-2">
-                {auctionItem.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all duration-200 ${selectedImage === index ? 'border-[#FF4405] scale-105' : 'border-gray-200 hover:border-gray-300'
+              {auctionItem.images.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  {auctionItem.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden transition-all duration-200 ${
+                        selectedImage === index
+                          ? 'ring-2 ring-[#FF4405] ring-offset-2 opacity-100'
+                          : 'opacity-60 hover:opacity-90'
                       }`}
-                  >
-                    <Image
-                      src={image}
-                      alt={`${auctionItem.title} ${index + 1}`}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
+                    >
+                      <Image
+                        src={image}
+                        alt={`${auctionItem.title} ${index + 1}`}
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Right Column - Product Details */}
@@ -595,16 +606,11 @@ export default function AuctionItemPage({ params }) {
                       || (auctionItem.endTime && new Date(auctionItem.endTime) < new Date())
                     return (
                   <Button
-                    className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isEnded
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : isLoggedIn && hasUserPledged
-                          ? 'bg-[#FF4405] hover:bg-[#E63D04] text-white'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
+                    className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase bg-[#FF4405] hover:bg-[#E63D04] text-white ${isEnded || !isLoggedIn || !hasUserPledged ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={isEnded || !isLoggedIn || !hasUserPledged}
                     onClick={() => !isEnded && setShowBidDialog(true)}
                   >
-                    <Image src="/svg/bid.svg" alt="Bid" width={16} height={16} className="hidden xs-mobile:block w-4 h-4 xs-mobile:w-5 xs-mobile:h-5 mr-2 xs-mobile:mr-3" />
+                    <Image src="/svg/bid.svg" alt="Bid" width={16} height={16} className="hidden xs-mobile:block w-4 h-4 xs-mobile:w-5 xs-mobile:h-5 mr-2 xs-mobile:mr-3 brightness-0 invert" />
                     <span className="hidden xs-mobile:inline">ҮНИЙН САНАЛ ИЛГЭЭХ</span>
                     <span className="xs-mobile:hidden">ҮНИЙН САНАЛ</span>
                   </Button>
