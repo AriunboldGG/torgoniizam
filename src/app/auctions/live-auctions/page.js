@@ -7,6 +7,7 @@ import Link from "next/link";
 import CategoryFilter from "@/components/auction/CategoryFilter";
 import FilterSection from "@/components/auction/FilterSection";
 import { MdAlarm, MdVisibility, MdLocationOn } from "react-icons/md";
+import { getAssetUrl } from "@/lib/utils";
 
 function computeTimeLeft(endDate) {
   if (!endDate) return '0:0:0'
@@ -21,8 +22,8 @@ function computeTimeLeft(endDate) {
 function mapActiveLot(lot) {
   const rawImages = Array.isArray(lot.images) ? lot.images : []
   const image = rawImages.length > 0
-    ? (typeof rawImages[0] === 'string' ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? '/images/live1.png')
-    : (lot.thumbnail ?? '/images/live1.png')
+    ? getAssetUrl(typeof rawImages[0] === 'string' ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? '/images/live1.png')
+    : getAssetUrl(lot.thumbnail ?? '/images/live1.png')
   return {
     id: lot.id,
     title: lot.name ?? '',
@@ -30,12 +31,13 @@ function mapActiveLot(lot) {
     currentBid: lot.current_bid != null ? Number(lot.current_bid) : 0,
     startingPrice: lot.starting_price != null ? Number(lot.starting_price) : 0,
     timeLeft: computeTimeLeft(lot.end_date),
-    bidders: lot.bidder_count ?? 0,
+    bidders: lot.bid_count ??  0,
     category: lot.category?.value ?? lot.category?.name ?? '',
     subcategory: lot.subcategory?.value ?? lot.subcategory?.name ?? '',
     location: lot.city?.value ?? 'Улаанбаатар',
     isLive: true,
     date: lot.end_date ? new Date(lot.end_date) : new Date(),
+    
   }
 }
 
@@ -44,6 +46,7 @@ export default function LiveAuctionsPage() {
   const [filteredAuctions, setFilteredAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState('all');
@@ -51,18 +54,27 @@ export default function LiveAuctionsPage() {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const itemsPerPage = 12; // Show 12 items per page for better grid layout
+  const ITEMS_PER_PAGE = 25;
 
-  // Mock data for live auctions - Generate 50 items
   useEffect(() => {
     const fetchLots = async () => {
+      setLoading(true);
       try {
-        const res = await fetch('/api/lot/list?status=active&limit=100&offset=0')
+        const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+        const res = await fetch(`/api/lot/list?status=active&limit=${ITEMS_PER_PAGE}&offset=${offset}`)
         const json = await res.json()
-        const list = json?.results ?? json?.data ?? (Array.isArray(json) ? json : [])
+        const raw = json?.results ?? json?.data?.results ?? json?.data ?? (Array.isArray(json) ? json : [])
+        const count = json?.count ?? json?.data?.count ?? 0
+        const list = Array.isArray(raw)
+          ? raw.filter(lot => {
+              const s = lot.status?.key ?? lot.status ?? ''
+              return s === '' || s === 'active'
+            })
+          : []
         const mapped = list.map(mapActiveLot)
         setLiveAuctions(mapped)
         setFilteredAuctions(mapped)
+        setTotalCount(count)
       } catch (err) {
         console.error('Failed to fetch live lots:', err)
       } finally {
@@ -70,7 +82,7 @@ export default function LiveAuctionsPage() {
       }
     }
     fetchLots()
-  }, []);
+  }, [currentPage]);
 
   // Filter auctions based on selected filters
   useEffect(() => {
@@ -149,8 +161,12 @@ export default function LiveAuctionsPage() {
     }
 
     setFilteredAuctions(filtered);
-    setCurrentPage(1); // Reset to first page when filtering
   }, [liveAuctions, selectedCategory, selectedSubcategory, selectedDateFilter, selectedPriceFilter, minPrice, maxPrice, searchQuery]);
+
+  // Reset to page 1 when any filter/search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedSubcategory, selectedDateFilter, selectedPriceFilter, minPrice, maxPrice, searchQuery]);
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
@@ -190,11 +206,9 @@ export default function LiveAuctionsPage() {
     return `${hours}:${minutes}:${seconds}`;
   };
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredAuctions.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentAuctions = filteredAuctions.slice(startIndex, endIndex);
+  // Pagination logic — driven by backend total count
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const currentAuctions = filteredAuctions;
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -288,7 +302,7 @@ export default function LiveAuctionsPage() {
            
           </div>
           <p className="text-gray-600 mt-2">
-            Одоо {filteredAuctions.length} дуудлага худалдаа явагдаж байна • Хуудас {currentPage} / {totalPages}
+            Одоо {filteredAuctions.length} дуудлага худалдаа явагдаж байна
             {selectedCategory && (
               <span className="ml-2 text-orange-600">
                 • {selectedCategory.name}
@@ -418,7 +432,7 @@ export default function LiveAuctionsPage() {
             {/* Pagination Info */}
             <div className="text-center mb-6 text-gray-600">
               <span className="text-sm">
-                Хуудас {currentPage} / {totalPages} • Нийт {liveAuctions.length} бараа
+                Нийт {totalCount} бараа • {currentPage}/{totalPages} хуудас
               </span>
             </div>
             

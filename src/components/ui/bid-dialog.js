@@ -17,107 +17,133 @@ export default function BidDialog({
   lotId,
   onBidConfirm 
 }) {
-  const [bidAmount, setBidAmount] = useState('');
+  const [selectedAmount, setSelectedAmount] = useState('');
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Get current highest price (remove currency symbol and commas)
-  const getCurrentHighestPrice = () => {
-    return parseInt(auctionItem.lastPrice.replace(/[^\d]/g, ''));
-  };
+  const increments = auctionItem?.bidIncrements ?? [];
 
   const handleBidConfirm = async () => {
-    // Validate bid amount (remove commas for calculation)
-    const bidValue = parseInt(bidAmount.replace(/,/g, ''));
-    const currentHighest = getCurrentHighestPrice();
-
-    if (!bidAmount || bidValue <= 0) {
-      setError('Үнийн санал оруулна уу');
+    if (!selectedAmount) {
+      setError('Үнийн санал сонгоно уу');
       return;
     }
 
-    if (bidValue <= currentHighest) {
-      setError(`Үнийн санал ${currentHighest.toLocaleString()}₮-с дээш байх ёстой`);
-      return;
-    }
+    const bidValue = parseInt(selectedAmount);
 
     setError('');
     setIsSubmitting(true);
 
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-      const res = await fetch(`/api/lot/bid/${lotId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ amount: bidValue }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        // Show the full backend error message for easier debugging
-        const errMsg = data?.detail ?? data?.message ?? data?.error ?? JSON.stringify(data);
-        setError(errMsg || 'Үнийн санал илгээхэд алдаа гарлаа. Дахин оролдоно уу.');
+      if (!token) {
+        setError('Нэвтэрч орно уу.');
+        setIsSubmitting(false);
         return;
       }
 
-      const msg = data?.message ?? data?.detail ?? `Таны үнийн санал ${bidAmount}₮ системд бүртгэгдлээ.`;
-      setSuccessMessage(msg);
+      // Hardcoded fallback in case env var is not inlined at build time
+      // Trim trailing slash to avoid double-slash in path
+      const wsBase = (process.env.NEXT_PUBLIC_WS_URL || 'wss://ws.torgoniizam.mn').replace(/\/$/, '');
+      const wsUrl = `${wsBase}/ws/${lotId}`;
+      console.log('[BidDialog] Connecting to WS:', wsUrl);
+
+      await new Promise((resolve, reject) => {
+        const ws = new WebSocket(wsUrl);
+        let settled = false;
+
+        const settle = (fn, val) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timeout);
+          fn(val);
+        };
+
+        const timeout = setTimeout(() => {
+          ws.close();
+          settle(reject, new Error('timeout'));
+        }, 10000);
+
+        ws.onopen = () => {
+            ws.send(JSON.stringify({
+            type: 'bid',
+            amount: String(bidValue),
+            token,
+          }));
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg?.error || msg?.type === 'error') {
+              settle(reject, new Error(msg.error ?? msg.message ?? 'Алдаа гарлаа.'));
+            } else {
+              settle(resolve, msg);
+            }
+          } catch {
+            settle(resolve, {});
+          }
+          ws.close();
+        };
+
+        ws.onerror = (ev) => {
+          console.error('[BidDialog] ws.onerror', ev);
+          settle(reject, new Error('ws_error'));
+        };
+
+        ws.onclose = (e) => {
+          if (!settled) {
+            if (e.code === 1000 || e.code === 1001) {
+              settle(resolve, {});
+            } else if (e.code === 1006) {
+              // 1006 = abnormal closure — server never completed the handshake
+              settle(reject, new Error('ws_unreachable'));
+            } else {
+              settle(reject, new Error(`ws_closed_${e.code}`));
+            }
+          }
+        };
+      });
+
+      const currentBidNum = Number((auctionItem?.lastPrice ?? '0').replace(/[^0-9]/g, ''));
+      const finalBid = currentBidNum + Number(selectedAmount);
+      setSuccessMessage(`Таны үнийн санал ${finalBid.toLocaleString()}₮ системд бүртгэгдлээ.`);
       setShowSuccess(true);
 
       if (onBidConfirm) {
-        onBidConfirm(bidAmount);
+        onBidConfirm(selectedAmount);
       }
 
       setTimeout(() => {
-        setBidAmount('');
+        setSelectedAmount('');
         setShowSuccess(false);
         setSuccessMessage('');
         onOpenChange(false);
       }, 2000);
-    } catch {
-      setError('Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.');
+    } catch (err) {
+      console.log('ws eror', err);
+      
+      const msg = err?.message ?? '';
+      console.error('[BidDialog] catch error:', msg);
+      if (msg === 'timeout') {
+        setError('Серверт холбогдох хугацаа дууссан. Дахин оролдоно уу.');
+      } else if (msg.startsWith('ws_closed_')) {
+        const code = msg.replace('ws_closed_', '');
+        setError(`WebSocket холболт амжилтгүй боллоо (код: ${code}). Серверийн тохиргоог шалгана уу.`);
+      } else if (msg === 'ws_unreachable' || msg === 'ws_error') {
+        setError('Дуусгавар болсон серверт холбогдох боломжгүй байна. Backend WebSocket тохиргоог шалгана уу.');
+      } else {
+        setError(msg || 'Үнийн санал илгээхэд алдаа гарлаа. Дахин оролдоно уу.');
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    
-    // Remove all non-numeric characters except commas
-    const cleanValue = value.replace(/[^\d,]/g, '');
-    
-    // Remove commas and get only numbers
-    const numbersOnly = cleanValue.replace(/,/g, '');
-    
-    // Format with thousands separators
-    const formattedValue = numbersOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    
-    // Update the input value with formatted number
-    setBidAmount(formattedValue);
-    
-    // Clear error when user types
-    setError('');
-    
-    // Check if bid is under current price
-    if (numbersOnly) {
-      const bidValue = parseInt(numbersOnly);
-      const currentHighest = getCurrentHighestPrice();
-      
-      if (bidValue <= currentHighest) {
-        setError(`Үнийн санал ${currentHighest.toLocaleString()}₮-с дээш байх ёстой`);
-      }
-    }
-  };
-
   const handleClose = () => {
-    setBidAmount('');
+    setSelectedAmount('');
     setError('');
     setShowSuccess(false);
     setSuccessMessage('');
@@ -161,21 +187,30 @@ export default function BidDialog({
                  </div>
                </div>
 
-               {/* Bid Input */}
+               {/* Bid Amount Dropdown */}
                <div className="space-y-2">
                  <label htmlFor="bidAmount" className="block text-sm font-medium text-gray-700">
-                   Үнийн санал (₮)
+                   Үнийн санал нэмэх дүнгээс сонголтоо хийж ахиулж илгээнэ үү:
                  </label>
-                 <input
-                   type="text"
-                   id="bidAmount"
-                   value={bidAmount}
-                   onChange={handleInputChange}
-                   placeholder={`${(getCurrentHighestPrice() + 10000).toLocaleString()}`}
-                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4405] focus:border-transparent ${
-                     error ? 'border-red-300' : 'border-gray-300'
-                   }`}
-                 />
+                 {increments.length > 0 ? (
+                   <select
+                     id="bidAmount"
+                     value={selectedAmount}
+                     onChange={(e) => { setSelectedAmount(e.target.value); setError(''); }}
+                     className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4405] focus:border-transparent bg-white ${
+                       error ? 'border-red-300' : 'border-gray-300'
+                     }`}
+                   >
+                     <option value="">-- Сонгоно уу --</option>
+                     {increments.map((amt, i) => (
+                       <option key={i} value={String(amt)}>
+                         {Number(amt).toLocaleString()}₮
+                       </option>
+                     ))}
+                   </select>
+                 ) : (
+                   <p className="text-sm text-gray-500">Үнийн санал ачааллаж байна...</p>
+                 )}
                  {error && (
                    <p className="text-sm text-red-600">{error}</p>
                  )}
@@ -204,7 +239,7 @@ export default function BidDialog({
                <Button 
                  className="bg-[#FF4405] hover:bg-[#E63D04] text-white font-tt-firs-neue-variable font-bold"
                  onClick={handleBidConfirm}
-                 disabled={!bidAmount.trim() || !!error || isSubmitting}
+                 disabled={!selectedAmount.trim() || !!error || isSubmitting}
                >
                  {isSubmitting ? 'Илгээж байна...' : 'Үнийн санал илгээх'}
                </Button>

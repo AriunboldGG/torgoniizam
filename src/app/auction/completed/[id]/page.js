@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import ImageZoom from "@/components/ui/image-zoom"
+import { getAssetUrl } from "@/lib/utils"
 
 export default function CompletedAuctionPage({ params }) {
   const unwrappedParams = use(params);
@@ -20,8 +21,8 @@ export default function CompletedAuctionPage({ params }) {
 
         const rawImages = Array.isArray(lot.images) ? lot.images : []
         const images = rawImages.length > 0
-          ? rawImages.map((img) => (typeof img === "string" ? img : img.url ?? img.image ?? ""))
-          : [lot.thumbnail ?? "/images/end1.png"]
+          ? rawImages.map((img) => getAssetUrl(typeof img === "string" ? img : img.url ?? img.image ?? ""))
+          : [getAssetUrl(lot.thumbnail ?? "/images/end1.png")]
 
         setAuctionItem({
           id: lot.id,
@@ -52,13 +53,13 @@ export default function CompletedAuctionPage({ params }) {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleString('mn-MN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    if (isNaN(date.getTime())) return '';
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year} оны ${month}-р сарын ${day}, ${hours}:${minutes}`;
   };
 
   if (!auctionItem) {

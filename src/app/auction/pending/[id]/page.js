@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import ImageZoom from "@/components/ui/image-zoom"
+import { getAssetUrl } from "@/lib/utils"
 import { FiCalendar } from "react-icons/fi"
 
 export default function PendingAuctionPage({ params }) {
@@ -21,8 +22,8 @@ export default function PendingAuctionPage({ params }) {
 
         const rawImages = Array.isArray(lot.images) ? lot.images : []
         const images = rawImages.length > 0
-          ? rawImages.map((img) => (typeof img === "string" ? img : img.url ?? img.image ?? ""))
-          : [lot.thumbnail ?? "/images/pending1.png"]
+          ? rawImages.map((img) => getAssetUrl(typeof img === "string" ? img : img.url ?? img.image ?? ""))
+          : [getAssetUrl(lot.thumbnail ?? "/images/pending1.png")]
 
         const attrs = lot.attributes && typeof lot.attributes === "object" && !Array.isArray(lot.attributes)
           ? Object.entries(lot.attributes).map(([label, value]) => ({ label, value: String(value) }))
@@ -53,15 +54,15 @@ export default function PendingAuctionPage({ params }) {
   };
 
   const formatDateTime = (dateString) => {
-    if (!dateString) return "";
+    if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleString('mn-MN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    if (isNaN(date.getTime())) return '';
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year} оны ${month}-р сарын ${day}, ${hours}:${minutes}`;
   };
 
   if (!auctionItem) {

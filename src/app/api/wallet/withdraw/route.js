@@ -18,7 +18,6 @@ export async function POST(request) {
     })
 
     const data = await response.json()
-    console.log("Withdraw response:", JSON.stringify(data, null, 2))
 
     if (!response.ok) {
       return NextResponse.json(data, { status: response.status })
@@ -26,7 +25,6 @@ export async function POST(request) {
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error("Wallet withdraw proxy error:", error)
     return NextResponse.json(
       { detail: "Таталт хийхэд алдаа гарлаа." },
       { status: 500 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useUser } from "@/contexts/UserContext"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -28,14 +30,58 @@ export default function SignupPage() {
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [showTermsDialog, setShowTermsDialog] = useState(false)
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  // Registration number picker state
+  const [regLetter1, setRegLetter1] = useState("")
+  const [regLetter2, setRegLetter2] = useState("")
+  const [regDigits, setRegDigits] = useState("")
+  const [activePicker, setActivePicker] = useState(null) // 1 | 2 | null
   const router = useRouter()
+  const { login } = useUser()
+
+  const MONGOLIAN_LETTERS = [
+    "А","Б","В","Г","Д","Е","Ё",
+    "Ж","З","И","Й","К","Л","М",
+    "Н","О","Ө","П","Р","С","Т",
+    "У","Ү","Ф","Х","Ц","Ч","Ш",
+    "Щ","Ъ","Ы","Ь","Э","Ю","Я",
+  ]
+
+  const handleLetterSelect = (letter) => {
+    if (activePicker === 1) {
+      setRegLetter1(letter)
+      setActivePicker(2)
+    } else {
+      setRegLetter2(letter)
+      setActivePicker(null)
+    }
+    const l1 = activePicker === 1 ? letter : regLetter1
+    const l2 = activePicker === 2 ? letter : regLetter2
+    const combined = l1 + l2 + regDigits
+    setFormData(prev => ({ ...prev, registrationNumber: combined }))
+    if (errors.registrationNumber) setErrors(prev => ({ ...prev, registrationNumber: "" }))
+  }
+
+  const handleRegDigits = (e) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 6)
+    setRegDigits(digits)
+    const combined = regLetter1 + regLetter2 + digits
+    setFormData(prev => ({ ...prev, registrationNumber: combined }))
+    if (errors.registrationNumber) setErrors(prev => ({ ...prev, registrationNumber: "" }))
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
+    const processed =
+      name === "registrationNumber" ? value.toUpperCase().slice(0, 8) :
+      name === "phone"             ? value.replace(/\D/g, "").slice(0, 8) :
+      value
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: processed
     }))
     // Clear error when user starts typing
     if (errors[name]) {
@@ -75,10 +121,14 @@ export default function SignupPage() {
 
     if (!formData.registrationNumber.trim()) {
       newErrors.registrationNumber = "Регистрийн дугаар оруулна уу"
+    } else if (!/^[А-ЯӨҮа-яөү]{2}\d{6}$/.test(formData.registrationNumber)) {
+      newErrors.registrationNumber = "Эхний 2 тэмдэгт Монгол үсэг (жн: АБ), сүүлийн 6 тэмдэгт тоо байх ёстой"
     }
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Утасны дугаар оруулна уу"
+    } else if (!/^\d{8}$/.test(formData.phone)) {
+      newErrors.phone = "Утасны дугаар 8 оронтой тоо байх ёстой"
     }
 
     if (!acceptedTerms) {
@@ -97,13 +147,55 @@ export default function SignupPage() {
     }
 
     setIsLoading(true)
-    
-    // Simulate API call delay
-    setTimeout(() => {
+
+    try {
+      const res = await fetch(`/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone: formData.phone,
+          register_no: formData.registrationNumber,
+          email: formData.email,
+          password: formData.password,
+          re_password: formData.confirmPassword,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        // Surface field-level errors from the API
+        const apiErrors = {}
+        if (data?.email) apiErrors.email = Array.isArray(data.email) ? data.email[0] : data.email
+        if (data?.phone) apiErrors.phone = Array.isArray(data.phone) ? data.phone[0] : data.phone
+        if (data?.register_no) apiErrors.registrationNumber = Array.isArray(data.register_no) ? data.register_no[0] : data.register_no
+        if (data?.password) apiErrors.password = Array.isArray(data.password) ? data.password[0] : data.password
+        if (data?.re_password) apiErrors.confirmPassword = Array.isArray(data.re_password) ? data.re_password[0] : data.re_password
+        if (data?.first_name) apiErrors.firstName = Array.isArray(data.first_name) ? data.first_name[0] : data.first_name
+        if (data?.last_name) apiErrors.lastName = Array.isArray(data.last_name) ? data.last_name[0] : data.last_name
+        if (Object.keys(apiErrors).length > 0) {
+          setErrors(apiErrors)
+        } else {
+          setErrors({ general: data?.detail ?? data?.message ?? "Бүртгэл амжилтгүй боллоо. Дахин оролдоно уу." })
+        }
+        return
+      }
+
+      // Registration succeeded — attempt auto-login with the same credentials
+      const loginResult = await login(formData.email, formData.password)
+      if (loginResult.success) {
+        router.push("/my-account")
+      } else {
+        // Auto-login failed (e.g. account needs activation) — show success dialog
+        setShowSuccessDialog(true)
+      }
+    } catch {
+      setErrors({ general: "Сервертэй холбогдоход алдаа гарлаа. Дахин оролдоно уу." })
+    } finally {
       setIsLoading(false)
-      // Redirect to coming soon page
-      router.push("/coming-soon")
-    }, 1000)
+    }
   }
 
   return (
@@ -112,9 +204,7 @@ export default function SignupPage() {
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">БҮРТГҮҮЛЭХ</CardTitle>
-            <CardDescription>
-              ТОРГОНЫ ЗАМ системд бүртгүүлж, дуудлага худалдаанд оролцоорой
-            </CardDescription>
+        
           </CardHeader>
           
           <CardContent>
@@ -170,16 +260,69 @@ export default function SignupPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="registrationNumber">Регистрийн дугаар</Label>
-                <Input
-                  id="registrationNumber"
-                  name="registrationNumber"
-                  type="text"
-                  placeholder="TA12345678"
-                  value={formData.registrationNumber}
-                  onChange={handleInputChange}
-                  className={errors.registrationNumber ? "border-red-500" : ""}
-                />
+                <Label>Регистрийн дугаар</Label>
+                <div className="flex items-center gap-2">
+                  {/* Letter 1 */}
+                  <button
+                    type="button"
+                    onClick={() => setActivePicker(activePicker === 1 ? null : 1)}
+                    className={`w-12 h-10 rounded-lg border-2 font-bold text-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                      activePicker === 1
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : errors.registrationNumber
+                        ? "border-red-400 bg-white text-gray-800"
+                        : "border-gray-300 bg-white text-gray-800 hover:border-blue-400"
+                    }`}
+                  >
+                    {regLetter1 || <span className="text-gray-400 text-sm">Р</span>}
+                  </button>
+                  {/* Letter 2 */}
+                  <button
+                    type="button"
+                    onClick={() => setActivePicker(activePicker === 2 ? null : 2)}
+                    className={`w-12 h-10 rounded-lg border-2 font-bold text-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                      activePicker === 2
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : errors.registrationNumber
+                        ? "border-red-400 bg-white text-gray-800"
+                        : "border-gray-300 bg-white text-gray-800 hover:border-blue-400"
+                    }`}
+                  >
+                    {regLetter2 || <span className="text-gray-400 text-sm">Д</span>}
+                  </button>
+                  {/* Digits */}
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="12345678"
+                    maxLength={8}
+                    value={regDigits}
+                    onChange={handleRegDigits}
+                    className={`flex-1 ${errors.registrationNumber ? "border-red-500" : ""}`}
+                  />
+                </div>
+
+                {/* Cyrillic letter picker popup */}
+                {activePicker !== null && (
+                  <div className="border border-blue-200 rounded-xl bg-white shadow-lg p-3">
+                    <p className="text-xs text-blue-600 text-center font-medium mb-3">
+                      {activePicker === 1 ? "Эхний үсгийг сонгоно уу" : "Хоёр дахь үсгийг сонгоно уу"}
+                    </p>
+                    <div className="grid grid-cols-7 gap-1">
+                      {MONGOLIAN_LETTERS.map((letter) => (
+                        <button
+                          key={letter}
+                          type="button"
+                          onClick={() => handleLetterSelect(letter)}
+                          className="h-9 rounded-lg border border-gray-200 text-sm font-medium text-gray-800 hover:bg-blue-50 hover:border-blue-400 transition-colors"
+                        >
+                          {letter}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {errors.registrationNumber && (
                   <p className="text-sm text-red-500">{errors.registrationNumber}</p>
                 )}
@@ -191,7 +334,9 @@ export default function SignupPage() {
                   id="phone"
                   name="phone"
                   type="tel"
-                  placeholder="9999-9999"
+                  placeholder="99999999"
+                  maxLength={8}
+                  inputMode="numeric"
                   value={formData.phone}
                   onChange={handleInputChange}
                   className={errors.phone ? "border-red-500" : ""}
@@ -203,15 +348,25 @@ export default function SignupPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="password">Нууц үг</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Нууц үг"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={errors.password ? "border-red-500" : ""}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Нууц үг"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`pr-10 ${errors.password ? "border-red-500" : ""}`}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-sm text-red-500">{errors.password}</p>
                 )}
@@ -219,15 +374,25 @@ export default function SignupPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Нууц үг давтах</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  placeholder="Нууц үг давтах"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={errors.confirmPassword ? "border-red-500" : ""}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Нууц үг давтах"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className={`pr-10 ${errors.confirmPassword ? "border-red-500" : ""}`}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {errors.confirmPassword && (
                   <p className="text-sm text-red-500">{errors.confirmPassword}</p>
                 )}
@@ -260,6 +425,10 @@ export default function SignupPage() {
                 </div>
               </div>
 
+              {errors.general && (
+                <p className="text-sm text-red-500 text-center">{errors.general}</p>
+              )}
+
               <Button 
                 type="submit" 
                 className="w-full"
@@ -271,7 +440,7 @@ export default function SignupPage() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Хэдийн бүртгэлтэй юу?{" "}
+                Та бүртгэлтэй юу? Тэгвэл{" "}
                 <Button variant="link" className="p-0 text-blue-600" onClick={() => router.push("/auth/login")}>
                   Нэвтрэх
                 </Button>
@@ -384,6 +553,35 @@ export default function SignupPage() {
               onClick={() => setShowTermsDialog(false)}
             >
               Хаах
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={() => {}}>
+        <DialogContent className="max-w-sm text-center" hideClose>
+          <DialogHeader>
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            <DialogTitle className="text-xl font-bold text-gray-900">
+              Бүртгэл амжилттай!
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mt-2">
+              Таны бүртгэл амжилттай үүслээ. Одоо нэвтрэх боломжтой.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4 flex justify-center">
+            <Button
+              className="bg-[#FF4405] hover:bg-[#E63D04] text-white w-full"
+              onClick={() => router.push("/auth/login")}
+            >
+              Нэвтрэх хуудас руу очих
             </Button>
           </DialogFooter>
         </DialogContent>

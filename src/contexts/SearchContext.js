@@ -7,27 +7,35 @@ const SearchContext = createContext();
 export function SearchProvider({ children }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
 
   const updateSearchQuery = (query) => {
     setSearchQuery(query);
   };
 
   const updateSelectedCategory = (category) => {
-    console.log('SearchContext: updateSelectedCategory called with:', category);
     setSelectedCategory(category);
+    setSelectedSubcategory(null);
+  };
+
+  const updateSelectedSubcategory = (subcategory) => {
+    setSelectedSubcategory(subcategory);
   };
 
   const clearSearch = () => {
     setSearchQuery('');
     setSelectedCategory('');
+    setSelectedSubcategory(null);
   };
 
   return (
     <SearchContext.Provider value={{
       searchQuery,
       selectedCategory,
+      selectedSubcategory,
       updateSearchQuery,
       updateSelectedCategory,
+      updateSelectedSubcategory,
       clearSearch
     }}>
       {children}

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import CategoryFilter from "@/components/auction/CategoryFilter";
 import FilterSection from "@/components/auction/FilterSection";
+import { getAssetUrl } from "@/lib/utils";
 
 function computeCountdown(startDate) {
   if (!startDate) return 'Удахгүй'
@@ -22,8 +23,8 @@ function computeCountdown(startDate) {
 function mapLot(lot) {
   const rawImages = Array.isArray(lot.images) ? lot.images : []
   const image = rawImages.length > 0
-    ? (typeof rawImages[0] === 'string' ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? '/images/live1.png')
-    : (lot.thumbnail ?? '/images/live1.png')
+    ? getAssetUrl(typeof rawImages[0] === 'string' ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? '/images/live1.png')
+    : getAssetUrl(lot.thumbnail ?? '/images/live1.png')
   const price = lot.starting_price != null ? Number(lot.starting_price) : 0
   return {
     id: lot.id,
@@ -393,7 +394,7 @@ export default function TodayAuctions() {
           {/* Page Info */}
           <div className="text-center mt-6 text-gray-600">
             <span className="text-sm">
-              Хуудас {currentPage} / {totalPages} • Нийт {filteredAuctions.length} бараа
+               Нийт {filteredAuctions.length} бараа
             </span>
           </div>
         </div>

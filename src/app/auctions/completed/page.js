@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { MdCalendarToday, MdLocationOn, MdBarChart } from "react-icons/md";
+import { getAssetUrl } from "@/lib/utils";
 
 function mapCompletedLot(lot) {
+  console.log('Mapping lot:', lot);
   const rawImages = Array.isArray(lot.images) ? lot.images : []
   const image = rawImages.length > 0
-    ? (typeof rawImages[0] === 'string' ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? '/images/completed-section.png')
-    : (lot.thumbnail ?? '/images/completed-section.png')
+    ? getAssetUrl(typeof rawImages[0] === 'string' ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? '/images/completed-section.png')
+    : getAssetUrl(lot.thumbnail ?? '/images/completed-section.png')
   return {
     id: lot.id,
     title: lot.name ?? '',
@@ -20,7 +22,7 @@ function mapCompletedLot(lot) {
     bidders: lot.bidder_count ?? 0,
     image,
     category: lot.category?.value ?? lot.category?.name ?? '',
-    location: lot.city?.value ?? 'Улаанбаатар',
+    location: lot.address ?? '',
     winner: lot.winner?.value ?? lot.winner?.name ?? '',
     isCompleted: true,
   }
@@ -29,19 +31,27 @@ function mapCompletedLot(lot) {
 export default function CompletedAuctionsPage() {
   const [completedAuctions, setCompletedAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const ITEMS_PER_PAGE = 25;
 
-  // Fetch expired and sold lots from backend
   useEffect(() => {
     const fetchLots = async () => {
+      setLoading(true);
       try {
-        const [expiredRes, soldRes] = await Promise.all([
-          fetch('/api/lot/list?status=expired&limit=100&offset=0'),
-          fetch('/api/lot/list?status=sold&limit=100&offset=0'),
-        ])
-        const [expiredJson, soldJson] = await Promise.all([expiredRes.json(), soldRes.json()])
-        const expiredList = expiredJson?.results ?? expiredJson?.data ?? (Array.isArray(expiredJson) ? expiredJson : [])
-        const soldList = soldJson?.results ?? soldJson?.data ?? (Array.isArray(soldJson) ? soldJson : [])
-        setCompletedAuctions([...expiredList, ...soldList].map(mapCompletedLot))
+        const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+        const res = await fetch(`/api/lot/list?status=expired&limit=${ITEMS_PER_PAGE}&offset=${offset}`)
+        const json = await res.json()
+        const raw = json?.results ?? json?.data?.results ?? json?.data ?? (Array.isArray(json) ? json : [])
+        const count = json?.count ?? json?.data?.count ?? 0
+        const list = Array.isArray(raw)
+          ? raw.filter(lot => {
+              const s = lot.status?.key ?? lot.status ?? ''
+              return s === '' || s === 'expired'
+            })
+          : []
+        setCompletedAuctions(list.map(mapCompletedLot))
+        setTotalCount(count)
       } catch (err) {
         console.error('Failed to fetch completed lots:', err)
       } finally {
@@ -49,7 +59,7 @@ export default function CompletedAuctionsPage() {
       }
     }
     fetchLots()
-  }, []);
+  }, [currentPage]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('mn-MN').format(price);
@@ -93,9 +103,7 @@ export default function CompletedAuctionsPage() {
             </div>
            
           </div>
-          <p className="text-gray-600 mt-2">
-            Нийт {completedAuctions.length} дуудлага худалдаа дууссан
-          </p>
+        
         </div>
       </div>
 
@@ -192,12 +200,55 @@ export default function CompletedAuctionsPage() {
           ))}
         </div>
 
-        {/* Load More */}
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="px-8 py-3 font-tt-firs-neue-variable font-medium text-base leading-6 text-gray-600 hover:bg-gray-50">
-            Дэлгэрэнгүй үзэх
-          </Button>
-        </div>
+        {/* Pagination */}
+        {Math.ceil(totalCount / ITEMS_PER_PAGE) > 1 && (
+          <div className="mt-12">
+            <div className="text-center mb-6 text-gray-600">
+              <span className="text-sm">Нийт {totalCount} бараа • {currentPage}/{Math.ceil(totalCount / ITEMS_PER_PAGE)} хуудас</span>
+            </div>
+            <div className="flex justify-center">
+              <div className="flex items-center space-x-0">
+                {currentPage > 1 && (
+                  <button
+                    onClick={() => { setCurrentPage(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-50 hover:text-gray-700 transition-colors"
+                  >
+                    Өмнөх
+                  </button>
+                )}
+                {Array.from({ length: Math.ceil(totalCount / ITEMS_PER_PAGE) }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === Math.ceil(totalCount / ITEMS_PER_PAGE) || Math.abs(p - currentPage) <= 2)
+                  .map((p, idx, arr) => (
+                    <>
+                      {idx > 0 && arr[idx - 1] !== p - 1 && (
+                        <span key={`ellipsis-${p}`} className="px-3 py-2 text-sm text-gray-400 border border-gray-300 bg-white">...</span>
+                      )}
+                      <button
+                        key={p}
+                        onClick={() => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                        className={`px-3 py-2 text-sm font-medium transition-colors ${
+                          p === currentPage
+                            ? 'text-white bg-green-500 border border-green-500'
+                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    </>
+                  ))
+                }
+                {currentPage < Math.ceil(totalCount / ITEMS_PER_PAGE) && (
+                  <button
+                    onClick={() => { setCurrentPage(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-50 hover:text-gray-700 transition-colors"
+                  >
+                    Дараах
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

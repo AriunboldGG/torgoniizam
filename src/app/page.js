@@ -5,6 +5,7 @@ import PendingAuctionSection from "@/components/home/PendingAuctionSection";
 import CompletedAuctionSection from "@/components/home/CompletedAuctionSection";
 import CategoryFilter from "@/components/auction/CategoryFilter";
 import { SearchProvider } from "@/contexts/SearchContext";
+import CategoryFilterConnector from "@/components/auction/CategoryFilterConnector";
 
 export default function Home() {
   return (
@@ -13,9 +14,9 @@ export default function Home() {
         {/* Hero Search Section */}
         <HeroSearch />
 
-        {/* Category Filter Section */}
+        {/* Category Filter Section — connected to SearchContext */}
         <div className="container mx-auto px-4 py-8">
-          <CategoryFilter />
+          <CategoryFilterConnector />
         </div>
 
         {/* Live Auction Slider Section */}

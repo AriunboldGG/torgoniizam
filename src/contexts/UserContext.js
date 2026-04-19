@@ -19,24 +19,27 @@ export function UserProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Restore user session from localStorage and refresh user info
     const restore = async () => {
       const accessToken = localStorage.getItem("access_token")
       if (!accessToken) {
         setIsLoading(false)
         return
       }
+      // Serve cached user immediately — no loading spinner
+      const savedUser = localStorage.getItem("user")
+      if (savedUser) {
+        try { setUser(JSON.parse(savedUser)) } catch {}
+        setIsLoading(false)
+        // Only call userinfo once per browser session
+        if (sessionStorage.getItem("userinfo_fetched")) return
+      }
+      sessionStorage.setItem("userinfo_fetched", "1")
       try {
         const userData = await fetchUserInfo(accessToken)
         localStorage.setItem("user", JSON.stringify(userData))
         setUser(userData)
       } catch (error) {
-        console.error("Error restoring user session:", error)
-        // Fall back to cached user if API is unreachable
-        try {
-          const savedUser = localStorage.getItem("user")
-          if (savedUser) setUser(JSON.parse(savedUser))
-        } catch {}
+        console.error("Error refreshing user session:", error)
       } finally {
         setIsLoading(false)
       }
@@ -72,6 +75,7 @@ export function UserProvider({ children }) {
       const userInfo = await fetchUserInfo(access_token)
       localStorage.setItem("user", JSON.stringify(userInfo))
       setUser(userInfo)
+      sessionStorage.setItem("userinfo_fetched", "1")
 
       return { success: true, user: userInfo }
     } catch (error) {
@@ -85,6 +89,7 @@ export function UserProvider({ children }) {
     localStorage.removeItem("user")
     localStorage.removeItem("access_token")
     localStorage.removeItem("refresh_token")
+    sessionStorage.clear()
   }
 
   const value = {

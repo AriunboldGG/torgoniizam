@@ -19,7 +19,6 @@ export async function GET(request) {
     }
 
     const text = await response.text()
-    console.log("[wallet/transactions] Status:", response.status, "Body:", text.slice(0, 200))
     let data
     try {
       data = JSON.parse(text)
@@ -29,7 +28,6 @@ export async function GET(request) {
 
     return NextResponse.json(data, { status: response.status })
   } catch (error) {
-    console.error("[wallet/transactions] Proxy error:", error.message)
     return NextResponse.json(
       { detail: "Гүйлгээний мэдээлэл авахад алдаа гарлаа.", error: error.message },
       { status: 500 }

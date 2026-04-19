@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useState } from "react"
 import { fetchWithAuth } from "@/lib/api"
 
 const WalletContext = createContext()
@@ -8,16 +8,19 @@ const WalletContext = createContext()
 export function WalletProvider({ children }) {
   const [walletBalance, setWalletBalance] = useState(0)
   const [heldBalance, setHeldBalance] = useState(0)
-  const [isLoadingBalance, setIsLoadingBalance] = useState(true)
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false)
+
+  // Clean up old cache key if present
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("wallet_balance_cache")
+  }
 
   const fetchBalance = async () => {
     const accessToken = localStorage.getItem("access_token")
-    if (!accessToken) {
-      setIsLoadingBalance(false)
-      return
-    }
+    if (!accessToken) return
+
+    setIsLoadingBalance(true)
     try {
-      // fetchWithAuth auto-refreshes the token on 401
       const response = await fetchWithAuth("/api/wallet/balance")
       if (!response.ok) throw new Error("Failed to fetch balance")
       const data = await response.json()
@@ -31,27 +34,17 @@ export function WalletProvider({ children }) {
     }
   }
 
-  useEffect(() => {
-    fetchBalance()
-  }, [])
+  const updateBalance = (newBalance) => setWalletBalance(newBalance)
 
-  // Update wallet balance
-  const updateBalance = (newBalance) => {
-    setWalletBalance(newBalance)
-  }
-
-  // Deduct amount from wallet (for pledges, bids, etc.)
   const deductAmount = (amount) => {
     const newBalance = walletBalance - amount
     if (newBalance >= 0) {
       updateBalance(newBalance)
       return { success: true, newBalance }
-    } else {
-      return { success: false, error: "Insufficient balance" }
     }
+    return { success: false, error: "Insufficient balance" }
   }
 
-  // Add amount to wallet (for refunds, deposits, etc.)
   const addAmount = (amount) => {
     const newBalance = walletBalance + amount
     updateBalance(newBalance)

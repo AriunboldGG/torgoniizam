@@ -19,7 +19,6 @@ export async function GET(request) {
     }
 
     const text = await response.text()
-    console.log("[account/list] Status:", response.status, "Body:", text.slice(0, 200))
     let data
     try {
       data = JSON.parse(text)

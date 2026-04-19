@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter, usePathname } from "next/navigation";
 import { MdPerson } from "react-icons/md";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -202,20 +203,10 @@ export default function Header() {
 
             {/* Desktop User Actions */}
             <div className="hidden md:flex items-center space-x-4">
-              {/* Notification Icon */}
-              <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors bg-gray-100 hover:bg-gray-200 rounded-lg">
-                <Image 
-                  src="/svg/notif.svg" 
-                  alt="Notifications" 
-                  width={20} 
-                  height={20} 
-                  className="w-5 h-5"
-                />
-                {/* Notification Badge */}
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  3
-                </span>
-              </button>
+              {/* Dark / Light mode toggle */}
+              <ThemeToggle />
+
+     
               
               {user ? (
                 /* Logged in user - show user menu */
@@ -289,201 +280,111 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Mobile Menu - Full Screen */}
+          {/* Mobile Menu - Full Screen Drawer */}
           {isMobileMenuOpen && (
-            <div className="md:hidden fixed inset-0 bg-white z-50 overflow-y-auto">
-              {/* Mobile Menu Header */}
-              <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
-                <div className="flex items-center space-x-4">
-                  <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Image src="/svg/header/main-logo.svg" alt="Logo" width={80} height={50} className="w-[80px] h-[50px] cursor-pointer hover:opacity-80 transition-opacity" />
-                  </Link>
-                  <span className="text-lg font-bold text-gray-900">Цэс</span>
-                </div>
+            <div className="md:hidden fixed inset-0 bg-white z-50 flex flex-col overflow-hidden">
+
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
+                <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Image src="/svg/header/main-logo.svg" alt="Logo" width={72} height={46} className="w-[72px] h-[46px]" />
+                </Link>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
                   aria-label="Close mobile menu"
                 >
-                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
-              {/* Mobile Menu Content */}
-              <div className="px-4 py-4" style={{ marginBottom: '10px' }}>
-                {/* Mobile Navigation */}
-                <nav style={{ marginBottom: '10px' }}>
-                  {/* Home Page */}
-                  <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 font-tt-firs-neue-variable tracking-[2.4%] ${
-                      isActivePage("/") 
-                        ? "bg-[#FF4405] text-white" 
-                        : "bg-white text-gray-700 border border-gray-200"
-                    }`}
-                    >
-                      <span className="text-sm">ЭХЛЭЛ</span>
-                    </div>
-                  </Link>
+              {/* Scrollable body */}
+              <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-3">
 
-                  {/* Auction Links */}
-                  <div>
-                    <Link href="/auctions/live-auctions" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border mb-2 sm:mb-3 ${
-                        isActivePage("/auctions/live-auctions") ? "bg-orange-50 border-orange-200" : "border-gray-200"
-                      }`}>
-                        <span 
-                          className={`font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%] ${
-                            isActivePage("/auctions/live-auctions") 
-                              ? "text-[#FF4405]" 
-                              : "text-gray-700"
-                          }`}
-                        >
-                          <span className="text-sm">
-                            Одоо явагдаж буй дуудлага худалдаа
-                          </span>
-                        </span>
-                      </div>
-                    </Link>
-                    <Link href="/auctions/today" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border mb-2 sm:mb-3 ${
-                        isActivePage("/auctions/today") ? "bg-orange-50 border-orange-200" : "border-gray-200"
-                      }`}>
-                        <span 
-                          className={`font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%] ${
-                            isActivePage("/auctions/today") 
-                              ? "text-[#FF4405]" 
-                              : "text-gray-700"
-                          }`}
-                        >
-                          <span className="text-sm">
-                            Өнөөдөр болох дуудлага худалдаа
-                          </span>
-                        </span>
-                      </div>
-                    </Link>
-                    <Link href="/auctions/pending" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className={`px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors rounded-full border mb-2 sm:mb-3 ${
-                        isActivePage("/auctions/pending") ? "bg-orange-50 border-orange-200" : "border-gray-200"
-                      }`}>
-                        <span 
-                          className={`font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%] ${
-                            isActivePage("/auctions/pending") 
-                              ? "text-[#FF4405]" 
-                              : "text-gray-700"
-                          }`}
-                        >
-                          <span className="text-sm">
-                            Хүлээгдэж буй дуудлага худалдаа
-                          </span>
-                        </span>
-                      </div>
-                    </Link>
-                  </div>
-
-                  {/* My History - Only for logged in users */}
-                  {user && (
-                    <Link href="/auctions/my-auctions" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 font-tt-firs-neue-variable tracking-[2.4%] ${
-                        isActivePage("/auctions/my-auctions") 
-                          ? "bg-[#FF4405] text-white" 
-                          : "bg-white text-gray-700 border border-gray-200"
-                      }`}
-                      >
-                        <span className="text-sm">МИНИЙ ТҮҮХ</span>
-                      </div>
-                    </Link>
-                  )}
-
-                  {/* About Page */}
-                  <Link href="/about" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className={`px-6 py-4 rounded-full text-center font-bold transition-colors uppercase cursor-pointer mb-2 sm:mb-4 font-tt-firs-neue-variable tracking-[2.4%] ${
-                      isActivePage("/about") 
-                        ? "bg-[#FF4405] text-white" 
-                        : "bg-white text-gray-700 border border-gray-200"
-                    }`}
-                    >
-                      <span className="text-sm">ТАНИЛЦУУЛГА</span>
-                    </div>
-                  </Link>
+                {/* Nav items */}
+                <nav className="flex flex-col">
+                  {[
+                    { label: "ЭХЛЭЛ", href: "/" },
+                    { label: "ОДОО ЯВАГДАЖ БУЙ ДУУДЛАГА ХУДАЛДАА", href: "/auctions/live-auctions" },
+                    { label: "ӨНӨӨДӨР БОЛОХ ДУУДЛАГА ХУДАЛДАА", href: "/auctions/today" },
+                    { label: "ХҮЛЭЭГДЭЖ БУЙ ДУУДЛАГА ХУДАЛДАА", href: "/auctions/pending" },
+                    ...(user ? [{ label: "МИНИЙ ТҮҮХ", href: "/auctions/my-auctions" }] : []),
+                    { label: "ТАНИЛЦУУЛГА", href: "/about" },
+                  ].map(({ label, href }) => {
+                    const active = isActivePage(href)
+                    return (
+                      <Link key={href} href={href} onClick={() => setIsMobileMenuOpen(false)} className="border-b border-gray-100 last:border-b-0">
+                        <div className={`w-full px-2 py-3.5 text-left font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%] text-sm leading-6 transition-colors ${
+                          active
+                            ? "text-[#FF4405]"
+                            : "text-gray-800 hover:text-[#FF4405]"
+                        }`}>
+                          {label}
+                        </div>
+                      </Link>
+                    )
+                  })}
                 </nav>
 
-                {/* Mobile User Actions */}
-                <div className="pt-2 sm:pt-6 border-t border-gray-200" style={{ marginBottom: '10px' }}>
-                  {/* Mobile Notification Icon */}
-                  <div className="px-4 py-3 mb-2 sm:mb-4">
-                    <button className="relative flex items-center space-x-3 w-full p-3 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
-                      <Image 
-                        src="/svg/notif.svg" 
-                        alt="Notifications" 
-                        width={20} 
-                        height={20} 
-                        className="w-5 h-5 text-gray-600"
-                      />
-                      <span className="font-medium text-gray-700">Мэдэгдэл</span>
-                      {/* Notification Badge */}
-                      <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        3
-                      </span>
-                    </button>
-                  </div>
-                  
-                  {user ? (
-                    /* Logged in user - show user info and logout */
-                    <div style={{ marginBottom: '10px' }}>
-                      <div className="flex items-center space-x-3 px-4 py-3 bg-gray-50 rounded-full mb-2 sm:mb-4">
-                        <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold text-base">{user.avatar}</span>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-900 text-base">{user.fullName}</p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
-                        </div>
+                {/* Divider */}
+                <div className="border-t border-gray-100 my-1" />
+
+                {/* Theme + Notification row */}
+                {/* Divider */}
+                <div className="border-t border-gray-100" />
+
+                {/* User section */}
+                {user ? (
+                  <div className="flex flex-col gap-3 pt-1">
+                    {/* User row: avatar + name/email + theme toggle */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-bold text-base">{user.avatar}</span>
                       </div>
-                      
-                      <Link href="/my-account" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Button 
-                          variant="outline"
-                          className="w-full bg-white text-gray-700 hover:bg-gray-50 py-3 rounded-full transition-colors font-medium text-sm border-2 mb-2 sm:mb-4"
-                        >
-                          Миний профайл
-                        </Button>
-                      </Link>
-
-                      <Button 
-                        onClick={handleLogout}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-full transition-colors font-medium text-sm"
-                      >
-                        Гарах
-                      </Button>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-gray-900 text-sm truncate">{user.fullName}</p>
+                        {user.email && <p className="text-xs text-gray-400 truncate">{user.email}</p>}
+                      </div>
+                      <div className="flex-shrink-0">
+                        <ThemeToggle />
+                      </div>
                     </div>
-                  ) : (
-                    /* Not logged in - show auth buttons */
-                    <>
-                      {/* Registration */}
-                      <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Button 
-                          variant="outline"
-                          className="w-full bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white py-3 rounded-full transition-all duration-200 font-bold uppercase border-2 border-[#FF4405] font-tt-firs-neue-variable tracking-[2.4%] mb-3"
-                        >
-                          <Image src="/svg/header/signIn.svg" alt="Plus" width={20} height={20} className="w-4 h-4 mr-2" />
-                          <span className="text-sm">БҮРТГҮҮЛЭХ</span>
-                        </Button>
-                      </Link>
 
-                      {/* Login */}
-                      <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Button 
-                          className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-full flex items-center justify-center space-x-2 transition-colors font-bold uppercase text-sm font-tt-firs-neue-variable tracking-[2.4%]"
-                        >
-                          <Image src="/svg/header/login.svg" alt="Arrow" width={20} height={20} className="w-4 h-4" />
-                          <span>НЭВТРЭХ</span>
-                        </Button>
-                      </Link>
-                    </>
-                  )}
-                </div>
+                    <Link href="/my-account" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full py-3 rounded-xl text-sm font-medium border border-gray-200 text-gray-700 hover:bg-gray-50">
+                        Миний профайл
+                      </Button>
+                    </Link>
+
+                    <Button
+                      onClick={handleLogout}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl text-sm font-semibold"
+                    >
+                      Гарах
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3 pt-1">
+                    <div className="flex justify-end">
+                      <ThemeToggle />
+                    </div>
+                    <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full py-3 rounded-xl font-bold uppercase text-sm border-2 border-[#FF4405] text-[#FF4405] hover:bg-[#FF4405] hover:text-white transition-all font-tt-firs-neue-variable tracking-[2.4%]">
+                        <Image src="/svg/header/signIn.svg" alt="" width={16} height={16} className="w-4 h-4 mr-2" />
+                        БҮРТГҮҮЛЭХ
+                      </Button>
+                    </Link>
+                    <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 rounded-xl font-bold uppercase text-sm font-tt-firs-neue-variable tracking-[2.4%] flex items-center justify-center gap-2">
+                        <Image src="/svg/header/login.svg" alt="" width={16} height={16} className="w-4 h-4" />
+                        НЭВТРЭХ
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+
               </div>
             </div>
           )}

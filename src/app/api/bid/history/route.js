@@ -2,14 +2,16 @@ import { NextResponse } from "next/server"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
-export async function GET(request, { params }) {
+export async function GET(request) {
   try {
-    const { id } = await params
     const authHeader = request.headers.get("Authorization")
     const headers = { "Content-Type": "application/json" }
     if (authHeader) headers["Authorization"] = authHeader
 
-    const url = `${API_URL}/api/v1/bid/won/${id}`
+    const { searchParams } = new URL(request.url)
+    const query = searchParams.toString()
+    const url = `${API_URL}/api/v1/bid/history${query ? `?${query}` : ""}`
+
     const response = await fetch(url, { headers, redirect: "follow" })
     const text = await response.text()
 
@@ -22,9 +24,9 @@ export async function GET(request, { params }) {
 
     return NextResponse.json(data, { status: response.status })
   } catch (error) {
-    console.error("[bid/won] Proxy error:", error.message)
+    console.error("[bid/history] Proxy error:", error.message)
     return NextResponse.json(
-      { detail: "Ялсан дуудлага авахад алдаа гарлаа.", error: error.message },
+      { detail: "Bid history авахад алдаа гарлаа.", error: error.message },
       { status: 500 }
     )
   }

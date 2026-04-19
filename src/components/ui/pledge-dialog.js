@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,7 +30,12 @@ export default function PledgeDialog({
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const { walletBalance, deductAmount } = useWallet(); // Get dynamic wallet balance
+  const { walletBalance, deductAmount, refetchBalance } = useWallet();
+
+  // Fetch real-time balance when dialog opens
+  useEffect(() => {
+    if (isOpen) refetchBalance()
+  }, [isOpen])
 
   const handlePledgeConfirm = async () => {
     setError("");
@@ -58,13 +63,17 @@ export default function PledgeDialog({
 
       if (!joinRes.ok) {
         const errMsg = joinData?.detail ?? joinData?.msg ?? '';
-        // If API says already participating, treat as already pledged — close and enable bid
-        const alreadyJoined = errMsg && (
-          errMsg.toLowerCase().includes('аль хэдийн') ||
-          errMsg.toLowerCase().includes('already') ||
-          errMsg.toLowerCase().includes('orolcoj') ||
-          errMsg.toLowerCase().includes('оролцож')
-        );
+
+        // 409 Conflict = user already pledged this lot — treat as success
+        const alreadyJoined =
+          joinRes.status === 409 ||
+          (errMsg && (
+            errMsg.toLowerCase().includes('аль хэдийн') ||
+            errMsg.toLowerCase().includes('already') ||
+            errMsg.toLowerCase().includes('orolcoj') ||
+            errMsg.toLowerCase().includes('оролцож')
+          ));
+
         if (alreadyJoined) {
           if (onPledgeConfirm) onPledgeConfirm(calculatePledgeAmount(auctionItem.startingPrice));
           onOpenChange(false);

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,8 @@ import BidDialog from "@/components/ui/bid-dialog"
 import ImageZoom from "@/components/ui/image-zoom"
 import { useUser } from "@/contexts/UserContext"
 import { useSearchParams } from "next/navigation"
+import { FaAward } from "react-icons/fa"
+import { getAssetUrl } from "@/lib/utils"
 
 // Countdown Timer Component
 function CountdownTimer({ endTime, onEnd }) {
@@ -153,99 +155,75 @@ function DetailedCountdownTimer({ endTime, onEnd }) {
 
 // Get real user authentication state from UserContext
 
-// Mock pledge status - in real app this would come from user's pledge data
-// const hasUserPledged = false; // Set to false to simulate user hasn't made pledge yet
-
-
-
 export default function AuctionItemPage({ params }) {
   const unwrappedParams = use(params);
-  const { user, isLoggedIn, isLoading } = useUser(); // Get real authentication state
+  const { isLoggedIn, isLoading } = useUser();
   const searchParams = useSearchParams();
-
-  // Check if user came from auction history (has existing pledge)
-  const hasExistingPledge = searchParams.get('hasPledge') === 'true';
   const fromHistory = searchParams.get('from') === 'history';
-
-  // Debug logging
-  console.log('Auction Page - User:', user);
-  console.log('Auction Page - isLoggedIn:', isLoggedIn);
-  console.log('Auction Page - isLoading:', isLoading);
-  console.log('Auction Page - hasExistingPledge:', hasExistingPledge);
-  console.log('Auction Page - fromHistory:', fromHistory);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [showPledgeDialog, setShowPledgeDialog] = useState(false);
   const [showBidDialog, setShowBidDialog] = useState(false);
-  const [hasUserPledged, setHasUserPledged] = useState(hasExistingPledge); // Initialize with existing pledge status
-  const [pledgeStatusLoading, setPledgeStatusLoading] = useState(false);
-  const [auctionItem, setAuctionItem] = useState(null); // State to track auction item
-  const [showImageZoom, setShowImageZoom] = useState(false); // State to control image zoom modal
+  const [hasUserPledged, setHasUserPledged] = useState(false);
+  const [pledgeStatusLoading, setPledgeStatusLoading] = useState(true);
+  const [auctionItem, setAuctionItem] = useState(null);
+  const [showImageZoom, setShowImageZoom] = useState(false);
+  const [bidderCount, setBidderCount] = useState(0);
+  const [auctionEnded, setAuctionEnded] = useState(false);
+  const wsRef = useRef(null);
+  const reconnectTimerRef = useRef(null);
 
-  const handlePledgeConfirm = (pledgeAmount) => {
-    // Handle pledge confirmation here
-    console.log('Pledge confirmed:', pledgeAmount);
-    // Update pledge status to enable bid button
+  const handlePledgeConfirm = () => {
     setHasUserPledged(true);
-    // You can update user state, call API, etc.
   };
 
-  const handleBidConfirm = (bidAmount) => {
-    // Handle bid confirmation here
-    console.log('Bid confirmed:', bidAmount);
-
-    // Add new bid to the auction item's bids array
-    const newBid = {
-      id: Math.max(...auctionItem.bids.map(bid => bid.id)) + 1,
-      email: "user@example.com", // In real app, this would be the logged-in user's email
-      date: new Date().toLocaleDateString('mn-MN'),
-      amount: bidAmount + '₮'
-    };
-
-    // Update the auction item with new bid and new last price
-    auctionItem.bids.unshift(newBid); // Add to beginning of array
-    auctionItem.lastPrice = bidAmount + '₮';
-
-    // Force re-render by updating state
-    setAuctionItem({ ...auctionItem });
+  const handleBidConfirm = () => {
+    // Real-time update is handled by the WebSocket bid_updated message.
+    // No local mutation needed.
   };
 
-
-
-  // Get auction data from API
+  // Single effect: wait for auth to settle, then fetch lot + check pledge in sequence.
+  // This avoids the two-effect race where the pledge check fires before auth or lot are ready.
   useEffect(() => {
-    const fetchLot = async () => {
+    if (isLoading) return; // auth not settled yet — wait for the next run
+
+    let cancelled = false;
+    setPledgeStatusLoading(true);
+
+    const init = async () => {
       try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null
-        const headers = token ? { Authorization: `Bearer ${token}` } : {}
-        const response = await fetch(`/api/lot/detail/${unwrappedParams.id}`, { headers })
+        // ── Step 1: Fetch lot detail (public, no token needed) ──
+        const response = await fetch(`/api/lot/detail/${unwrappedParams.id}`)
         const json = await response.json()
         const lot = json?.data ?? json
+        console.log('lot data==>'. lot);
+        
+
+        if (cancelled) return;
 
         const rawImages = Array.isArray(lot.images) ? lot.images : []
         const images = rawImages.length > 0
-          ? rawImages.map((img) => (typeof img === "string" ? img : img.url ?? img.image ?? ""))
-          : [lot.thumbnail ?? "/images/end4.png"]
+          ? rawImages.map((img) => getAssetUrl(typeof img === "string" ? img : img.url ?? img.image ?? ""))
+          : [getAssetUrl(lot.thumbnail ?? "/images/end4.png")]
 
-        // attributes is a plain object: { "Өнгө": "Хүрэн", ... }
         const specs = lot.attributes && typeof lot.attributes === "object" && !Array.isArray(lot.attributes)
           ? Object.entries(lot.attributes).map(([label, value]) => ({ label, value: String(value) }))
           : []
 
-        const bids = Array.isArray(lot.bids)
-          ? lot.bids.map((b, i) => ({
+        const rawBids = Array.isArray(lot.last_bids) ? lot.last_bids : (Array.isArray(lot.bids) ? lot.bids : [])
+        const bids = rawBids.map((b, i) => ({
             id: b.id ?? i,
             email: b.user?.email ?? b.email ?? "user@example.com",
             date: b.created_at ? new Date(b.created_at).toLocaleDateString("mn-MN") : "",
             amount: b.amount != null ? `${Number(b.amount).toLocaleString()}₮` : "",
           }))
-          : []
 
         const startingPriceNum = lot.starting_price != null ? Number(lot.starting_price) : 0
         const currentBidNum = lot.current_bid != null ? Number(lot.current_bid) : startingPriceNum
 
         setAuctionItem({
           id: lot.id,
+          status: lot.status?.key ?? lot.status ?? "",
           category: lot.category?.value ?? "",
           title: lot.name ?? "",
           startingPrice: `${startingPriceNum.toLocaleString()}₮`,
@@ -257,54 +235,118 @@ export default function AuctionItemPage({ params }) {
           specifications: specs,
           images: images.length > 0 ? images : ["/images/end4.png"],
           bids,
+          bidCount: lot.bid_count ?? bids.length,
+          bidIncrements: Array.isArray(lot.bid_increments) ? lot.bid_increments : [],
         })
-      } catch (error) {
-        console.error("Failed to fetch lot detail:", error)
-      }
-    }
-    fetchLot()
-  }, [unwrappedParams.id]);
 
-  // Fetch pledge status from API when lot is loaded and user is logged in
-  useEffect(() => {
-    if (!unwrappedParams.id || !isLoggedIn) return;
-    const fetchPledgeStatus = async () => {
-      setPledgeStatusLoading(true);
-      try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const res = await fetch(`/api/lot/pledged/${unwrappedParams.id}`, { headers });
-        const data = await res.json().catch(() => null);
-        // 200 response = user has pledged (API returns pledge object or array)
-        // Non-200 (e.g. 404) = not pledged
-        let pledged = false;
-        if (res.ok && data !== null) {
-          if (Array.isArray(data)) {
-            pledged = data.length > 0;
-          } else if (typeof data === 'object') {
-            // Only treat as not-pledged if it's purely an error detail
-            pledged = data?.detail == null || data?.id != null || data?.lot != null || data?.amount != null;
-          } else {
-            pledged = true;
-          }
+        // ── Step 2: Check pledge status (only for logged-in users) ──
+        if (!isLoggedIn) {
+          setHasUserPledged(false);
+          return;
         }
-        setHasUserPledged(pledged);
-      } catch {
-        // On error keep existing state
+
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+          setHasUserPledged(false);
+          return;
+        }
+
+        const lotId = lot.id ?? unwrappedParams.id;
+        const pledgedRes = await fetch(`/api/lot/pledged/${lotId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
+
+        if (cancelled) return;
+
+        // Backend returns 200 when user has pledged, non-200 when not.
+        // 409 from GET also means already pledged (backend conflict signal).
+        setHasUserPledged(pledgedRes.ok || pledgedRes.status === 409);
+      } catch (err) {
+        if (!cancelled) setHasUserPledged(false);
       } finally {
-        setPledgeStatusLoading(false);
+        if (!cancelled) setPledgeStatusLoading(false);
       }
     };
-    fetchPledgeStatus();
-  }, [unwrappedParams.id, isLoggedIn]);
 
-  // Close dialogs if user is not logged in
+    init();
+
+    return () => { cancelled = true; };
+  }, [unwrappedParams.id, isLoggedIn, isLoading]);
+
+  // Close dialogs when user logs out
   useEffect(() => {
     if (!isLoggedIn) {
       setShowPledgeDialog(false);
       setShowBidDialog(false);
     }
   }, [isLoggedIn]);
+
+  // WebSocket: connect for real-time bid updates once the lot id is known
+  useEffect(() => {
+    if (!auctionItem?.id) return;
+
+    const wsBase = (process.env.NEXT_PUBLIC_WS_URL || 'wss://ws.torgoniizam.mn').replace(/\/$/, '');
+    const wsUrl = `${wsBase}/ws/${auctionItem.id}`;
+    let attempts = 0;
+    let destroyed = false;
+
+    const connect = () => {
+      if (destroyed) return;
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'bid_updated') {
+            const topBids = Array.isArray(msg.top_bids) ? msg.top_bids : [];
+            const newBids = topBids.map((b, i) => ({
+              id: i + 1,
+              email: b.user?.value ?? '',
+              date: b.created_at ? new Date(b.created_at).toLocaleDateString('mn-MN') : '',
+              amount: b.amount != null ? `${Number(b.amount).toLocaleString()}₮` : '',
+              status: b.status?.value ?? '',
+            }));
+            const newPrice = msg.bid?.amount != null
+              ? `${Number(msg.bid.amount).toLocaleString()}₮`
+              : null;
+            setAuctionItem(prev => ({
+              ...prev,
+              ...(newPrice && { lastPrice: newPrice }),
+              bids: newBids,
+              bidCount: newBids.length,
+            }));
+            attempts = 0;
+          } else if (msg.type === 'bidder_count') {
+            setBidderCount(msg.count ?? 0);
+          } else if (msg.type === 'auction_ended') {
+            setAuctionEnded(true);
+          }
+        } catch {}
+      };
+
+      ws.onclose = () => {
+        if (destroyed) return;
+        const delay = Math.min(1000 * Math.pow(2, attempts), 30000);
+        attempts++;
+        reconnectTimerRef.current = setTimeout(connect, delay);
+      };
+
+      ws.onerror = () => ws.close();
+    };
+
+    connect();
+
+    return () => {
+      destroyed = true;
+      clearTimeout(reconnectTimerRef.current);
+      if (wsRef.current) {
+        wsRef.current.onclose = null;
+        wsRef.current.close();
+      }
+    };
+  }, [auctionItem?.id]);
 
   // Show loading if auction item is not loaded yet or authentication is loading
   if (!auctionItem || isLoading || pledgeStatusLoading) {
@@ -320,6 +362,12 @@ export default function AuctionItemPage({ params }) {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Auction Ended Banner */}
+      {auctionEnded && (
+        <div className="bg-red-600 text-white text-center py-3 px-4 font-bold text-sm">
+          🔔 Энэ дуудлага худалдаа дууслаа!
+        </div>
+      )}
       {/* Hero Section with Background */}
       <div className="relative bg-gradient-to-br from-slate-50 to-slate-100 py-4 xs-mobile:py-6 sm:py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -361,17 +409,22 @@ export default function AuctionItemPage({ params }) {
                   </div>
                 </div>
 
-                {/* Orange Badge */}
-                <div className="absolute top-4 right-4 bg-[#FF4405] text-white px-3 py-1 rounded-lg text-sm font-bold">
-                  LIVE
-                </div>
+                {/* Status Badge */}
+                {(auctionEnded || auctionItem.status === 'expired' || auctionItem.status === 'sold') ? (
+                  <div className="absolute top-4 right-4 bg-gray-700 text-white px-3 py-1 rounded-lg text-sm font-bold">
+                    ДУУССАН
+                  </div>
+                ) : (
+                  <div className="absolute top-4 right-4 bg-[#FF4405] text-white px-3 py-1 rounded-lg text-sm font-bold">
+                    LIVE
+                  </div>
+                )}
 
                 {/* Countdown Timer Overlay */}
                 <div className="absolute bottom-4 left-4">
                   <CountdownTimer
                     endTime={auctionItem.endTime}
                     onEnd={() => {
-                      console.log(`Auction ${auctionItem.id} has ended`);
                       // You can add additional logic here when an auction ends
                     }}
                   />
@@ -442,21 +495,18 @@ export default function AuctionItemPage({ params }) {
                   <div className="flex items-center justify-center">
                     <DetailedCountdownTimer
                       endTime={auctionItem.endTime}
-                      onEnd={() => {
-                        console.log(`Auction ${auctionItem.id} has ended`);
-                        // You can add additional logic here when an auction ends
-                      }}
+                      onEnd={() => setAuctionEnded(true)}
                     />
                   </div>
                   {/* Start / End dates */}
                   <div className="w-full grid grid-cols-2 gap-3 pt-2 border-t border-gray-200">
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Эхлэх огноо</p>
-                      <p className="text-sm font-medium text-gray-800">{auctionItem.startDate ? new Date(auctionItem.startDate).toLocaleString('mn-MN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}</p>
+                      <p className="text-sm font-medium text-gray-800">{auctionItem.startDate ? (() => { const d = new Date(auctionItem.startDate); return `${d.getFullYear()} оны ${d.getMonth()+1}-р сарын ${d.getDate()}, ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })() : '—'}</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Дуусах огноо</p>
-                      <p className="text-sm font-medium text-gray-800">{auctionItem.endDate ? new Date(auctionItem.endDate).toLocaleString('mn-MN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}</p>
+                      <p className="text-sm font-medium text-gray-800">{auctionItem.endDate ? (() => { const d = new Date(auctionItem.endDate); return `${d.getFullYear()} оны ${d.getMonth()+1}-р сарын ${d.getDate()}, ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })() : '—'}</p>
                     </div>
                   </div>
                 </div>
@@ -464,6 +514,24 @@ export default function AuctionItemPage({ params }) {
 
               {/* Action Buttons */}
               <div className="space-y-4">
+                {(() => {
+                  const isEnded = auctionEnded
+                    || auctionItem.status === 'expired'
+                    || auctionItem.status === 'sold'
+                    || auctionItem.status === 'completed'
+                    || (auctionItem.endTime && new Date(auctionItem.endTime) < new Date())
+                  if (isEnded) return (
+                    <div className="bg-gray-100 border border-gray-300 rounded-xl p-4 mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-bold">✕</span>
+                        </div>
+                        <p className="text-gray-600 font-medium text-sm">Дуудлага худалдаа дууссан байна</p>
+                      </div>
+                    </div>
+                  )
+                  return null
+                })()}
                 {!isLoggedIn && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
                     <div className="flex items-center space-x-3">
@@ -493,7 +561,7 @@ export default function AuctionItemPage({ params }) {
                           Дэнчин байршуулах шаардлагатай
                         </p>
                         <p className="text-blue-700 text-xs mt-1">
-                          Үнийн санал илгээхийн тулд эхлээд дэнчин байршуулна уу (үнийн 10%)
+                          Үнийн санал илгээхийн тулд эхлээд дэнчин байршуулна уу.
                         </p>
                       </div>
                     </div>
@@ -519,59 +587,87 @@ export default function AuctionItemPage({ params }) {
                 )}
 
                 <div className="flex flex-col gap-3">
+                  {(() => {
+                    const isEnded = auctionEnded
+                      || auctionItem.status === 'expired'
+                      || auctionItem.status === 'sold'
+                      || auctionItem.status === 'completed'
+                      || (auctionItem.endTime && new Date(auctionItem.endTime) < new Date())
+                    return (
                   <Button
-                    className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isLoggedIn && hasUserPledged
-                        ? 'bg-[#FF4405] hover:bg-[#E63D04] text-white'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isEnded
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : isLoggedIn && hasUserPledged
+                          ? 'bg-[#FF4405] hover:bg-[#E63D04] text-white'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
-                    disabled={!isLoggedIn || !hasUserPledged}
-                    onClick={() => setShowBidDialog(true)}
+                    disabled={isEnded || !isLoggedIn || !hasUserPledged}
+                    onClick={() => !isEnded && setShowBidDialog(true)}
                   >
                     <Image src="/svg/bid.svg" alt="Bid" width={16} height={16} className="hidden xs-mobile:block w-4 h-4 xs-mobile:w-5 xs-mobile:h-5 mr-2 xs-mobile:mr-3" />
                     <span className="hidden xs-mobile:inline">ҮНИЙН САНАЛ ИЛГЭЭХ</span>
                     <span className="xs-mobile:hidden">ҮНИЙН САНАЛ</span>
                   </Button>
+                    )
+                  })()}
 
+                  {(() => {
+                    const isEnded = auctionEnded
+                      || auctionItem.status === 'expired'
+                      || auctionItem.status === 'sold'
+                      || auctionItem.status === 'completed'
+                      || (auctionItem.endTime && new Date(auctionItem.endTime) < new Date())
+                    return (
                   <Button
                     variant="outline"
-                    className={`py-3 xs-mobile:py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${!isLoggedIn
+                    className={`py-3 xs-mobile:py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isEnded
                         ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
-                        : hasUserPledged
-                          ? 'bg-green-100 text-green-700 border-green-300 cursor-not-allowed opacity-80'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'
+                        : !isLoggedIn
+                          ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                          : hasUserPledged
+                            ? 'bg-green-100 text-green-700 border-green-300 cursor-not-allowed opacity-80'
+                            : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'
                       }`}
-                    disabled={!isLoggedIn || hasUserPledged}
+                    disabled={isEnded || !isLoggedIn || hasUserPledged}
                     onClick={() => {
-                      if (isLoggedIn && !hasUserPledged) {
+                      if (!isEnded && isLoggedIn && !hasUserPledged) {
                         setShowPledgeDialog(true);
                       } else {
-                        // Prevent dialog from opening for non-logged users or users with existing pledge
                         setShowPledgeDialog(false);
                       }
                     }}
                   >
-                    {!isLoggedIn
+                    {isEnded
                       ? (
                         <>
-                          <span className="hidden xs-mobile:inline">НЭВТРЭХ ШААРДЛАГАТАЙ</span>
-                          <span className="xs-mobile:hidden">НЭВТРЭХ</span>
+                          <span className="hidden xs-mobile:inline">ДУУДЛАГА ДУУССАН</span>
+                          <span className="xs-mobile:hidden">ДУУССАН</span>
                         </>
                       )
-                      : hasUserPledged
+                      : !isLoggedIn
                         ? (
                           <>
-                            <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛСАН</span>
-                            <span className="xs-mobile:hidden">БАЙРШУУЛСАН</span>
+                            <span className="hidden xs-mobile:inline">НЭВТРЭХ ШААРДЛАГАТАЙ</span>
+                            <span className="xs-mobile:hidden">НЭВТРЭХ</span>
                           </>
                         )
-                        : (
-                          <>
-                            <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛАХ</span>
-                            <span className="xs-mobile:hidden">БАЙРШУУЛАХ</span>
-                          </>
-                        )
+                        : hasUserPledged
+                          ? (
+                            <>
+                              <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛСАН</span>
+                              <span className="xs-mobile:hidden">БАЙРШУУЛСАН</span>
+                            </>
+                          )
+                          : (
+                            <>
+                              <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛАХ</span>
+                              <span className="xs-mobile:hidden">БАЙРШУУЛАХ</span>
+                            </>
+                          )
                     }
                   </Button>
+                    )
+                  })()}
 
                   <PledgeDialog
                     isOpen={showPledgeDialog && isLoggedIn}
@@ -660,17 +756,21 @@ export default function AuctionItemPage({ params }) {
                 </h3>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-[#FF4405] rounded-full animate-pulse"></div>
-                  <span className="text-sm text-gray-500 font-medium">Идэвхтэй</span>
+                  <span className="text-sm text-gray-500 font-medium">
+                    {bidderCount > 0 ? `${bidderCount} онлайн` : 'Идэвхтэй'}
+                  </span>
                 </div>
               </div>
               <Card className="border-0 shadow-xl rounded-2xl overflow-hidden bg-gradient-to-br from-white to-gray-50">
                 <CardContent className="p-0">
                   <div className="bg-gradient-to-r from-[#FF4405] to-[#E63D04] px-6 py-4">
                     <div className="flex items-center justify-between text-white">
-                      <h4 className="font-bold text-lg font-tt-firs-neue-variable">Нийт {auctionItem.bids.length} оролцогч</h4>
+                      <h4 className="font-bold text-lg font-tt-firs-neue-variable">Нийт {auctionItem.bidCount} оролцогч</h4>
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                        <span className="text-sm font-medium">Шинэчлэгдэж байна</span>
+                        <span className="text-sm font-medium">
+                          {bidderCount > 0 ? `${bidderCount} хэрэглэгч онлайн` : 'Шинэчлэгдэж байна'}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -678,7 +778,7 @@ export default function AuctionItemPage({ params }) {
                     <div className="space-y-3">
                       {auctionItem.bids.map((bid, index) => (
                         <div
-                          key={bid.id}
+                          key={index}
                           className={`flex items-center space-x-4 p-4 rounded-xl transition-all duration-200 hover:shadow-md ${index === 0
                               ? 'bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200'
                               : 'bg-white border border-gray-100 hover:border-gray-200'
@@ -715,8 +815,15 @@ export default function AuctionItemPage({ params }) {
                             </span>
                             {index === 0 && (
                               <div className="mt-1">
-                                <span className="text-xs text-[#FF4405] font-medium bg-orange-100 px-2 py-1 rounded-full">
-                                  🏆 Тэргүүлэгч
+                                <span className="text-xs text-[#FF4405] font-medium bg-orange-100 px-2 py-1 rounded-full flex items-center gap-1">
+                                  <FaAward className="inline" /> Тэргүүлэгч
+                                </span>
+                              </div>
+                            )}
+                            {index > 0 && bid.status && (
+                              <div className="mt-1">
+                                <span className="text-xs text-gray-400 font-medium bg-gray-100 px-2 py-1 rounded-full">
+                                  {bid.status}
                                 </span>
                               </div>
                             )}
