@@ -256,10 +256,11 @@ function GetProductModal({ entry, onClose }) {
         )}
 
         {!fetching && !fetchErr && data && (() => {
-          // response shape: { lot: {...}, seller: {...}, secret_value: "..." }
-          const lot = data?.lot ?? data
-          const seller = data?.seller ?? lot?.seller
-          const secretValue = data?.secret_value ?? data?.secret_code
+          // response shape: { data: { lot: {...}, seller: {...}, secret_value: "..." } }
+          const inner = data?.data ?? data
+          const lot = inner?.lot ?? inner
+          const seller = inner?.seller ?? lot?.seller
+          const secretValue = inner?.secret_value ?? inner?.secret_code
           return (
           <>
             {/* Lot image */}
