@@ -47,14 +47,34 @@ export const metadata = {
     icon: "/svg/header/main-logo-light.svg",
     shortcut: "/svg/header/main-logo-light.svg",
   },
+};
+
+export const viewport = {
   colorScheme: "light",
 };
 
 export default function RootLayout({ children }) {
+  const ogImageUrl = `${siteUrl}/opengraph-image`
   return (
     <html lang="en" style={{ colorScheme: "light" }} suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light" />
+        {/* OpenGraph — explicit tags for maximum scraper compatibility */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={siteUrl} />
+        <meta property="og:site_name" content="Торгониизам" />
+        <meta property="og:title" content="Торгониизам - Онлайн дуудлага худалдааны вебсайт" />
+        <meta property="og:description" content="Монголын тэргүүлэх онлайн дуудлага худалдааны платформ. Хамгийн сайн үнээр дуусгавар дуудлага, шинэ болон хэрэглэсэн барааг дуудлагаар худалдан аваарай." />
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Торгониизам - Онлайн дуудлага худалдааны вебсайт" />
+        <meta property="og:locale" content="mn_MN" />
+        {/* Twitter / X Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Торгониизам - Онлайн дуудлага худалдааны вебсайт" />
+        <meta name="twitter:description" content="Монголын тэргүүлэх онлайн дуудлага худалдааны платформ." />
+        <meta name="twitter:image" content={ogImageUrl} />
       </head>
       <body className={`${inter.variable} antialiased`}>
         <ThemeProvider>
