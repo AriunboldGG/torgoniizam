@@ -17,11 +17,15 @@ export const metadata = {
   icons: {
     icon: "/svg/header/main-logo.svg",
   },
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" style={{ colorScheme: "light" }}>
+      <head>
+        <meta name="color-scheme" content="light" />
+      </head>
       <body
         className={`${inter.variable} antialiased`}
       >
