@@ -495,9 +495,7 @@ export default function AuctionItemPage({ params }) {
                   <div className="flex items-center justify-center">
                     <DetailedCountdownTimer
                       endTime={auctionItem.endTime}
-                      onEnd={() => {
-                        // You can add additional logic here when an auction ends
-                      }}
+                      onEnd={() => setAuctionEnded(true)}
                     />
                   </div>
                   {/* Start / End dates */}
@@ -516,6 +514,24 @@ export default function AuctionItemPage({ params }) {
 
               {/* Action Buttons */}
               <div className="space-y-4">
+                {(() => {
+                  const isEnded = auctionEnded
+                    || auctionItem.status === 'expired'
+                    || auctionItem.status === 'sold'
+                    || auctionItem.status === 'completed'
+                    || (auctionItem.endTime && new Date(auctionItem.endTime) < new Date())
+                  if (isEnded) return (
+                    <div className="bg-gray-100 border border-gray-300 rounded-xl p-4 mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-bold">✕</span>
+                        </div>
+                        <p className="text-gray-600 font-medium text-sm">Дуудлага худалдаа дууссан байна</p>
+                      </div>
+                    </div>
+                  )
+                  return null
+                })()}
                 {!isLoggedIn && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
                     <div className="flex items-center space-x-3">
@@ -571,59 +587,87 @@ export default function AuctionItemPage({ params }) {
                 )}
 
                 <div className="flex flex-col gap-3">
+                  {(() => {
+                    const isEnded = auctionEnded
+                      || auctionItem.status === 'expired'
+                      || auctionItem.status === 'sold'
+                      || auctionItem.status === 'completed'
+                      || (auctionItem.endTime && new Date(auctionItem.endTime) < new Date())
+                    return (
                   <Button
-                    className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isLoggedIn && hasUserPledged
-                        ? 'bg-[#FF4405] hover:bg-[#E63D04] text-white'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isEnded
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : isLoggedIn && hasUserPledged
+                          ? 'bg-[#FF4405] hover:bg-[#E63D04] text-white'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
-                    disabled={!isLoggedIn || !hasUserPledged}
-                    onClick={() => setShowBidDialog(true)}
+                    disabled={isEnded || !isLoggedIn || !hasUserPledged}
+                    onClick={() => !isEnded && setShowBidDialog(true)}
                   >
                     <Image src="/svg/bid.svg" alt="Bid" width={16} height={16} className="hidden xs-mobile:block w-4 h-4 xs-mobile:w-5 xs-mobile:h-5 mr-2 xs-mobile:mr-3" />
                     <span className="hidden xs-mobile:inline">ҮНИЙН САНАЛ ИЛГЭЭХ</span>
                     <span className="xs-mobile:hidden">ҮНИЙН САНАЛ</span>
                   </Button>
+                    )
+                  })()}
 
+                  {(() => {
+                    const isEnded = auctionEnded
+                      || auctionItem.status === 'expired'
+                      || auctionItem.status === 'sold'
+                      || auctionItem.status === 'completed'
+                      || (auctionItem.endTime && new Date(auctionItem.endTime) < new Date())
+                    return (
                   <Button
                     variant="outline"
-                    className={`py-3 xs-mobile:py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${!isLoggedIn
+                    className={`py-3 xs-mobile:py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isEnded
                         ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
-                        : hasUserPledged
-                          ? 'bg-green-100 text-green-700 border-green-300 cursor-not-allowed opacity-80'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'
+                        : !isLoggedIn
+                          ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                          : hasUserPledged
+                            ? 'bg-green-100 text-green-700 border-green-300 cursor-not-allowed opacity-80'
+                            : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'
                       }`}
-                    disabled={!isLoggedIn || hasUserPledged}
+                    disabled={isEnded || !isLoggedIn || hasUserPledged}
                     onClick={() => {
-                      if (isLoggedIn && !hasUserPledged) {
+                      if (!isEnded && isLoggedIn && !hasUserPledged) {
                         setShowPledgeDialog(true);
                       } else {
-                        // Prevent dialog from opening for non-logged users or users with existing pledge
                         setShowPledgeDialog(false);
                       }
                     }}
                   >
-                    {!isLoggedIn
+                    {isEnded
                       ? (
                         <>
-                          <span className="hidden xs-mobile:inline">НЭВТРЭХ ШААРДЛАГАТАЙ</span>
-                          <span className="xs-mobile:hidden">НЭВТРЭХ</span>
+                          <span className="hidden xs-mobile:inline">ДУУДЛАГА ДУУССАН</span>
+                          <span className="xs-mobile:hidden">ДУУССАН</span>
                         </>
                       )
-                      : hasUserPledged
+                      : !isLoggedIn
                         ? (
                           <>
-                            <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛСАН</span>
-                            <span className="xs-mobile:hidden">БАЙРШУУЛСАН</span>
+                            <span className="hidden xs-mobile:inline">НЭВТРЭХ ШААРДЛАГАТАЙ</span>
+                            <span className="xs-mobile:hidden">НЭВТРЭХ</span>
                           </>
                         )
-                        : (
-                          <>
-                            <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛАХ</span>
-                            <span className="xs-mobile:hidden">БАЙРШУУЛАХ</span>
-                          </>
-                        )
+                        : hasUserPledged
+                          ? (
+                            <>
+                              <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛСАН</span>
+                              <span className="xs-mobile:hidden">БАЙРШУУЛСАН</span>
+                            </>
+                          )
+                          : (
+                            <>
+                              <span className="hidden xs-mobile:inline">ДЭНЧИН БАЙРШУУЛАХ</span>
+                              <span className="xs-mobile:hidden">БАЙРШУУЛАХ</span>
+                            </>
+                          )
                     }
                   </Button>
+                    )
+                  })()}
 
                   <PledgeDialog
                     isOpen={showPledgeDialog && isLoggedIn}
