@@ -59,16 +59,9 @@ export default function PendingAuctions() {
       try {
         const res = await fetch('/api/lot/list?status=pending&limit=100&offset=0')
         const json = await res.json()
-        const list = json?.results ?? json?.data ?? (Array.isArray(json) ? json : [])
+        const list = json?.data?.results ?? json?.results ?? json?.data ?? (Array.isArray(json) ? json : [])
 
-        // Exclude lots starting within the next 24 hours (those belong to "Today" page)
-        const in24h = Date.now() + 24 * 60 * 60 * 1000
-        const pending = list.filter(lot => {
-          if (!lot.start_date) return true
-          return new Date(lot.start_date).getTime() > in24h
-        })
-
-        setAllPendingAuctions(pending.map(mapPendingLot))
+        setAllPendingAuctions(list.map(mapPendingLot))
       } catch (err) {
         console.error('Failed to fetch pending lots:', err)
       } finally {

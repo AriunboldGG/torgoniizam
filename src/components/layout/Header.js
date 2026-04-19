@@ -65,13 +65,16 @@ export default function Header() {
       <div className="h-1 bg-[#FF4405] w-full"></div>
       
       {/* Main Header */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-50">
+      <div className="bg-white dark:bg-[#0e1117] shadow-sm border-b dark:border-[#2a2e4a] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo and Brand */}
             <div className="flex items-center space-x-4">
               <Link href="/">
-                <Image src="/svg/header/main-logo.svg" alt="Logo" width={100} height={64} className="w-[100px] h-[64px] cursor-pointer hover:opacity-80 transition-opacity" />
+                {/* Light mode logo */}
+                <Image src="/svg/header/main-logo.svg" alt="Logo" width={100} height={64} className="w-[100px] h-[64px] cursor-pointer hover:opacity-80 transition-opacity dark:hidden" />
+                {/* Dark mode logo */}
+                <Image src="/svg/header/main-logo-light.svg" alt="Logo" width={100} height={64} className="w-[100px] h-[64px] cursor-pointer hover:opacity-80 transition-opacity hidden dark:block" />
               </Link>
             </div>
 
@@ -116,7 +119,7 @@ export default function Header() {
 
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-3 w-72 bg-white rounded-lg shadow-xl border border-gray-200 py-3 z-50">
+                  <div className="absolute top-full left-0 mt-3 w-72 bg-white dark:bg-[#1a1d2e] rounded-lg shadow-xl border border-gray-200 dark:border-[#2a2e4a] py-3 z-50">
                     <Link href="/auctions/live-auctions" onClick={() => setIsDropdownOpen(false)}>
                       <div className={`px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
                         isActivePage("/auctions/live-auctions") ? "bg-orange-50" : ""
@@ -226,7 +229,7 @@ export default function Header() {
 
                   {/* User Dropdown Menu */}
                   {isUserMenuOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-[#1a1d2e] rounded-lg shadow-xl border border-gray-200 dark:border-[#2a2e4a] py-2 z-50">
                       <Link href="/my-account">
                         <div className="px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
                           <span className="text-sm font-medium text-gray-700">Миний профайл</span>
@@ -274,20 +277,21 @@ export default function Header() {
               className="md:hidden flex flex-col space-y-1 p-2"
               aria-label="Toggle mobile menu"
             >
-              <span className={`block w-6 h-0.5 bg-gray-900 transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-              <span className={`block w-6 h-0.5 bg-gray-900 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
-              <span className={`block w-6 h-0.5 bg-gray-900 transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+              <span className={`block w-6 h-0.5 bg-gray-900 dark:bg-white transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+              <span className={`block w-6 h-0.5 bg-gray-900 dark:bg-white transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
+              <span className={`block w-6 h-0.5 bg-gray-900 dark:bg-white transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
             </button>
           </div>
 
           {/* Mobile Menu - Full Screen Drawer */}
           {isMobileMenuOpen && (
-            <div className="md:hidden fixed inset-0 bg-white z-50 flex flex-col overflow-hidden">
+            <div className="md:hidden fixed inset-0 bg-white dark:bg-[#0e1117] z-50 flex flex-col overflow-hidden">
 
               {/* Header */}
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-[#2a2e4a] flex-shrink-0">
                 <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Image src="/svg/header/main-logo.svg" alt="Logo" width={72} height={46} className="w-[72px] h-[46px]" />
+                  <Image src="/svg/header/main-logo.svg" alt="Logo" width={72} height={46} className="w-[72px] h-[46px] dark:hidden" />
+                  <Image src="/svg/header/main-logo-light.svg" alt="Logo" width={72} height={46} className="w-[72px] h-[46px] hidden dark:block" />
                 </Link>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}

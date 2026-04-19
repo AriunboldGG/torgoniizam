@@ -72,7 +72,7 @@ export default function HeroSearch() {
           <div className="sm:hidden">
             {/* Search Container */}
             <div className="w-full search-container" style={{ marginRight: '10px' }}>
-              <div className="bg-white rounded-full shadow-lg flex items-center">
+              <div className="bg-white dark:bg-[#1a1d2e] rounded-full shadow-lg flex items-center pr-1.5">
                 {/* Search Input */}
                 <div className="flex-1 px-4 py-3">
                   <input
@@ -80,11 +80,25 @@ export default function HeroSearch() {
                     placeholder="Барааны нэрээр хайх ..."
                     value={localSearchQuery}
                     onChange={handleSearchInputChange}
-                    className="w-full text-gray-700 placeholder-gray-400 focus:outline-none text-sm font-tt-firs-neue-variable font-medium"
+                    style={{ backgroundColor: 'transparent' }}
+                    className="w-full text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none text-sm font-tt-firs-neue-variable font-medium"
                   />
                 </div>
-                
-              
+                {/* Orange search button */}
+                <button
+                  onClick={handleSearch}
+                  className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-95"
+                  style={{ backgroundColor: '#FF4405' }}
+                  aria-label="Хайх"
+                >
+                  <Image
+                    src="/svg/search1.svg"
+                    alt="Search"
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 brightness-0 invert"
+                  />
+                </button>
               </div>
             </div>
           </div>
@@ -93,7 +107,7 @@ export default function HeroSearch() {
           <div className="hidden sm:flex items-center justify-center">
             {/* Search Container */}
             <div className="flex-1 max-w-3xl">
-              <div className="bg-white rounded-full shadow-lg flex items-center">
+              <div className="bg-white dark:bg-[#1a1d2e] rounded-full shadow-lg flex items-center">
                 {/* Search Input */}
                 <div className="flex-1 px-6 py-4">
                   <input
@@ -101,7 +115,8 @@ export default function HeroSearch() {
                     placeholder="Барааны нэрээр хайх ..."
                     value={localSearchQuery}
                     onChange={handleSearchInputChange}
-                    className="w-full text-gray-700 placeholder-gray-400 focus:outline-none text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile font-tt-firs-neue-variable font-medium"
+                    style={{ backgroundColor: 'transparent' }}
+                    className="w-full text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile font-tt-firs-neue-variable font-medium"
                   />
                 </div>
                 

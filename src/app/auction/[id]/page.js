@@ -165,7 +165,7 @@ export default function AuctionItemPage({ params }) {
   const [showPledgeDialog, setShowPledgeDialog] = useState(false);
   const [showBidDialog, setShowBidDialog] = useState(false);
   const [hasUserPledged, setHasUserPledged] = useState(false);
-  const [pledgeStatusLoading, setPledgeStatusLoading] = useState(true);
+  const [pledgeStatusLoading, setPledgeStatusLoading] = useState(false);
   const [auctionItem, setAuctionItem] = useState(null);
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [bidderCount, setBidderCount] = useState(0);
@@ -214,8 +214,6 @@ export default function AuctionItemPage({ params }) {
           : []
 
         const rawBids = Array.isArray(lot.last_bids) ? lot.last_bids : (Array.isArray(lot.bids) ? lot.bids : [])
-        console.log('raw bids==>', rawBids);
-        console.log('lot.bid_increments==>', b.amount);
         
         const bids = rawBids.map((b, i) => ({
             id: b.id ?? i,
@@ -245,7 +243,7 @@ export default function AuctionItemPage({ params }) {
           bidIncrements: Array.isArray(lot.bid_increments) ? lot.bid_increments : [],
         })
 
-        // ── Step 2: Check pledge status (only for logged-in users) ──
+        // ── Step 2: Check pledge status in background (non-blocking) ──
         if (!isLoggedIn) {
           setHasUserPledged(false);
           return;
@@ -258,16 +256,15 @@ export default function AuctionItemPage({ params }) {
         }
 
         const lotId = lot.id ?? unwrappedParams.id;
-        const pledgedRes = await fetch(`/api/lot/pledged/${lotId}`, {
+        // Run pledge check after page is already rendered — don't block on it
+        fetch(`/api/lot/pledged/${lotId}`, {
           headers: { Authorization: `Bearer ${token}` },
           cache: "no-store",
+        }).then(pledgedRes => {
+          if (!cancelled) setHasUserPledged(pledgedRes.ok || pledgedRes.status === 409);
+        }).catch(() => {
+          if (!cancelled) setHasUserPledged(false);
         });
-
-        if (cancelled) return;
-
-        // Backend returns 200 when user has pledged, non-200 when not.
-        // 409 from GET also means already pledged (backend conflict signal).
-        setHasUserPledged(pledgedRes.ok || pledgedRes.status === 409);
       } catch (err) {
         if (!cancelled) setHasUserPledged(false);
       } finally {
@@ -356,7 +353,7 @@ export default function AuctionItemPage({ params }) {
   }, [auctionItem?.id]);
 
   // Show loading if auction item is not loaded yet or authentication is loading
-  if (!auctionItem || isLoading || pledgeStatusLoading) {
+  if (!auctionItem || isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">

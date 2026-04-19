@@ -12,11 +12,40 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://torgoniizam.mn'
+
 export const metadata = {
-  title: "AuctionHub - Bid & Win",
-  description: "Your premier online auction platform for unique items and collectibles",
+  title: {
+    default: "Торгониизам - Онлайн дуудлага худалдааны вебсайт",
+    template: "%s | Торгониизам",
+  },
+  description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ. Хамгийн сайн үнээр дуусгавар дуудлага, шинэ болон хэрэглэсэн барааг дуудлагаар худалдан аваарай.",
+  metadataBase: new URL(siteUrl),
+  openGraph: {
+    type: "website",
+    locale: "mn_MN",
+    url: siteUrl,
+    siteName: "Торгониизам",
+    title: "Торгониизам - Онлайн дуудлага худалдааны вебсайт",
+    description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ. Хамгийн сайн үнээр дуусгавар дуудлага, шинэ болон хэрэглэсэн барааг дуудлагаар худалдан аваарай.",
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Торгониизам - Онлайн дуудлага худалдааны вебсайт',
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Торгониизам - Онлайн дуудлага худалдааны вебсайт",
+    description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ.",
+    images: ['/opengraph-image'],
+  },
   icons: {
-    icon: "/svg/header/main-logo.svg",
+    icon: "/svg/header/main-logo-light.svg",
+    shortcut: "/svg/header/main-logo-light.svg",
   },
   colorScheme: "light",
 };

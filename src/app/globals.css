@@ -323,6 +323,43 @@
   background-color: #1a1d2e !important;
 }
 
+/* ---- Header nav inactive pill (desktop) ---- */
+/* "bg-white text-gray-700" pill → transparent in dark so it blends with header */
+.dark header .bg-white.text-gray-700 {
+  background-color: transparent !important;
+  color: #c4cedf !important;
+}
+.dark header .bg-white.text-gray-700:hover {
+  background-color: #1a1d2e !important;
+  color: #f0f4ff !important;
+}
+
+/* ---- Header dropdown hover rows ---- */
+.dark header .hover\:bg-gray-50:hover {
+  background-color: #20243a !important;
+}
+
+/* ---- Mobile menu close (X) button ---- */
+.dark header .rounded-full.hover\:bg-gray-100 svg {
+  color: #c4cedf;
+}
+.dark header .rounded-full.hover\:bg-gray-100:hover {
+  background-color: #1a1d2e !important;
+}
+
+/* ---- Mobile nav links ---- */
+.dark header nav a .text-gray-800 {
+  color: #dde4f5 !important;
+}
+
+/* ---- User button in header (logged-in) ---- */
+.dark header .bg-gray-100.rounded-lg {
+  background-color: #1a1d2e !important;
+}
+.dark header .bg-gray-100.rounded-lg:hover {
+  background-color: #242740 !important;
+}
+
 /* ---- Scrollbars ---- */
 .dark ::-webkit-scrollbar        { background-color: #1a1d2e; }
 .dark ::-webkit-scrollbar-thumb  { background-color: #2a2e4a; border-radius: 4px; }
