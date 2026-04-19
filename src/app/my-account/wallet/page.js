@@ -41,8 +41,6 @@ export default function WalletPage() {
   const [accountNumber, setAccountNumber] = useState("")
   const [selectedAccount, setSelectedAccount] = useState("")
   const [withdrawAmount, setWithdrawAmount] = useState("")
-  const [rechargeAmount, setRechargeAmount] = useState("")
-  const [isTopupLoading, setIsTopupLoading] = useState(false)
   const [isWithdrawLoading, setIsWithdrawLoading] = useState(false)
   const [isConnectLoading, setIsConnectLoading] = useState(false)
   const [banks, setBanks] = useState([])
@@ -158,8 +156,8 @@ export default function WalletPage() {
 
   const rechargeBankAccount = {
     bank: "Хаан банк",
-    accountNumber: "5040647892",
-    accountName: "Торгоны зам ХХК",
+    accountNumber: "5570150867",
+    accountName: "ТОРГОНЫ ЗАМЫН ДУУДЛАГА",
     transactionPurpose: topupId
   }
 
@@ -243,36 +241,6 @@ export default function WalletPage() {
     }
   }
 
-  const handleTopup = async () => {
-    const amount = parseFloat(rechargeAmount)
-    if (!rechargeAmount || isNaN(amount) || amount <= 0) {
-      alert("Цэнэглэх дүнгээ оруулна уу")
-      return
-    }
-    setIsTopupLoading(true)
-    try {
-      const response = await fetchWithAuth("/api/wallet/topup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount }),
-      })
-      const data = await response.json()
-      if (!response.ok) {
-        alert(data?.detail || "Цэнэглэхэд алдаа гарлаа. Дахин оролдоно уу.")
-        return
-      }
-      console.log("Topup response:", data);
-      alert(data?.message ?? data?.detail ?? "Цэнэглэлтийн хүсэлт амжилттай илгээгдлээ!. Систэм таны гүйлгээг баталгаажуулсны дараа үлдэгдэл тань шинэчлэгдэх болно.")
-      setIsRechargeDialogOpen(false)
-      setRechargeAmount("")
-    } catch (error) {
-      console.error("Topup error:", error)
-      alert("Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.")
-    } finally {
-      setIsTopupLoading(false)
-    }
-  }
-
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
       alert("Хуулагдлаа!")
@@ -349,7 +317,7 @@ export default function WalletPage() {
                          <div>
                            <div className="font-bold text-red-700 text-sm mb-2">САНАМЖ</div>
                            <p className="text-red-600 text-sm leading-relaxed">
-                             Та гүйлгээний утга дээрх өөрийн кодыг оруулан, дараах банкын данс руу шилжүүлж хэтэвчээ цэнэглэнэ үү.
+                             Та гүйлгээний утга дээрх кодыг оруулан, доорх банкны данс руу мөнгөн дүнгээ шилжүүлснээр таны хэтэвч автоматаар цэнэглэгдэх болно.
                            </p>
                          </div>
                        </div>
@@ -363,6 +331,20 @@ export default function WalletPage() {
                          <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-red-500"></div>
                        </div>
                      </div>
+
+                     {/* IBAN */}
+                     <div className="grid gap-2">
+                       <Label className="text-sm font-medium text-gray-700">IBAN</Label>
+                       <div className="flex items-center justify-between p-2 xs-mobile:p-3 border border-gray-300 rounded-lg bg-white">
+                         <span className="text-gray-900 font-mono">61000500</span>
+                         <button
+                           onClick={() => copyToClipboard("61000500")}
+                           className="text-orange-500 hover:text-orange-600 text-sm font-medium px-1"
+                         >
+                           Хуулах
+                         </button>
+                       </div>
+                     </div>
                      
                      {/* Account Number */}
                      <div className="grid gap-2">
@@ -371,12 +353,9 @@ export default function WalletPage() {
                          <span className="text-gray-900 font-mono">{rechargeBankAccount.accountNumber}</span>
                          <button 
                            onClick={() => copyToClipboard(rechargeBankAccount.accountNumber)}
-                           className="text-orange-500 hover:text-orange-600 p-1"
+                           className="text-orange-500 hover:text-orange-600 text-sm font-medium px-1"
                          >
-                           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                             <path d="M8 3a1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                             <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
-                           </svg>
+                           Хуулах
                          </button>
                        </div>
                      </div>
@@ -388,12 +367,9 @@ export default function WalletPage() {
                          <span className="text-gray-900">{rechargeBankAccount.accountName}</span>
                          <button 
                            onClick={() => copyToClipboard(rechargeBankAccount.accountName)}
-                           className="text-orange-500 hover:text-orange-600 p-1"
+                           className="text-orange-500 hover:text-orange-600 text-sm font-medium px-1"
                          >
-                           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                             <path d="M8 3a1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                             <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
-                           </svg>
+                           Хуулах
                          </button>
                        </div>
                      </div>
@@ -405,47 +381,21 @@ export default function WalletPage() {
                          <span className="text-gray-900">{rechargeBankAccount.transactionPurpose}</span>
                          <button 
                            onClick={() => copyToClipboard(rechargeBankAccount.transactionPurpose)}
-                           className="text-orange-500 hover:text-orange-600 p-1"
+                           className="text-orange-500 hover:text-orange-600 text-sm font-medium px-1"
                          >
-                           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                             <path d="M8 3a1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                             <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
-                           </svg>
+                           Хуулах
                          </button>
                        </div>
                      </div>
 
-                     {/* Topup Amount */}
-                     <div className="grid gap-2">
-                       <Label htmlFor="recharge-amount" className="text-sm font-medium text-gray-700">
-                         Цэнэглэх дүн <span className="text-red-500">*</span>
-                       </Label>
-                       <Input
-                         id="recharge-amount"
-                         type="number"
-                         placeholder="Дүнгээ оруулна уу"
-                         value={rechargeAmount}
-                         onChange={(e) => setRechargeAmount(e.target.value)}
-                         className="w-full text-lg"
-                       />
-                     </div>
                    </div>
-                   
+
                    <DialogFooter className="flex-shrink-0 flex justify-end pt-4">
-                     <Button 
-                       variant="outline"
+                     <Button
                        onClick={() => setIsRechargeDialogOpen(false)}
-                       className="px-6 xs-mobile:px-8 mr-2"
-                       disabled={isTopupLoading}
+                       className="bg-orange-500 hover:bg-orange-600 text-white px-8"
                      >
                        ХААХ
-                     </Button>
-                     <Button
-                       onClick={handleTopup}
-                       className="bg-orange-500 hover:bg-orange-600 text-white px-6 xs-mobile:px-8"
-                       disabled={isTopupLoading}
-                     >
-                       {isTopupLoading ? "Илгээж байна..." : "ЦЭНЭГЛЭХ"}
                      </Button>
                    </DialogFooter>
                  </DialogContent>
