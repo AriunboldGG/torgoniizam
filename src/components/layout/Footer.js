@@ -102,7 +102,7 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
           {/* Copyright Information */}
           <div className="text-gray-400 text-center sm:text-left">
-            <p className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">© 2026 torgoniizam.mn - Зохиогчийн эрх хуулиар хамгаалагдан.</p>
+            <p className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">© 2026 torgoniizam.mn - Зохиогчийн эрх хуулиар хамгаалагдсан.</p>
           </div>
           
           {/* Legal Links */}
