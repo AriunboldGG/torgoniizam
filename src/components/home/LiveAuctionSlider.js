@@ -65,7 +65,7 @@ function CountdownTimer({ endTime, onEnd }) {
 export default function LiveAuctionSlider() {
   const scrollContainerRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const { searchQuery, selectedCategory, selectedSubcategory } = useSearch();
+  const { searchQuery, selectedCategory, selectedSubcategory, categorySubcategoryNames } = useSearch();
   
 
   const scrollLeft = () => {
@@ -143,13 +143,19 @@ export default function LiveAuctionSlider() {
         auction.category.toLowerCase() === selectedSubcategory.name.toLowerCase()
       );
     } else if (selectedCategory) {
-      filtered = filtered.filter(auction =>
-        auction.category.toLowerCase() === selectedCategory.toLowerCase()
-      );
+      if (categorySubcategoryNames.length > 0) {
+        filtered = filtered.filter(auction =>
+          categorySubcategoryNames.includes(auction.category.toLowerCase())
+        );
+      } else {
+        filtered = filtered.filter(auction =>
+          auction.category.toLowerCase() === selectedCategory.toLowerCase()
+        );
+      }
     }
 
     return filtered;
-  }, [allLiveAuctions_, searchQuery, selectedCategory, selectedSubcategory]);
+  }, [allLiveAuctions_, searchQuery, selectedCategory, selectedSubcategory, categorySubcategoryNames]);
 
   return (
     <section className="py-16 bg-gray-50">

@@ -1,6 +1,6 @@
 ﻿"use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { FaCar, FaMobileAlt, FaLaptop, FaGem, FaBolt, FaPhone, FaTag } from "react-icons/fa"
 import { MdTv, MdWatch, MdHomeWork, MdSportsBasketball, MdDirectionsBike } from "react-icons/md"
 import { GiClothes, GiSofa, GiBookshelf } from "react-icons/gi"
@@ -25,10 +25,13 @@ function getCategoryIcon(name = "") {
   return FaTag
 }
 
-export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, selectedCategory, selectedSubcategory }) {
+export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, selectedCategory, selectedSubcategory, onChildrenCacheReady }) {
   const [categories, setCategories] = useState([])
   const [subcategories, setSubcategories] = useState([])
-  const [loadingChildren, setLoadingChildren] = useState(false)
+  // Map<categoryId, subcategory[]> — built once after parent list loads
+  const [childrenCache, setChildrenCache] = useState(new Map())
+  // Use a ref so handleCategoryClick always sees the latest cache
+  const childrenCacheRef = useRef(new Map())
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -36,20 +39,44 @@ export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, 
         const response = await fetch(`/api/lot/category`)
         const json = await response.json()
         const list = json?.data ?? json
-        if (Array.isArray(list)) {
-          setCategories(
-            list.map((cat) => ({
-              id: String(cat.key ?? cat.id),
-              name: cat.value ?? cat.name ?? "",
-              count: cat.count ?? cat.lot_count ?? 0,
-            }))
-          )
-        }
+        if (!Array.isArray(list)) return
+        const mapped = list.map((cat) => ({
+          id: String(cat.key ?? cat.id),
+          name: cat.value ?? cat.name ?? "",
+          count: cat.count ?? cat.lot_count ?? 0,
+        }))
+        setCategories(mapped)
+
+        // Prefetch children — update cache incrementally as each fetch resolves
+        // so clicking any category immediately after it loads works
+        const finalCache = new Map()
+        await Promise.all(
+          mapped.map(async (cat) => {
+            try {
+              const res = await fetch(`/api/lot/category/${cat.id}?has_attribute=true`)
+              const j = await res.json()
+              const children = j?.data ?? j
+              const mapped_children = Array.isArray(children)
+                ? children.map((s) => ({
+                    id: String(s.key ?? s.id),
+                    name: s.value ?? s.name ?? "",
+                    count: s.count ?? s.lot_count ?? 0,
+                  }))
+                : []
+              finalCache.set(cat.id, mapped_children)
+              childrenCacheRef.current.set(cat.id, mapped_children)
+              // Update state incrementally so clicks work as soon as one category loads
+              setChildrenCache(new Map(childrenCacheRef.current))
+            } catch { /* ignore per-category errors */ }
+          })
+        )
+        if (onChildrenCacheReady) onChildrenCacheReady(childrenCacheRef.current)
       } catch (error) {
         console.error("Failed to fetch categories:", error)
       }
     }
     fetchCategories()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const [localSelectedCategory, setLocalSelectedCategory] = useState(null)
@@ -59,7 +86,7 @@ export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, 
   const isSameCategory = (a, b) =>
     a && b && (a.id != null ? a.id === b.id : a.name === b.name)
 
-  const handleCategoryClick = async (category) => {
+  const handleCategoryClick = (category) => {
     if (isSameCategory(currentSelectedCategory, category)) {
       if (onCategorySelect) onCategorySelect(null)
       else setLocalSelectedCategory(null)
@@ -70,29 +97,8 @@ export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, 
     if (onCategorySelect) onCategorySelect(category)
     else setLocalSelectedCategory(category)
 
-    // Fetch children for the clicked parent
-    setLoadingChildren(true)
-    try {
-      const response = await fetch(`/api/lot/category/${category.id}?has_attribute=true`)
-      const json = await response.json()
-      const list = json?.data ?? json
-      if (Array.isArray(list)) {
-        setSubcategories(
-          list.map((sub) => ({
-            id: String(sub.key ?? sub.id),
-            name: sub.value ?? sub.name ?? "",
-            count: sub.count ?? sub.lot_count ?? 0,
-          }))
-        )
-      } else {
-        setSubcategories([])
-      }
-    } catch (error) {
-      console.error("Failed to fetch subcategories:", error)
-      setSubcategories([])
-    } finally {
-      setLoadingChildren(false)
-    }
+    // Read from ref — always has the latest cache even mid-fetch
+    setSubcategories(childrenCacheRef.current.get(category.id) ?? [])
   }
 
   const handleSubcategoryClick = (subcategory) => {
@@ -148,9 +154,7 @@ export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, 
         {/* Subcategories */}
         {currentSelectedCategory && (
           <div className="border-t pt-3 md:pt-3">
-            {loadingChildren ? (
-              <div className="text-sm text-gray-400 py-2">Уншиж байна...</div>
-            ) : subcategories.length > 0 ? (
+            {subcategories.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {subcategories.map((subcategory, index) => (
                   <button

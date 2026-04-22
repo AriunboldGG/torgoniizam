@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -49,6 +49,8 @@ export default function LiveAuctionsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [categorySubcategoryNames, setCategorySubcategoryNames] = useState([]);
+  const childrenCacheRef = useRef(new Map());
   const [selectedDateFilter, setSelectedDateFilter] = useState('all');
   const [selectedPriceFilter, setSelectedPriceFilter] = useState('all');
   const [minPrice, setMinPrice] = useState('');
@@ -99,12 +101,23 @@ export default function LiveAuctionsPage() {
     }
 
     // Category and subcategory filtering
-    if (selectedCategory) {
-      filtered = filtered.filter(auction => auction.category === selectedCategory.name);
-    }
-
     if (selectedSubcategory) {
-      filtered = filtered.filter(auction => auction.subcategory === selectedSubcategory.name);
+      const subName = selectedSubcategory.name.toLowerCase();
+      filtered = filtered.filter(auction =>
+        auction.subcategory.toLowerCase() === subName ||
+        auction.category.toLowerCase() === subName
+      );
+    } else if (selectedCategory) {
+      if (categorySubcategoryNames.length > 0) {
+        filtered = filtered.filter(auction =>
+          categorySubcategoryNames.includes(auction.category.toLowerCase()) ||
+          categorySubcategoryNames.includes(auction.subcategory.toLowerCase())
+        );
+      } else {
+        filtered = filtered.filter(auction =>
+          auction.category.toLowerCase() === selectedCategory.name.toLowerCase()
+        );
+      }
     }
 
     // Date filtering
@@ -161,7 +174,7 @@ export default function LiveAuctionsPage() {
     }
 
     setFilteredAuctions(filtered);
-  }, [liveAuctions, selectedCategory, selectedSubcategory, selectedDateFilter, selectedPriceFilter, minPrice, maxPrice, searchQuery]);
+  }, [liveAuctions, selectedCategory, selectedSubcategory, categorySubcategoryNames, selectedDateFilter, selectedPriceFilter, minPrice, maxPrice, searchQuery]);
 
   // Reset to page 1 when any filter/search changes
   useEffect(() => {
@@ -170,7 +183,9 @@ export default function LiveAuctionsPage() {
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
-    setSelectedSubcategory(null); // Reset subcategory when category changes
+    setSelectedSubcategory(null);
+    const children = category ? (childrenCacheRef.current.get(category.id) ?? []) : [];
+    setCategorySubcategoryNames(children.map((s) => s.name.toLowerCase()));
   };
 
   const handleSubcategorySelect = (subcategory) => {
@@ -320,6 +335,7 @@ export default function LiveAuctionsPage() {
           onSubcategorySelect={handleSubcategorySelect}
           selectedCategory={selectedCategory}
           selectedSubcategory={selectedSubcategory}
+          onChildrenCacheReady={(cache) => { childrenCacheRef.current = cache }}
         />
       </div>
 

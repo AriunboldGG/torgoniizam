@@ -1,20 +1,36 @@
 "use client"
 
+import { useRef } from "react"
 import { useSearch } from "@/contexts/SearchContext"
 import CategoryFilter from "./CategoryFilter"
 
 export default function CategoryFilterConnector() {
-  const { selectedCategory, selectedSubcategory, updateSelectedCategory, updateSelectedSubcategory } = useSearch()
+  const { selectedCategory, selectedSubcategory, updateSelectedCategory, updateSelectedSubcategory, updateCategorySubcategoryNames } = useSearch()
+  const childrenCacheRef = useRef(new Map())
 
-  // Build category object shape that CategoryFilter expects for selectedCategory prop
   const categoryObj = selectedCategory ? { id: null, name: selectedCategory } : null
+
+  const handleChildrenCacheReady = (cache) => {
+    childrenCacheRef.current = cache
+  }
+
+  const handleCategorySelect = (cat) => {
+    updateSelectedCategory(cat?.name ?? "")
+    if (cat?.id) {
+      const children = childrenCacheRef.current.get(cat.id) ?? []
+      updateCategorySubcategoryNames(children.map((s) => s.name))
+    } else {
+      updateCategorySubcategoryNames([])
+    }
+  }
 
   return (
     <CategoryFilter
       selectedCategory={categoryObj}
       selectedSubcategory={selectedSubcategory}
-      onCategorySelect={(cat) => updateSelectedCategory(cat?.name ?? "")}
+      onCategorySelect={handleCategorySelect}
       onSubcategorySelect={(sub) => updateSelectedSubcategory(sub)}
+      onChildrenCacheReady={handleChildrenCacheReady}
     />
   )
 }

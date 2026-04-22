@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -36,6 +36,8 @@ export default function CompletedAuctionsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [categorySubcategoryNames, setCategorySubcategoryNames] = useState([]);
+  const childrenCacheRef = useRef(new Map());
   const [selectedDateFilter, setSelectedDateFilter] = useState('all');
   const [selectedPriceFilter, setSelectedPriceFilter] = useState('all');
   const ITEMS_PER_PAGE = 25;
@@ -69,15 +71,21 @@ export default function CompletedAuctionsPage() {
   // Category/subcategory filter logic (client-side)
   let filteredAuctions = completedAuctions;
   if (selectedSubcategory) {
-    const subName = typeof selectedSubcategory === 'string' ? selectedSubcategory : selectedSubcategory.name;
-    filteredAuctions = filteredAuctions.filter(auction => {
-      const matchSub = auction.subcategory && auction.subcategory.toLowerCase() === (subName || '').toLowerCase();
-      const matchCat = auction.category && auction.category.toLowerCase() === (subName || '').toLowerCase();
-      return matchSub || matchCat;
-    });
+    const subName = (typeof selectedSubcategory === 'string' ? selectedSubcategory : selectedSubcategory.name).toLowerCase();
+    filteredAuctions = filteredAuctions.filter(a =>
+      a.category.toLowerCase() === subName
+    );
+  } else if (selectedCategory) {
+    if (categorySubcategoryNames.length > 0) {
+      filteredAuctions = filteredAuctions.filter(a =>
+        categorySubcategoryNames.includes(a.category.toLowerCase())
+      );
+    } else {
+      filteredAuctions = filteredAuctions.filter(a =>
+        a.category.toLowerCase() === selectedCategory.name.toLowerCase()
+      );
+    }
   }
-
-  // If only parent category is selected, do NOT filter at all (show all)
 
   // Date filtering
   if (selectedDateFilter !== 'all') {
@@ -109,6 +117,8 @@ export default function CompletedAuctionsPage() {
     setSelectedCategory(category);
     setSelectedSubcategory(null);
     setCurrentPage(1);
+    const children = category ? (childrenCacheRef.current.get(category.id) ?? []) : [];
+    setCategorySubcategoryNames(children.map((s) => s.name.toLowerCase()));
   };
   const handleSubcategorySelect = (subcategory) => {
     setSelectedSubcategory(subcategory);
@@ -208,6 +218,7 @@ export default function CompletedAuctionsPage() {
           onSubcategorySelect={handleSubcategorySelect}
           selectedCategory={selectedCategory}
           selectedSubcategory={selectedSubcategory}
+          onChildrenCacheReady={(cache) => { childrenCacheRef.current = cache }}
         />
       </div>
 

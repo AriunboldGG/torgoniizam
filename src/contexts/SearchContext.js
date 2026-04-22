@@ -8,6 +8,8 @@ export function SearchProvider({ children }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  // lowercase subcategory names that belong to the selected parent category
+  const [categorySubcategoryNames, setCategorySubcategoryNames] = useState([]);
 
   const updateSearchQuery = (query) => {
     setSearchQuery(query);
@@ -16,6 +18,11 @@ export function SearchProvider({ children }) {
   const updateSelectedCategory = (category) => {
     setSelectedCategory(category);
     setSelectedSubcategory(null);
+    setCategorySubcategoryNames([]);
+  };
+
+  const updateCategorySubcategoryNames = (names) => {
+    setCategorySubcategoryNames(names.map((n) => n.toLowerCase()));
   };
 
   const updateSelectedSubcategory = (subcategory) => {
@@ -26,6 +33,7 @@ export function SearchProvider({ children }) {
     setSearchQuery('');
     setSelectedCategory('');
     setSelectedSubcategory(null);
+    setCategorySubcategoryNames([]);
   };
 
   return (
@@ -33,8 +41,10 @@ export function SearchProvider({ children }) {
       searchQuery,
       selectedCategory,
       selectedSubcategory,
+      categorySubcategoryNames,
       updateSearchQuery,
       updateSelectedCategory,
+      updateCategorySubcategoryNames,
       updateSelectedSubcategory,
       clearSearch
     }}>

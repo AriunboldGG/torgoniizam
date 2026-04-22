@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
@@ -47,6 +47,8 @@ export default function PendingAuctions() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [categorySubcategoryNames, setCategorySubcategoryNames] = useState([]);
+  const childrenCacheRef = useRef(new Map());
   const [selectedDateFilter, setSelectedDateFilter] = useState('all');
   const [selectedPriceFilter, setSelectedPriceFilter] = useState('all');
   const [minPrice, setMinPrice] = useState('');
@@ -83,20 +85,22 @@ export default function PendingAuctions() {
       }
     }
 
-    // Only filter by subcategory (child) if selected
+    // Subcategory filter
     if (selectedSubcategory) {
-      const subName = typeof selectedSubcategory === 'string' ? selectedSubcategory : selectedSubcategory.name;
-      // Some data may store the child category in either 'subcategory' or 'category' field
-      const matchSub = auction.subcategory && auction.subcategory.toLowerCase() === (subName || '').toLowerCase();
-      const matchCat = auction.category && auction.category.toLowerCase() === (subName || '').toLowerCase();
-      if (matchSub || matchCat) {
-        return true;
-      }
-      return false;
+      const subName = (typeof selectedSubcategory === 'string' ? selectedSubcategory : selectedSubcategory.name).toLowerCase();
+      return auction.subcategory.toLowerCase() === subName || auction.category.toLowerCase() === subName;
     }
 
-    // If only parent category is selected, do NOT filter at all (show all)
-    // If nothing selected, show all
+    // Parent category filter — match any lot whose category is one of the children
+    if (selectedCategory) {
+      if (categorySubcategoryNames.length > 0) {
+        return categorySubcategoryNames.includes(auction.category.toLowerCase()) ||
+               categorySubcategoryNames.includes(auction.subcategory.toLowerCase());
+      } else {
+        return auction.category.toLowerCase() === selectedCategory.name.toLowerCase();
+      }
+    }
+
     return true;
   });
 
@@ -166,8 +170,10 @@ export default function PendingAuctions() {
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category);
-    setSelectedSubcategory(null); // Reset subcategory when category changes
-    setCurrentPage(1); // Reset to first page when filtering
+    setSelectedSubcategory(null);
+    setCurrentPage(1);
+    const children = category ? (childrenCacheRef.current.get(category.id) ?? []) : [];
+    setCategorySubcategoryNames(children.map((s) => s.name.toLowerCase()));
   };
 
   const handleSubcategorySelect = (subcategory) => {
@@ -291,6 +297,7 @@ export default function PendingAuctions() {
           onSubcategorySelect={handleSubcategorySelect}
           selectedCategory={selectedCategory}
           selectedSubcategory={selectedSubcategory}
+          onChildrenCacheReady={(cache) => { childrenCacheRef.current = cache }}
         />
       </div>
 
