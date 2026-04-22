@@ -415,7 +415,7 @@ export default function LiveAuctionsPage() {
 
                 {/* Action Buttons */}
                 <div className="flex space-x-3">
-                  <Link href={`/auction/${auction.id}`} target="_blank" rel="noopener noreferrer">
+                  <Link href={`/auction/${auction.id}`}  rel="noopener noreferrer">
                     <Button variant="outline" className="px-4 font-tt-firs-neue-variable font-medium text-base leading-6 text-gray-600 hover:bg-gray-50 flex items-center gap-1.5">
                       <MdVisibility className="text-lg" /> Дэлгэрэнгүй
                     </Button>

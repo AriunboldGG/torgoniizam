@@ -243,30 +243,16 @@ export default function TodayAuctions() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Hero Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 
-            className="text-4xl md:text-5xl font-bold text-[#FF4405] mb-6 font-tt-firs-neue-variable tracking-[2.4%] uppercase"
-          >
-            Өнөөдөр болох дуудлага худалдаа
-          </h1>
-        
-          <div className="flex flex-wrap justify-center gap-4">
-            <Badge variant="secondary" className="px-4 py-2 text-lg">
-              Нийт: {filteredAuctions.length} дуудлага
-            </Badge>
-            <Badge variant="outline" className="px-4 py-2 text-lg">
-              Идэвхтэй: {filteredAuctions.filter(a => a.isLive).length}
-            </Badge>
-            {selectedCategory && (
-              <Badge variant="default" className="px-4 py-2 text-lg bg-orange-500">
-                {selectedCategory.name}
-                {selectedSubcategory && ` • ${selectedSubcategory.name}`}
-              </Badge>
-            )}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-1 h-8 bg-[#FF4405] rounded-full"></div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#FF4405] uppercase font-tt-firs-neue-variable">
+              Өнөөдөр болох дуудлага худалдаа
+            </h1>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Category Filter Section */}
       <div className="py-8">

@@ -83,13 +83,20 @@ export default function PendingAuctions() {
       }
     }
 
-    // Category and subcategory filtering
-    if (selectedCategory && auction.category !== selectedCategory.name) {
+    // Only filter by subcategory (child) if selected
+    if (selectedSubcategory) {
+      const subName = typeof selectedSubcategory === 'string' ? selectedSubcategory : selectedSubcategory.name;
+      // Some data may store the child category in either 'subcategory' or 'category' field
+      const matchSub = auction.subcategory && auction.subcategory.toLowerCase() === (subName || '').toLowerCase();
+      const matchCat = auction.category && auction.category.toLowerCase() === (subName || '').toLowerCase();
+      if (matchSub || matchCat) {
+        return true;
+      }
       return false;
     }
-    if (selectedSubcategory && auction.subcategory !== selectedSubcategory.name) {
-      return false;
-    }
+
+    // If only parent category is selected, do NOT filter at all (show all)
+    // If nothing selected, show all
     return true;
   });
 
@@ -266,30 +273,16 @@ export default function PendingAuctions() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Hero Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 
-            className="text-4xl md:text-5xl font-bold text-[#FF4405] mb-6 font-tt-firs-neue-variable tracking-[2.4%] uppercase"
-          >
-            Хүлээгдэж буй дуудлага худалдаа
-          </h1>
-          
-          <div className="flex flex-wrap justify-center gap-4">
-            <Badge variant="secondary" className="px-4 py-2 text-lg">
-              Нийт: {filteredAuctions.length} дуудлага
-            </Badge>
-            <Badge variant="outline" className="px-4 py-2 text-lg">
-              Удахгүй эхлэх: {filteredAuctions.length}
-            </Badge>
-            {selectedCategory && (
-              <Badge variant="default" className="px-4 py-2 text-lg bg-orange-500">
-                {selectedCategory.name}
-                {selectedSubcategory && ` • ${selectedSubcategory.name}`}
-              </Badge>
-            )}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-1 h-8 bg-[#FF4405] rounded-full"></div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#FF4405] uppercase font-tt-firs-neue-variable">
+              Хүлээгдэж буй дуудлага худалдаа
+            </h1>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Category Filter Section */}
       <div className="py-8">
@@ -335,17 +328,24 @@ export default function PendingAuctions() {
             </div>
             
             <div className="flex items-center space-x-3">
-              <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF4405] focus:border-transparent">
-                <option>Бүгд</option>
-                <option>Энэ долоо хоног</option>
-                <option>Энэ сар</option>
-                <option>Дараагийн сар</option>
+              <select
+                value={selectedDateFilter}
+                onChange={(e) => handleDateFilterChange(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF4405] focus:border-transparent"
+              >
+                <option value="all">Бүгд</option>
+                <option value="this-week">Энэ долоо хоног</option>
+                <option value="this-month">Энэ сар</option>
+                <option value="next-month">Дараагийн сар</option>
               </select>
-              <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF4405] focus:border-transparent">
-                <option>Эхлэх хугацаа</option>
-                <option>Үнэ өсөх</option>
-                <option>Үнэ буурах</option>
-                <option>Хамгийн шинэ</option>
+              <select
+                value={selectedPriceFilter}
+                onChange={(e) => handlePriceFilterChange(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF4405] focus:border-transparent"
+              >
+                <option value="all">Эхлэх хугацаа</option>
+                <option value="low-to-high">Үнэ өсөх</option>
+                <option value="high-to-low">Үнэ буурах</option>
               </select>
             </div>
           </div>

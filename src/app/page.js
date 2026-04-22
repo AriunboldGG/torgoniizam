@@ -15,7 +15,7 @@ export default function Home() {
         <HeroSearch />
 
         {/* Category Filter Section — connected to SearchContext */}
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 pt-3 pb-4">
           <CategoryFilterConnector />
         </div>
 

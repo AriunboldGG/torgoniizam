@@ -16,30 +16,30 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://torgoniizam.mn'
 
 export const metadata = {
   title: {
-    default: "Торгониизам - Онлайн дуудлага худалдааны вебсайт",
-    template: "%s | Торгониизам",
+    default: "Торгоны зам - Онлайн дуудлага худалдааны вебсайт",
+    template: "%s | Торгоны зам",
   },
-  description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ. Хамгийн сайн үнээр дуусгавар дуудлага, шинэ болон хэрэглэсэн барааг дуудлагаар худалдан аваарай.",
+  description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ.",
   metadataBase: new URL(siteUrl),
   openGraph: {
     type: "website",
     locale: "mn_MN",
     url: siteUrl,
-    siteName: "Торгониизам",
-    title: "Торгониизам - Онлайн дуудлага худалдааны вебсайт",
-    description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ. Хамгийн сайн үнээр дуусгавар дуудлага, шинэ болон хэрэглэсэн барааг дуудлагаар худалдан аваарай.",
+    siteName: "Торгоны зам",
+    title: "Торгоны зам - Онлайн дуудлага худалдааны вебсайт",
+    description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ.",
     images: [
       {
         url: '/opengraph-image',
         width: 1200,
         height: 630,
-        alt: 'Торгониизам - Онлайн дуудлага худалдааны вебсайт',
+        alt: 'Торгоны зам - Онлайн дуудлага худалдааны вебсайт',
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Торгониизам - Онлайн дуудлага худалдааны вебсайт",
+    title: "Торгоны зам - Онлайн дуудлага худалдааны вебсайт",
     description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ.",
     images: ['/opengraph-image'],
   },
@@ -62,17 +62,17 @@ export default function RootLayout({ children }) {
         {/* OpenGraph — explicit tags for maximum scraper compatibility */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={siteUrl} />
-        <meta property="og:site_name" content="Торгониизам" />
-        <meta property="og:title" content="Торгониизам - Онлайн дуудлага худалдааны вебсайт" />
-        <meta property="og:description" content="Монголын тэргүүлэх онлайн дуудлага худалдааны платформ. Хамгийн сайн үнээр дуусгавар дуудлага, шинэ болон хэрэглэсэн барааг дуудлагаар худалдан аваарай." />
+        <meta property="og:site_name" content="Торгоны зам" />
+        <meta property="og:title" content="Торгоны зам - Онлайн дуудлага худалдааны вебсайт" />
+        <meta property="og:description" content="Монголын тэргүүлэх онлайн дуудлага худалдааны платформ." />
         <meta property="og:image" content={ogImageUrl} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Торгониизам - Онлайн дуудлага худалдааны вебсайт" />
+        <meta property="og:image:alt" content="Торгоны зам - Онлайн дуудлага худалдааны вебсайт" />
         <meta property="og:locale" content="mn_MN" />
         {/* Twitter / X Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Торгониизам - Онлайн дуудлага худалдааны вебсайт" />
+        <meta name="twitter:title" content="Торгоны зам - Онлайн дуудлага худалдааны вебсайт" />
         <meta name="twitter:description" content="Монголын тэргүүлэх онлайн дуудлага худалдааны платформ." />
         <meta name="twitter:image" content={ogImageUrl} />
       </head>

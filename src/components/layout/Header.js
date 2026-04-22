@@ -171,6 +171,23 @@ export default function Header() {
                         </span>
                       </div>
                     </Link>
+                    <Link href="/auctions/completed" onClick={() => setIsDropdownOpen(false)}>
+                      <div className={`px-6 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
+                        isActivePage("/auctions/completed") ? "bg-green-50" : ""
+                      }`}>
+                        <span 
+                          className={`font-bold uppercase transition-colors font-tt-firs-neue-variable tracking-[2.4%] ${
+                            isActivePage("/auctions/completed") 
+                              ? "text-green-600" 
+                              : "text-gray-700 hover:text-green-600"
+                          }`}
+                        >
+                          <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
+                            Дууссан дуудлага худалдаа
+                          </span>
+                        </span>
+                      </div>
+                    </Link>
                   </div>
                 )}
               </div>

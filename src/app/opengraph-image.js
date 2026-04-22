@@ -96,7 +96,7 @@ export default function Image() {
               textTransform: 'uppercase',
             }}
           >
-            ТОРГОНИИЗАМ
+            ТОРГОНЫ ЗАМ
           </div>
 
           {/* Divider */}

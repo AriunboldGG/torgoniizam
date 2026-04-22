@@ -225,16 +225,16 @@ export default function WalletPage() {
       const data = await response.json()
       
       if (!response.ok) {
-        alert(data?.detail || data?.msg || "Таталт хийхэд алдаа гарлаа. Дахин оролдоно уу.")
+        alert(data?.msg || "Таталт хийхэд алдаа гарлаа. Дахин оролдоно уу.")
         return
       }
-      alert(data?.message ?? data?.detail ?? "Таталт амжилттай хийгдлээ!")
+      
+      alert(data?.msg ?? "Таталтын хүсэлт амжилттай илгээгдлээ!")
       setIsWithdrawDialogOpen(false)
       setSelectedAccount("")
       setWithdrawAmount("")
       refetchBalance()
     } catch (error) {
-      console.error("Withdraw error:", error)
       alert("Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.")
     } finally {
       setIsWithdrawLoading(false)
