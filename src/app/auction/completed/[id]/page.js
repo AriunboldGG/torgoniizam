@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import ImageZoom from "@/components/ui/image-zoom"
-import { getAssetUrl } from "@/lib/utils"
+import { getAssetUrl, mapAttributes } from "@/lib/utils"
 
 export default function CompletedAuctionPage({ params }) {
   const unwrappedParams = use(params);
@@ -38,6 +38,7 @@ export default function CompletedAuctionPage({ params }) {
           winner: lot.winner?.value ?? lot.winner?.name ?? "",
           isCompleted: true,
           description: lot.description ?? "",
+          attributes: mapAttributes(lot.attributes),
         })
       } catch (error) {
         console.error("Failed to fetch lot detail:", error)
@@ -229,9 +230,19 @@ export default function CompletedAuctionPage({ params }) {
                 <h3 className="text-xl font-bold text-gray-900 mb-4 font-tt-firs-neue-variable">
                   Барааны дэлгэрэнгүй
                 </h3>
-                <p className="text-gray-700 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed mb-4">
                   {auctionItem.description}
                 </p>
+                {auctionItem.attributes?.length > 0 && (
+                  <div className="space-y-3">
+                    {auctionItem.attributes.map((attr, index) => (
+                      <div key={index} className="flex justify-between py-2 border-b border-gray-100 last:border-b-0">
+                        <span className="text-gray-600 font-medium">{attr.label}</span>
+                        <span className="font-bold text-gray-900">{attr.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

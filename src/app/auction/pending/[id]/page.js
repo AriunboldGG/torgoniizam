@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import ImageZoom from "@/components/ui/image-zoom"
-import { getAssetUrl } from "@/lib/utils"
+import { getAssetUrl, mapAttributes } from "@/lib/utils"
 import { FiCalendar } from "react-icons/fi"
 
 export default function PendingAuctionPage({ params }) {
@@ -25,9 +25,7 @@ export default function PendingAuctionPage({ params }) {
           ? rawImages.map((img) => getAssetUrl(typeof img === "string" ? img : img.url ?? img.image ?? ""))
           : [getAssetUrl(lot.thumbnail ?? "/images/pending1.png")]
 
-        const attrs = lot.attributes && typeof lot.attributes === "object" && !Array.isArray(lot.attributes)
-          ? Object.entries(lot.attributes).map(([label, value]) => ({ label, value: String(value) }))
-          : []
+        const attrs = mapAttributes(lot.attributes)
 
         setAuctionItem({
           id: lot.id,

@@ -32,4 +32,30 @@ export function formatMongolianDate(dateString, { includeTime = true } = {}) {
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const base = `${year} оны ${month}-р сарын ${day}`;
   return includeTime ? `${base}, ${hours}:${minutes}` : base;
+}
+
+export const CAR_ATTR_LABELS = {
+  condition:         "Нөхцөл",
+  type:              "Төрөл",
+  doors:             "Хаалга",
+  steeringWheel:     "Жолооны байрлал",
+  driveType:         "Хөтлөгч",
+  yearOfManufacture: "Үйлдвэрлэсэн он",
+  yearOfImport:      "Орж ирсэн он",
+  engine:            "Хөдөлгүүр",
+  engineCapacity:    "Мотор багтаамж",
+  gearbox:           "Хурдны хайрцаг",
+  interiorColor:     "Дотор өнгө",
+  mileage:           "Явсан км",
+  color:             "Өнгө",
+  chassis:           "Арлын дугаар",
+}
+
+/** Maps raw lot.attributes object to [{label, value}] with Mongolian labels */
+export function mapAttributes(attributes) {
+  if (!attributes || typeof attributes !== "object" || Array.isArray(attributes)) return []
+  return Object.entries(attributes).map(([key, value]) => ({
+    label: CAR_ATTR_LABELS[key] ?? key,
+    value: String(value),
+  }))
 } 

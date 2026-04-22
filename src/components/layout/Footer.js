@@ -46,7 +46,7 @@ export default function Footer() {
                 height={16}
                 className="w-4 h-4 sm:w-5 sm:h-5"
               />
-              <span className="text-white text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">info@silkroad.mn</span>
+              <span className="text-white text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">email</span>
             </div>
             
             <div className="flex items-center space-x-2">
@@ -57,7 +57,7 @@ export default function Footer() {
                 height={16}
                 className="w-4 h-4 sm:w-5 sm:h-5"
               />
-              <span className="text-white text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">7788-9922</span>
+              <span className="text-white text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">7788-****</span>
             </div>
           </div>
           

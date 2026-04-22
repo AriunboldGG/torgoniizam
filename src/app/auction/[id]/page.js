@@ -11,7 +11,7 @@ import ImageZoom from "@/components/ui/image-zoom"
 import { useUser } from "@/contexts/UserContext"
 import { useSearchParams } from "next/navigation"
 import { FaAward } from "react-icons/fa"
-import { getAssetUrl } from "@/lib/utils"
+import { getAssetUrl, mapAttributes } from "@/lib/utils"
 
 // Countdown Timer Component
 function CountdownTimer({ endTime, onEnd }) {
@@ -209,9 +209,7 @@ export default function AuctionItemPage({ params }) {
           ? rawImages.map((img) => getAssetUrl(typeof img === "string" ? img : img.url ?? img.image ?? ""))
           : [getAssetUrl(lot.thumbnail ?? "/images/end4.png")]
 
-        const specs = lot.attributes && typeof lot.attributes === "object" && !Array.isArray(lot.attributes)
-          ? Object.entries(lot.attributes).map(([label, value]) => ({ label, value: String(value) }))
-          : []
+        const specs = mapAttributes(lot.attributes)
 
         const rawBids = Array.isArray(lot.last_bids) ? lot.last_bids : (Array.isArray(lot.bids) ? lot.bids : [])
         
