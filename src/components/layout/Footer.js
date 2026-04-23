@@ -11,7 +11,7 @@ export default function Footer() {
           <div className="flex justify-center mb-4 sm:mb-6">
             <Image 
               src="/svg/footer-logo.svg" 
-              alt="ТОРГОНЫ ЗАМ" 
+              alt="ТОРГОНЫ ЗАМ ДУУДЛАГА ХУДАЛДААНЫ ПЛАТФОРМ" 
               width={120}
               height={80}
               className="w-20 h-16 sm:w-32 sm:h-20 lg:w-40 lg:h-28 xl:w-48 xl:h-32 2xl:w-52 2xl:h-36"
