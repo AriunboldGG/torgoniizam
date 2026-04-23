@@ -19,7 +19,7 @@ export const metadata = {
     default: "Торгоны зам - Онлайн дуудлага худалдааны вебсайт",
     template: "%s | Торгоны зам",
   },
-  description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ.",
+  description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ. Машин, гар утас, компьютер болон бусад барааг онлайнаар дуудлага худалдаанд оруулах боломжтой.",
   metadataBase: new URL(siteUrl),
   openGraph: {
     type: "website",
@@ -27,25 +27,29 @@ export const metadata = {
     url: siteUrl,
     siteName: "Торгоны зам",
     title: "Торгоны зам - Онлайн дуудлага худалдааны вебсайт",
-    description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ.",
+    description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ. Машин, гар утас, компьютер болон бусад барааг онлайнаар дуудлага худалдаанд оруулах боломжтой.",
     images: [
       {
-        url: '/opengraph-image',
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: 'Торгоны зам - Онлайн дуудлага худалдааны вебсайт',
+        type: 'image/png',
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Торгоны зам - Онлайн дуудлага худалдааны вебсайт",
-    description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ.",
-    images: ['/opengraph-image'],
+    description: "Монголын тэргүүлэх онлайн дуудлага худалдааны платформ. Машин, гар утас, компьютер болон бусад барааг онлайнаар дуудлага худалдаанд оруулах боломжтой.",
+    images: [`${siteUrl}/og-image.png`],
   },
   icons: {
-    icon: "/svg/header/main-logo-light.svg",
-    shortcut: "/svg/header/main-logo-light.svg",
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
   },
 };
 
@@ -54,27 +58,10 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
-  const ogImageUrl = `${siteUrl}/opengraph-image`
   return (
-    <html lang="en" style={{ colorScheme: "light" }} suppressHydrationWarning>
+    <html lang="mn" style={{ colorScheme: "light" }} suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light" />
-        {/* OpenGraph — explicit tags for maximum scraper compatibility */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={siteUrl} />
-        <meta property="og:site_name" content="Торгоны зам" />
-        <meta property="og:title" content="Торгоны зам - Онлайн дуудлага худалдааны вебсайт" />
-        <meta property="og:description" content="Монголын тэргүүлэх онлайн дуудлага худалдааны платформ." />
-        <meta property="og:image" content={ogImageUrl} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Торгоны зам - Онлайн дуудлага худалдааны вебсайт" />
-        <meta property="og:locale" content="mn_MN" />
-        {/* Twitter / X Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Торгоны зам - Онлайн дуудлага худалдааны вебсайт" />
-        <meta name="twitter:description" content="Монголын тэргүүлэх онлайн дуудлага худалдааны платформ." />
-        <meta name="twitter:image" content={ogImageUrl} />
       </head>
       <body className={`${inter.variable} antialiased`}>
         <ThemeProvider>

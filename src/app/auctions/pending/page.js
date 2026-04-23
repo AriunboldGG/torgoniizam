@@ -360,7 +360,7 @@ export default function PendingAuctions() {
           {/* Auctions Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {pendingAuctions.map((auction) => (
-              <Link key={auction.id} href={`/auction/pending/${auction.id}`} target="_blank" rel="noopener noreferrer" className="block">
+              <Link key={auction.id} href={`/auction/pending/${auction.id}`} rel="noopener noreferrer" className="block">
                 <Card className="overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 bg-white border border-gray-200 cursor-pointer group">
                   {/* Image Section with Badge and Countdown */}
                   <div className="relative aspect-square bg-white overflow-hidden">
