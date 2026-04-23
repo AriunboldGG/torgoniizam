@@ -63,7 +63,7 @@ export default function Footer() {
           
           {/* Social Media Buttons */}
           <div className="flex justify-center space-x-3 sm:space-x-4">
-            <button className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors">
+            <a href="https://www.facebook.com/search/top?q=torgoniizam.mn" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors">
               <Image 
                 src="/svg/fblogo.svg" 
                 alt="Facebook" 
@@ -71,7 +71,7 @@ export default function Footer() {
                 height={20}
                 className="w-5 h-5 sm:w-6 sm:h-6"
               />
-            </button>
+            </a>
             
           
             
