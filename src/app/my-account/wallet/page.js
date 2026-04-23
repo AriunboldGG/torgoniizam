@@ -16,6 +16,7 @@ import {
   MdCardGiftcard,
 } from "react-icons/md"
 import { CiWallet } from "react-icons/ci"
+import { MdOutlineAccountBalance, MdDeleteOutline } from "react-icons/md"
 import { PiHandWithdraw } from "react-icons/pi"
 import { TbDeviceDesktopUp } from "react-icons/tb"
 import {
@@ -37,6 +38,8 @@ export default function WalletPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isWithdrawDialogOpen, setIsWithdrawDialogOpen] = useState(false)
   const [isRechargeDialogOpen, setIsRechargeDialogOpen] = useState(false)
+  const [isLinkedAccountsOpen, setIsLinkedAccountsOpen] = useState(false)
+  const [deletingAccountId, setDeletingAccountId] = useState(null)
   const [selectedBank, setSelectedBank] = useState("")
   const [accountNumber, setAccountNumber] = useState("")
   const [selectedAccount, setSelectedAccount] = useState("")
@@ -78,7 +81,8 @@ export default function WalletPage() {
             list.map((a) => ({
               value: String(a.id),
               label: a.account_no,
-              bank: a.bank?.name ?? a.bank_name ?? "",
+              bank: a.bank?.value ?? a.bank?.name ?? a.bank_name ?? "",
+              iban: a.iban ?? "",
             }))
           )
         }
@@ -184,7 +188,7 @@ export default function WalletPage() {
       const d = await res.json()
       const lst = d?.data ?? d
       if (Array.isArray(lst)) {
-        setConnectedAccounts(lst.map((a) => ({ value: String(a.id), label: a.account_no, bank: a.bank?.name ?? a.bank_name ?? "" })))
+        setConnectedAccounts(lst.map((a) => ({ value: String(a.id), label: a.account_no, bank: a.bank?.value ?? a.bank?.name ?? a.bank_name ?? "", iban: a.iban ?? "" })))
       }
       setIsDialogOpen(false)
       setSelectedBank("")
@@ -238,6 +242,28 @@ export default function WalletPage() {
       alert("Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.")
     } finally {
       setIsWithdrawLoading(false)
+    }
+  }
+
+  const handleDeleteAccount = async (accountId) => {
+    if (!confirm("Энэ дансыг устгах уу?")) return
+    setDeletingAccountId(accountId)
+    try {
+      const response = await fetchWithAuth(`/api/account/delete?id=${accountId}`, {
+        method: "DELETE",
+      })
+      const data = await response.json()
+      console.log("Delete account response:", { status: response.status, data })
+      if (!response.ok) {
+        alert(data?.msg || "Данс устгахад алдаа гарлаа.")
+        return
+      }
+      setConnectedAccounts((prev) => prev.filter((a) => a.value !== accountId))
+      alert(data?.data?.msg || data?.msg || "Данс амжилттай устгагдлаа.")
+    } catch {
+      alert("Серверт холбогдоход алдаа гарлаа.")
+    } finally {
+      setDeletingAccountId(null)
     }
   }
 
@@ -566,6 +592,72 @@ export default function WalletPage() {
                       disabled={isConnectLoading}
                     >
                       {isConnectLoading ? "Илгээж байна..." : "ХОЛБОХ"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              {/* Linked Accounts Button */}
+              <Dialog open={isLinkedAccountsOpen} onOpenChange={setIsLinkedAccountsOpen}>
+                <DialogTrigger asChild>
+                  <button className="bg-gray-800 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
+                    <MdOutlineAccountBalance className="text-xl lg:text-2xl" />
+                    <span>Холбосон данс харах</span>
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-hidden flex flex-col p-3 xs-mobile:p-4 sm:p-6">
+                  <DialogHeader className="flex-shrink-0">
+                    <DialogTitle className="text-xl font-bold text-gray-900">ХОЛБОСОН ДАНС</DialogTitle>
+                    <DialogDescription className="text-gray-600">
+                      Таны бүртгэлтэй банкны дансуудын жагсаалт
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex-1 overflow-y-auto py-3 xs-mobile:py-4">
+                    {connectedAccounts.length === 0 ? (
+                      <div className="text-center py-8 text-gray-400">
+                        <MdOutlineAccountBalance className="text-4xl mx-auto mb-3 opacity-40" />
+                        <p className="text-sm">Холбогдсон данс байхгүй байна</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {connectedAccounts.map((account, idx) => (
+                          <div key={account.value} className="border border-gray-200 rounded-xl p-3 xs-mobile:p-4 bg-gray-50">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="bg-orange-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                                <MdOutlineAccountBalance className="text-orange-500 text-base" />
+                              </div>
+                              <span className="font-semibold text-gray-900 text-sm flex-1">{account.bank || "Банк"}</span>
+                              <button
+                                onClick={() => handleDeleteAccount(account.value)}
+                                disabled={deletingAccountId === account.value}
+                                className="ml-auto p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                                title="Данс устгах"
+                              >
+                                {deletingAccountId === account.value
+                                  ? <span className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin inline-block" />
+                                  : <MdDeleteOutline className="text-lg" />}
+                              </button>
+                            </div>
+                            <div className="grid gap-2 text-sm">
+                              <div className="flex justify-between items-center">
+                                <span className="text-gray-500">Дансны дугаар</span>
+                                <span className="font-mono font-medium text-gray-900">{account.label}</span>
+                              </div>
+                              {account.iban && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-gray-500">IBAN</span>
+                                  <span className="font-mono font-medium text-gray-900 text-xs">{account.iban}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <DialogFooter className="flex-shrink-0 pt-4">
+                    <Button onClick={() => setIsLinkedAccountsOpen(false)} className="bg-orange-500 hover:bg-orange-600 text-white px-8">
+                      ХААХ
                     </Button>
                   </DialogFooter>
                 </DialogContent>
