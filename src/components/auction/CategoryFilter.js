@@ -110,45 +110,47 @@ export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, 
 
   return (
     <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border">
+      <div className="bg-white p-3 sm:p-6 rounded-lg shadow-sm border">
         {/* Main Categories - horizontal scrollable row, full width */}
-        <div className="flex justify-between w-full py-2 mb-2 border-b border-gray-100">
+        <div className="overflow-x-auto scrollbar-hide -mx-1 px-1 py-2 mb-2 border-b border-gray-100">
+          <div className="flex gap-1 sm:gap-0 sm:justify-between w-max sm:w-full">
           {categories.map((category, idx) => {
             const Icon = getCategoryIcon(category.name)
             const selected = isSameCategory(currentSelectedCategory, category)
             return (
               <button
                 key={category.id}
-                className={`flex flex-col items-center px-3 py-2 rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer active:scale-95 ${
+                className={`flex flex-col items-center px-2 sm:px-3 py-2 rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-400 cursor-pointer active:scale-95 flex-none sm:flex-1 ${
                   selected
                     ? 'border-orange-500 bg-orange-50 shadow-md'
                     : 'border-transparent bg-transparent hover:bg-gray-50 hover:border-gray-200'
                 }`}
-                style={{ flex: '1 1 0', maxWidth: 220 }}
+                style={{ minWidth: 56 }}
                 onClick={() => handleCategoryClick(category)}
                 aria-pressed={selected}
                 tabIndex={0}
               >
-                <span className={`relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full mb-1 transition-all duration-200 ${
+                <span className={`relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full mb-1 transition-all duration-200 ${
                   selected ? 'bg-orange-500' : 'bg-gray-100'
                 }`}>
-                  <Icon className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-200 ${
+                  <Icon className={`w-4 h-4 sm:w-6 sm:h-6 transition-all duration-200 ${
                     selected ? 'text-white' : 'text-gray-600'
                   }`} />
-                  <span className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold border border-white shadow-sm ${
+                  <span className={`absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] font-bold border border-white shadow-sm ${
                     selected ? 'bg-white text-orange-500' : 'bg-orange-500 text-white'
                   }`}>
                     {category.count}
                   </span>
                 </span>
-                <span className={`text-xs font-medium text-center transition-colors duration-200 whitespace-normal break-words ${
+                <span className={`text-[10px] sm:text-xs font-medium text-center transition-colors duration-200 whitespace-normal break-words leading-tight sm:whitespace-nowrap sm:break-normal max-w-[60px] sm:max-w-none ${
                   selected ? 'text-orange-600' : 'text-gray-700'
-                }`} style={{ maxWidth: 200 }}>
+                }`}>
                   {category.name}
                 </span>
               </button>
             )
           })}
+          </div>
         </div>
 
         {/* Subcategories */}
