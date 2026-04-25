@@ -1,11 +1,15 @@
 import { ImageResponse } from 'next/og'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
-export const runtime = 'edge'
 export const alt = 'Торгоны зам - Онлайн дуудлага худалдааны платформ'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
 export default function Image() {
+  const logoData = readFileSync(join(process.cwd(), 'public/svg/header/main-logo-light.svg'))
+  const logoSrc = `data:image/svg+xml;base64,${logoData.toString('base64')}`
+
   return new ImageResponse(
     (
       <div
@@ -69,44 +73,13 @@ export default function Image() {
             zIndex: 1,
           }}
         >
-          {/* Orange badge */}
-          <div
-            style={{
-              background: '#FF4405',
-              borderRadius: '8px',
-              padding: '6px 20px',
-              fontSize: '18px',
-              fontWeight: 700,
-              color: 'white',
-              letterSpacing: '3px',
-              textTransform: 'uppercase',
-            }}
-          >
-            TORGONIIZAM.MN
-          </div>
-
-          {/* Brand name */}
-          <div
-            style={{
-              fontSize: '96px',
-              fontWeight: 900,
-              color: 'white',
-              letterSpacing: '-2px',
-              lineHeight: 1,
-              textTransform: 'uppercase',
-            }}
-          >
-            ТОРГОНЫ ЗАМ
-          </div>
-
-          {/* Divider */}
-          <div
-            style={{
-              width: '120px',
-              height: '4px',
-              background: '#FF4405',
-              borderRadius: '2px',
-            }}
+          {/* Main logo */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logoSrc}
+            width={400}
+            height={256}
+            alt="Торгоны зам"
           />
 
           {/* Tagline */}
@@ -118,7 +91,7 @@ export default function Image() {
               letterSpacing: '1px',
             }}
           >
-            Онлайн дуудлага худалдааны вебсайт
+            Онлайн дуудлага худалдааны платформ
           </div>
         </div>
       </div>
