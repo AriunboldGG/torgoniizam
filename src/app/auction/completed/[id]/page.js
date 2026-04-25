@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import ImageZoom from "@/components/ui/image-zoom"
+import RelatedProducts from "@/components/auction/RelatedProducts"
 import { getAssetUrl, mapAttributes } from "@/lib/utils"
 
 export default function CompletedAuctionPage({ params }) {
@@ -18,6 +19,7 @@ export default function CompletedAuctionPage({ params }) {
         const response = await fetch(`/api/lot/detail/${unwrappedParams.id}`)
         const json = await response.json()
         const lot = json?.data ?? json
+        console.log("Fetched lot detail:", lot)
 
         const rawImages = Array.isArray(lot.images) ? lot.images : []
         const images = rawImages.length > 0
@@ -34,7 +36,7 @@ export default function CompletedAuctionPage({ params }) {
           bidders: lot.bidder_count ?? 0,
           images,
           category: lot.category?.value ?? "",
-          location: lot.city?.value ?? "Улаанбаатар",
+          location: lot.city?.value ?? "-",
           winner: lot.winner?.value ?? lot.winner?.name ?? "",
           isCompleted: true,
           description: lot.description ?? "",
@@ -197,17 +199,17 @@ export default function CompletedAuctionPage({ params }) {
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Оролцож буй:</span>
+                    <span className="text-gray-600">Оролцсон:</span>
                     <span className="text-lg font-medium text-blue-600">
                       {auctionItem.bidders} хүн
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  {/* <div className="flex justify-between items-center">
                     <span className="text-gray-600">Ялагч:</span>
                     <span className="text-lg font-medium text-purple-600">
                       {auctionItem.winner}
                     </span>
-                  </div>
+                  </div> */}
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Эхлэх огноо:</span>
                     <span className="text-lg font-medium text-gray-900">
@@ -248,6 +250,11 @@ export default function CompletedAuctionPage({ params }) {
           </div>
         </div>
       </div>
+
+      {/* Related Products */}
+      {auctionItem && (
+        <RelatedProducts category={auctionItem.category} currentId={auctionItem.id} />
+      )}
 
       {/* Image Zoom Modal */}
       {showImageZoom && (

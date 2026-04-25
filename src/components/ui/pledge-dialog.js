@@ -11,14 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { useWallet } from "@/contexts/WalletContext";
 
-// Helper function to calculate pledge amount (10% of auction price)
-const calculatePledgeAmount = (priceString) => {
-  // Remove currency symbol and commas, then convert to number
-  const price = parseInt(priceString.replace(/[^\d]/g, ''));
-  const pledgeAmount = Math.round(price * 0.1);
-  // Format back to currency string
-  return pledgeAmount.toLocaleString() + '₮';
-};
+// Helper: format a number as currency string
+const formatAmount = (num) => `${Number(num).toLocaleString()}₮`;
 
 export default function PledgeDialog({ 
   isOpen, 
@@ -42,7 +36,7 @@ export default function PledgeDialog({
     setIsProcessing(true);
 
     try {
-      const pledgeAmount = parseInt(calculatePledgeAmount(auctionItem.startingPrice).replace(/[^\d]/g, ''));
+      const pledgeAmount = auctionItem.depositAmount ?? 0;
       
       // Check if user has sufficient balance
       if (walletBalance < pledgeAmount) {
@@ -75,7 +69,7 @@ export default function PledgeDialog({
           ));
 
         if (alreadyJoined) {
-          if (onPledgeConfirm) onPledgeConfirm(calculatePledgeAmount(auctionItem.startingPrice));
+          if (onPledgeConfirm) onPledgeConfirm(formatAmount(auctionItem.depositAmount));
           onOpenChange(false);
           setIsProcessing(false);
           return;
@@ -97,7 +91,7 @@ export default function PledgeDialog({
 
       setSuccessMessage(successMsg);
       if (onPledgeConfirm) {
-        onPledgeConfirm(calculatePledgeAmount(auctionItem.startingPrice));
+        onPledgeConfirm(formatAmount(auctionItem.depositAmount));
       }
       setTimeout(() => {
         setSuccessMessage('');
@@ -137,12 +131,12 @@ export default function PledgeDialog({
                   <span className="font-bold">{auctionItem.startingPrice}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Дэнчин (10%):</span>
-                  <span className="font-bold text-blue-600">{calculatePledgeAmount(auctionItem.startingPrice)}</span>
+                  <span>Дэнчин байршуулах үнэ:</span>
+                  <span className="font-bold text-blue-600">{formatAmount(auctionItem.depositAmount)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Таны үлдэгдэл:</span>
-                  <span className={`font-bold ${walletBalance >= parseInt(calculatePledgeAmount(auctionItem.startingPrice).replace(/[^\d]/g, '')) ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`font-bold ${walletBalance >= (auctionItem.depositAmount ?? 0) ? 'text-green-600' : 'text-red-600'}`}>
                     {walletBalance.toLocaleString()}₮
                   </span>
                 </div>

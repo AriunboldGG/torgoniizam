@@ -10,6 +10,8 @@ import useSWR from "swr";
 import { publicFetcher } from "@/lib/fetcher";import { getAssetUrl } from "@/lib/utils"
 export default function CompletedAuctionSection() {
   const scrollContainerRef = useRef(null);
+  const autoPlayRef = useRef(null);
+  const isHoveredRef = useRef(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const { searchQuery, selectedCategory, selectedSubcategory, categorySubcategoryNames } = useSearch();
 
@@ -111,6 +113,30 @@ export default function CompletedAuctionSection() {
     return filtered;
   }, [allCompletedAuctions, searchQuery, selectedCategory, selectedSubcategory, categorySubcategoryNames]);
 
+  // Autoplay: only when more than 4 items
+  useEffect(() => {
+    if (completedAuctions.length <= 4) return;
+
+    autoPlayRef.current = setInterval(() => {
+      if (isHoveredRef.current) return;
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const atEnd = scrollLeft + clientWidth >= scrollWidth - 16;
+
+      if (atEnd) {
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: 320, behavior: 'smooth' });
+      }
+    }, 3000);
+
+    return () => {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    };
+  }, [completedAuctions.length]);
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,10 +156,10 @@ export default function CompletedAuctionSection() {
           <Link href="/auctions/completed" target="_blank" rel="noopener noreferrer">
             <Button 
               variant="outline"
-              className="bg-white text-gray-600 hover:bg-gray-50 px-6 py-3 rounded-lg border border-gray-200 font-tt-firs-neue-variable font-medium text-base leading-6"
+              className="bg-white text-gray-600 hover:bg-gray-50 px-6 py-3 rounded-full border border-gray-200 font-tt-firs-neue-variable font-medium text-base leading-6"
             >
               <Image src="/svg/see-all.svg" alt="See All" width={16} height={16} className="w-4 h-4 mr-2" />
-              <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">
+              <span className="text-base font-medium leading-6 tracking-normal">
                 Бүгдийг үзэх
               </span>
             </Button>
@@ -152,7 +178,14 @@ export default function CompletedAuctionSection() {
           </button>
 
           {/* Horizontal Scrollable Cards Row */}
-          <div ref={scrollContainerRef} className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+          <div
+            ref={scrollContainerRef}
+            className="flex gap-6 overflow-x-auto scrollbar-hide pb-4"
+            onMouseEnter={() => { isHoveredRef.current = true; }}
+            onMouseLeave={() => { isHoveredRef.current = false; }}
+            onTouchStart={() => { isHoveredRef.current = true; }}
+            onTouchEnd={() => { isHoveredRef.current = false; }}
+          >
             {swrLoading ? (
               <div className="w-full text-center py-12">
                 <div className="text-gray-400 text-lg">Уншиж байна...</div>

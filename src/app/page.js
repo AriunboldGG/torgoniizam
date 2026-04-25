@@ -25,11 +25,14 @@ export default function Home() {
         {/* Auction Steps Section */}
         <AuctionSteps />
 
-        {/* Pending Auction Section */}
-        <PendingAuctionSection />
+        {/* Products Section */}
+        <div id="products-section">
+          {/* Pending Auction Section */}
+          <PendingAuctionSection />
 
-        {/* Completed Auction Section */}
-        <CompletedAuctionSection />
+          {/* Completed Auction Section */}
+          <CompletedAuctionSection />
+        </div>
       </div>
     </SearchProvider>
   );

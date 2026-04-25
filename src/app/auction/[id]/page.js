@@ -8,6 +8,7 @@ import Link from "next/link"
 import PledgeDialog from "@/components/ui/pledge-dialog"
 import BidDialog from "@/components/ui/bid-dialog"
 import ImageZoom from "@/components/ui/image-zoom"
+import RelatedProducts from "@/components/auction/RelatedProducts"
 import { useUser } from "@/contexts/UserContext"
 import { useSearchParams } from "next/navigation"
 import { FaAward } from "react-icons/fa"
@@ -222,6 +223,7 @@ export default function AuctionItemPage({ params }) {
 
         const startingPriceNum = lot.starting_price != null ? Number(lot.starting_price) : 0
         const currentBidNum = lot.current_bid != null ? Number(lot.current_bid) : startingPriceNum
+        const depositAmountNum = lot.deposit_amount != null ? Number(lot.deposit_amount) : 1
 
         setAuctionItem({
           id: lot.id,
@@ -229,6 +231,7 @@ export default function AuctionItemPage({ params }) {
           category: lot.category?.value ?? "",
           title: lot.name ?? "",
           startingPrice: `${startingPriceNum.toLocaleString()}₮`,
+          depositAmount: depositAmountNum,
           lastPrice: `${currentBidNum.toLocaleString()}₮`,
           startDate: lot.start_date ?? "",
           endDate: lot.end_date ?? "",
@@ -839,6 +842,11 @@ export default function AuctionItemPage({ params }) {
           </div>
         </div>
       </div>
+
+      {/* Related Products */}
+      {auctionItem && (
+        <RelatedProducts category={auctionItem.category} currentId={auctionItem.id} />
+      )}
 
       {/* Image Zoom Modal */}
       {showImageZoom && (

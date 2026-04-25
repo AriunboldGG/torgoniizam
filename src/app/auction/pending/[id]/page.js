@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import ImageZoom from "@/components/ui/image-zoom"
+import RelatedProducts from "@/components/auction/RelatedProducts"
 import { getAssetUrl, mapAttributes } from "@/lib/utils"
 import { FiCalendar } from "react-icons/fi"
 
@@ -258,6 +259,11 @@ export default function PendingAuctionPage({ params }) {
           </div>
         </div>
       </div>
+
+      {/* Related Products */}
+      {auctionItem && (
+        <RelatedProducts category={auctionItem.category} currentId={auctionItem.id} />
+      )}
 
       {/* Image Zoom Modal */}
       {showImageZoom && (

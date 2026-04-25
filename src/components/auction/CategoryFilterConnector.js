@@ -14,6 +14,15 @@ export default function CategoryFilterConnector() {
     childrenCacheRef.current = cache
   }
 
+  const scrollToProducts = (delay = 80) => {
+    setTimeout(() => {
+      document.getElementById("products-section")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      })
+    }, delay)
+  }
+
   const handleCategorySelect = (cat) => {
     updateSelectedCategory(cat?.name ?? "")
     if (cat?.id) {
@@ -22,6 +31,13 @@ export default function CategoryFilterConnector() {
     } else {
       updateCategorySubcategoryNames([])
     }
+
+    if (cat) scrollToProducts(720)
+  }
+
+  const handleSubcategorySelect = (sub) => {
+    updateSelectedSubcategory(sub)
+    if (sub) scrollToProducts(720)
   }
 
   return (
@@ -29,7 +45,7 @@ export default function CategoryFilterConnector() {
       selectedCategory={categoryObj}
       selectedSubcategory={selectedSubcategory}
       onCategorySelect={handleCategorySelect}
-      onSubcategorySelect={(sub) => updateSelectedSubcategory(sub)}
+      onSubcategorySelect={handleSubcategorySelect}
       onChildrenCacheReady={handleChildrenCacheReady}
     />
   )

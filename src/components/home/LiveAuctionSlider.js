@@ -64,6 +64,8 @@ function CountdownTimer({ endTime, onEnd }) {
 
 export default function LiveAuctionSlider() {
   const scrollContainerRef = useRef(null);
+  const autoPlayRef = useRef(null);
+  const isHoveredRef = useRef(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const { searchQuery, selectedCategory, selectedSubcategory, categorySubcategoryNames } = useSearch();
   
@@ -157,6 +159,30 @@ export default function LiveAuctionSlider() {
     return filtered;
   }, [allLiveAuctions_, searchQuery, selectedCategory, selectedSubcategory, categorySubcategoryNames]);
 
+  // Autoplay: only when more than 4 items
+  useEffect(() => {
+    if (liveAuctions.length <= 4) return;
+
+    autoPlayRef.current = setInterval(() => {
+      if (isHoveredRef.current) return;
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const atEnd = scrollLeft + clientWidth >= scrollWidth - 16;
+
+      if (atEnd) {
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: 320, behavior: 'smooth' });
+      }
+    }, 3000);
+
+    return () => {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    };
+  }, [liveAuctions.length]);
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -176,10 +202,10 @@ export default function LiveAuctionSlider() {
           <Link href="/auctions/live-auctions" target="_blank" rel="noopener noreferrer">
             <Button 
               variant="outline"
-              className="bg-white text-gray-600 hover:bg-gray-50 px-3 xs-mobile:px-6 py-2 xs-mobile:py-3 rounded-lg border border-gray-200 font-tt-firs-neue-variable font-medium text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6"
+              className="bg-white text-gray-600 hover:bg-gray-50 px-6 py-3 rounded-full border border-gray-200 font-tt-firs-neue-variable font-medium text-base leading-6"
             >
-              <Image src="/svg/see-all.svg" alt="See All" width={14} height={14} className="w-3 h-3 xs-mobile:w-4 xs-mobile:h-4 mr-1 xs-mobile:mr-2" />
-              <span className="text-xs xs-mobile:text-sm">
+              <Image src="/svg/see-all.svg" alt="See All" width={16} height={16} className="w-4 h-4 mr-2" />
+              <span className="text-base font-medium leading-6 tracking-normal">
                 Бүгдийг үзэх
               </span>
             </Button>
@@ -198,7 +224,14 @@ export default function LiveAuctionSlider() {
           </button>
 
           {/* Horizontal Scrollable Cards Row */}
-          <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
+          <div
+            ref={scrollContainerRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide pb-4"
+            onMouseEnter={() => { isHoveredRef.current = true; }}
+            onMouseLeave={() => { isHoveredRef.current = false; }}
+            onTouchStart={() => { isHoveredRef.current = true; }}
+            onTouchEnd={() => { isHoveredRef.current = false; }}
+          >
             {swrLoading ? (
               <div className="w-full text-center py-12 text-gray-400">Уншиж байна...</div>
             ) : liveAuctions.length > 0 ? (

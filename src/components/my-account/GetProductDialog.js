@@ -56,7 +56,7 @@ export default function GetProductDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-full sm:max-w-md p-0 max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 flex-shrink-0 border-b border-gray-100">
-          <DialogTitle className="text-lg sm:text-xl font-bold text-gray-900">БАРАА АВАХ</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl font-bold text-gray-900">БАРАА АВАХ МЭДЭЭЛЭЛ</DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto">

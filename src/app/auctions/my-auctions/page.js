@@ -234,7 +234,7 @@ function GetProductModal({ entry, onClose }) {
           <div className="flex items-center gap-2">
             <FaAward className="w-5 h-5 text-yellow-500" />
             <div>
-              <h2 className="text-base font-bold text-gray-900">Бараа авах</h2>
+              <h2 className="text-base font-bold text-gray-900">Бараа авах мэдээлэл</h2>
               <p className="text-xs text-gray-400 line-clamp-1">{entry.title}</p>
             </div>
           </div>
@@ -292,7 +292,30 @@ function GetProductModal({ entry, onClose }) {
                   <p className="text-lg font-bold text-green-800 tracking-widest">{secretValue}</p>
                 </div>
               )}
-
+    {/* Seller info */}
+              {seller && (
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Борлуулагчийн мэдээлэл</p>
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
+                      <div>
+                        <p className="text-sm font-bold text-gray-800">
+                          {[seller.first_name, seller.last_name].filter(Boolean).join(" ") || seller.informal || seller.username}
+                        </p>
+                        {seller.informal && (
+                          <p className="text-xs text-gray-400">@{seller.informal}</p>
+                        )}
+                      </div>
+                    </div>
+                    <Row label="Имэйл"  value={seller.email} />
+                    <Row label="Утас"   value={seller.phone} />
+                    <Row label="Хот"    value={seller.city} />
+                    <Row label="Дүүрэг" value={seller.district} />
+                    <Row label="Хороо"  value={seller.quarter} />
+                    <Row label="Хаяг"   value={seller.address} />
+                  </div>
+                </div>
+              )}
               {/* Lot info */}
               <div className="space-y-1">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Барааны мэдээлэл</p>
@@ -325,30 +348,13 @@ function GetProductModal({ entry, onClose }) {
                 </div>
               )}
 
-              {/* Seller info */}
-              {seller && (
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Борлуулагчийн мэдээлэл</p>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
-                      <div>
-                        <p className="text-sm font-bold text-gray-800">
-                          {[seller.first_name, seller.last_name].filter(Boolean).join(" ") || seller.informal || seller.username}
-                        </p>
-                        {seller.informal && (
-                          <p className="text-xs text-gray-400">@{seller.informal}</p>
-                        )}
-                      </div>
-                    </div>
-                    <Row label="Имэйл"  value={seller.email} />
-                    <Row label="Утас"   value={seller.phone} />
-                    <Row label="Хот"    value={seller.city} />
-                    <Row label="Дүүрэг" value={seller.district} />
-                    <Row label="Хороо"  value={seller.quarter} />
-                    <Row label="Хаяг"   value={seller.address} />
-                  </div>
-                </div>
-              )}
+              {/* Reminder note */}
+              <div className="bg-blue-50 p-3 sm:p-4 rounded-xl border border-blue-200">
+                <p className="text-xs text-blue-800">
+                  <strong>Санамж:</strong> Бараагаа авахдаа дээрх нууц кодыг заавал үзүүлнэ үү.
+                  Энэ код нь таны барааг авах эрхийг баталгаажуулна.
+                </p>
+              </div>
             </div>
 
             <div className="px-5 pb-5">
@@ -491,9 +497,13 @@ export default function MyAuctionsPage() {
                 const isWon      = entry.bidStatus === "won"
                 const statusInfo = STATUS_LABEL[isWon ? "won" : entry.bidStatus] ?? { text: entry.bidStatus, color: "bg-gray-400" }
                 return (
-                  <div key={entry.bidId} className="cursor-pointer" onClick={() => setSelected(entry)}>
-                    <Card className="overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 bg-white border border-gray-200 group h-full">
-                      <CardContent className="p-4">
+                  <div
+                    key={entry.bidId}
+                    className={!isWon ? "cursor-pointer" : undefined}
+                    onClick={!isWon ? () => setSelected(entry) : undefined}
+                  >
+                    <Card className="overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 bg-white border border-gray-200 group h-full flex flex-col">
+                      <CardContent className="p-4 flex flex-col flex-1">
                         <div className="flex justify-end mb-2">
                           <div className={`${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1`}>
                             {isWon ? <><FaAward className="w-3.5 h-3.5" /> ЯЛСАН</> : statusInfo.text}
@@ -505,7 +515,7 @@ export default function MyAuctionsPage() {
                         <CardTitle className="text-sm font-medium text-gray-900 mb-3 line-clamp-2 leading-tight group-hover:text-[#FF4405] transition-colors duration-200">
                           {entry.title}
                         </CardTitle>
-                        <div className="space-y-1">
+                        <div className="space-y-1 flex-1">
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-gray-500">Төлөв</span>
                             <span className={`text-xs font-semibold ${isWon ? "text-yellow-600" : "text-gray-600"}`}>{entry.bidStatusLabel}</span>
@@ -517,9 +527,28 @@ export default function MyAuctionsPage() {
                             </div>
                           )}
                         </div>
-                        <p className="text-xs text-center text-gray-400 mt-3 group-hover:text-[#FF4405] transition-colors">
-                          Дэлгэрэнгүй үзэх →
-                        </p>
+
+                        {/* Won card action buttons */}
+                        {isWon ? (
+                          <div className="flex gap-2 mt-4">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setGetProductEntry(entry) }}
+                              className="flex-1 flex items-center justify-center gap-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                            >
+                              Бараа авах
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setSelected(entry) }}
+                              className="flex-1 flex items-center justify-center gap-1 bg-[#FF4405] hover:bg-[#E63D04] text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                            >
+                              Дэлгэрэнгүй үзэх →
+                            </button>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-center text-gray-400 mt-3 group-hover:text-[#FF4405] transition-colors">
+                            Дэлгэрэнгүй үзэх →
+                          </p>
+                        )}
                       </CardContent>
                     </Card>
                   </div>

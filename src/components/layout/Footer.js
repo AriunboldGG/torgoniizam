@@ -19,26 +19,26 @@ export default function Footer() {
           </div>
           
           {/* Logo Text */}
-          <h3 
+          {/* <h3 
             className="font-bold mb-3 sm:mb-4 uppercase font-tt-firs-neue-variable"
           >
             <span className="text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile xl:text-xl-mobile 2xl:text-2xl-mobile">
               
             </span>
-          </h3>
+          </h3> */}
           
           {/* Main Title/Slogan */}
           <h4 
             className="font-semibold mb-6 sm:mb-8 uppercase font-tt-firs-neue-variable"
           >
             <span className="text-xs-mobile sm:text-sm-mobile md:text-base-mobile lg:text-lg-mobile xl:text-xl-mobile">
-              ДУУДЛАГА ХУДАЛДААНЫ ВЕБСАЙТ
+              ОНЛАЙН ДУУДЛАГА ХУДАЛДААНЫ ВЕБСАЙТ
             </span>
           </h4>
           
           {/* Contact Information */}
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <div className="flex items-center space-x-2">
+            <a href="mailto:info@torgoniizam.mn" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <Image 
                 src="/svg/maillogo.svg" 
                 alt="Email" 
@@ -46,10 +46,10 @@ export default function Footer() {
                 height={16}
                 className="w-4 h-4 sm:w-5 sm:h-5"
               />
-              <span className="text-white text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">email</span>
-            </div>
+              <span className="text-white text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">info@torgoniizam.mn</span>
+            </a>
             
-            <div className="flex items-center space-x-2">
+            <a href="tel:77884040" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <Image 
                 src="/svg/phonelogo.svg" 
                 alt="Phone" 
@@ -58,7 +58,7 @@ export default function Footer() {
                 className="w-4 h-4 sm:w-5 sm:h-5"
               />
               <span className="text-white text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">7788-****</span>
-            </div>
+            </a>
           </div>
           
           {/* Social Media Buttons */}
