@@ -92,9 +92,7 @@ export default function FAQPage() {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Дуудлага худалдааны талаарх түгээмэл асуултууд болон хариултууд
           </p>
-          <div className="mt-8 text-sm text-gray-500">
-            Сүүлд шинэчилсэн: 2026 оны 2-р сарын 24
-          </div>
+        
         </div>
       </section>
 

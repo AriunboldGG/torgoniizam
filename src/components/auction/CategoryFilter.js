@@ -57,11 +57,19 @@ export default function CategoryFilter({ onCategorySelect, onSubcategorySelect, 
               const j = await res.json()
               const children = j?.data ?? j
               const mapped_children = Array.isArray(children)
-                ? children.map((s) => ({
-                    id: String(s.key ?? s.id),
-                    name: s.value ?? s.name ?? "",
-                    count: s.count ?? s.lot_count ?? 0,
-                  }))
+                ? children
+                    .map((s) => ({
+                      id: String(s.key ?? s.id),
+                      name: s.value ?? s.name ?? "",
+                      count: s.count ?? s.lot_count ?? 0,
+                    }))
+                    .sort((a, b) => {
+                      const aLast = a.name.toLowerCase().includes("бусад")
+                      const bLast = b.name.toLowerCase().includes("бусад")
+                      if (aLast && !bLast) return 1
+                      if (!aLast && bLast) return -1
+                      return 0
+                    })
                 : []
               finalCache.set(cat.id, mapped_children)
               childrenCacheRef.current.set(cat.id, mapped_children)

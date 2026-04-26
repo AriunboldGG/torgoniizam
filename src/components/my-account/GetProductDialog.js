@@ -74,7 +74,7 @@ export default function GetProductDialog({ isOpen, onOpenChange, lotId }) {
         if (!r.ok) throw new Error(raw?.detail ?? raw?.message ?? `Алдаа: ${r.status}`)
         return raw
       })
-      .then((d) => setData(d))
+      .then((d) => { console.log("[GetProductDialog] raw response:", d); setData(d) })
       .catch((e) => setFetchErr(e?.message ?? "Алдаа гарлаа."))
       .finally(() => setFetching(false))
   }, [isOpen, lotId])
@@ -82,8 +82,8 @@ export default function GetProductDialog({ isOpen, onOpenChange, lotId }) {
   const inner = data?.data ?? data
   const lot = inner?.lot ?? inner
   const seller = inner?.seller ?? lot?.seller
-  const secretValue = inner?.secret_value ?? inner?.secret_code
-  const pickupDeadline = inner?.pickup_deadline
+  const secretValue = inner?.secret_value ?? inner?.secret_code ?? lot?.secret_value ?? lot?.secret_code
+  const pickupDeadline = inner?.pickup_deadline ?? lot?.pickup_deadline
 
   const timeLeft = useCountdown(pickupDeadline)
 
@@ -195,9 +195,9 @@ export default function GetProductDialog({ isOpen, onOpenChange, lotId }) {
                       </div>
                       <Row label="Имэйл"  value={seller.email} />
                       <Row label="Утас"   value={seller.phone} />
-                      <Row label="Хот"    value={seller.city} />
-                      <Row label="Дүүрэг" value={seller.district} />
-                      <Row label="Хороо"  value={seller.quarter} />
+                      <Row label="Хот"    value={seller.city?.value ?? seller.city} />
+                      <Row label="Дүүрэг" value={seller.district?.value ?? seller.district} />
+                      <Row label="Хороо"  value={seller.quarter?.value ?? seller.quarter} />
                       <Row label="Хаяг"   value={seller.address} />
                     </div>
                   </div>

@@ -457,7 +457,7 @@ export default function SignupPage() {
             <DialogTitle className="text-2xl font-bold text-center mb-4">
               Үйлчилгээний нөхцөл
             </DialogTitle>
-            <DialogDescription className="text-left">
+            <div className="text-sm text-muted-foreground text-left">
               <div className="prose prose-sm max-w-none">
                 <h3 className="text-lg font-bold mb-4">
                   Борлуулагч, дуудлага худалдаанд оролцогч, дуудлага худалдаа зохион байгуулагч нарын хооронд байгуулах гэрээ /дүрэм/
@@ -536,7 +536,7 @@ export default function SignupPage() {
                 <h4 className="text-md font-bold mt-6 mb-3">VII. Үйлчилгээний нөхцөлийн нэмэлт өөрчлөлт</h4>
                 <p className="mb-4"><strong>7.1.</strong> Зохион байгуулагч нь урьдчилан мэдэгдэлгүйгээр үйлчилгээний нөхцөлд нэмэлт өөрчлөлт оруулж болно. Үйлчилгээний нөхцөлийн шинэ хувилбар нь дахин шинэчлэгдэж байршсан байх болно.</p>
               </div>
-            </DialogDescription>
+            </div>
           </DialogHeader>
           <DialogFooter>
             <Button 
