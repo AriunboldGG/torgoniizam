@@ -22,7 +22,15 @@ export function WalletProvider({ children }) {
     setIsLoadingBalance(true)
     try {
       const response = await fetchWithAuth("/api/wallet/balance")
-      if (!response.ok) throw new Error("Failed to fetch balance")
+      if (response.status === 401 || response.status === 403) {
+        // Token expired/invalid — fetchWithAuth already cleared tokens
+        return
+      }
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}))
+        console.error("Failed to fetch balance:", response.status, err?.detail)
+        return
+      }
       const data = await response.json()
       const payload = data?.data ?? data
       setWalletBalance(parseFloat(payload?.available ?? 0))

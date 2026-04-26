@@ -3,6 +3,10 @@ import { NextResponse } from "next/server"
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export async function GET(request) {
+  if (!API_URL) {
+    return NextResponse.json({ detail: "API URL not configured." }, { status: 500 })
+  }
+
   try {
     const authHeader = request.headers.get("authorization")
 
@@ -16,7 +20,14 @@ export async function GET(request) {
       }
     }
 
-    const data = await response.json()
+    let data
+    const contentType = response.headers.get("content-type") ?? ""
+    if (contentType.includes("application/json")) {
+      data = await response.json()
+    } else {
+      const text = await response.text()
+      data = { detail: text || "Unknown error" }
+    }
 
     if (!response.ok) {
       return NextResponse.json(data, { status: response.status })

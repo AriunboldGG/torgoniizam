@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
-import Image from "next/image"
 import Link from "next/link"
 import { useUser } from "@/contexts/UserContext"
 import { FaAward } from "react-icons/fa"
-import { getAssetUrl } from "@/lib/utils"
+import GetProductDialog from "@/components/my-account/GetProductDialog"
 
 const STATUS_LABEL = {
   active:   { text: "ИДЭВХТЭЙ", color: "bg-green-500"  },
@@ -38,347 +37,11 @@ function mapEntry(entry) {
   }
 }
 
-function DetailModal({ entry, onClose, onGetProduct }) {
-  const [detail, setDetail]   = useState(null)
-  const [fetching, setFetching] = useState(true)
-  const [fetchErr, setFetchErr] = useState(null)
-
-  useEffect(() => {
-    if (!entry?.lotId) { setFetching(false); return }
-    const token = localStorage.getItem("access_token")
-    fetch(`/api/lot/detail/${entry.lotId}`, {
-      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    })
-      .then(r => r.json())
-      .then(d => {
-        setDetail(d)
-      })
-      .catch(e => setFetchErr(e?.message ?? "Алдаа гарлаа."))
-      .finally(() => setFetching(false))
-  }, [entry?.lotId])
-
-  const isWon      = entry.bidStatus === "won"
-  const lotStatus  = detail?.status?.key ?? detail?.status ?? ""
-  const statusInfo = STATUS_LABEL[isWon ? "won" : lotStatus] ?? { text: lotStatus.toUpperCase(), color: "bg-gray-400" }
-
-  const rawImages = Array.isArray(detail?.images) ? detail.images : []
-  const image = rawImages.length > 0
-    ? getAssetUrl(typeof rawImages[0] === "string" ? rawImages[0] : rawImages[0]?.url ?? rawImages[0]?.image ?? "/images/live1.png")
-    : getAssetUrl(detail?.thumbnail ?? "/images/live1.png")
-
-  const startingPrice = detail?.starting_price != null ? Number(detail.starting_price) : null
-  const currentBid    = detail?.current_bid    != null ? Number(detail.current_bid)    : null
-  const category      = detail?.category?.value ?? detail?.category?.name ?? ""
-  const description   = detail?.description ?? ""
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <div>
-            <h2 className="text-lg font-bold text-gray-900 line-clamp-1">{entry.title}</h2>
-            {entry.lotCode && <p className="text-xs text-gray-400 mt-0.5">{entry.lotCode}</p>}
-          </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500 flex-shrink-0 ml-3">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Loading */}
-        {fetching && (
-          <div className="flex items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FF4405]" />
-          </div>
-        )}
-
-        {/* Error */}
-        {!fetching && fetchErr && (
-          <div className="p-5 text-sm text-red-600 bg-red-50 m-4 rounded-xl">{fetchErr}</div>
-        )}
-
-        {/* Content */}
-        {!fetching && !fetchErr && (
-          <>
-            <div className="p-5 space-y-4">
-              {/* Status badge */}
-              <div className="flex items-center justify-between">
-                <div className={`${statusInfo.color} text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1`}>
-                  {isWon ? <><FaAward className="w-3.5 h-3.5" /> ЯЛСАН</> : statusInfo.text}
-                </div>
-                {category && (
-                  <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">{category}</span>
-                )}
-              </div>
-
-              {/* Description */}
-              {description && (
-                <p className="text-gray-600 text-sm leading-relaxed">{description}</p>
-              )}
-
-              {/* Bid info fields */}
-              <div className="bg-gray-50 rounded-xl divide-y divide-gray-100">
-                {entry.depositAmount && (
-                  <div className="flex justify-between items-center px-4 py-3">
-                    <span className="text-xs text-gray-500">Дэнчингийн дүн</span>
-                    <span className="text-sm font-semibold text-gray-800">{Number(entry.depositAmount).toLocaleString()}₮</span>
-                  </div>
-                )}
-                {entry.createdAt && (
-                  <div className="flex justify-between items-center px-4 py-3">
-                    <span className="text-xs text-gray-500">Оролцсон огноо</span>
-                    <span className="text-sm font-semibold text-gray-800">{new Date(entry.createdAt).toLocaleDateString("mn-MN")}</span>
-                  </div>
-                )}
-                {entry.updatedAt && (
-                  <div className="flex justify-between items-center px-4 py-3">
-                    <span className="text-xs text-gray-500">Шинэчлэгдсэн огноо</span>
-                    <span className="text-sm font-semibold text-gray-800">{new Date(entry.updatedAt).toLocaleDateString("mn-MN")}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Lot dates */}
-              {(detail?.start_date || detail?.end_date) && (
-                <div className="grid grid-cols-2 gap-3">
-                  {detail?.start_date && (
-                    <div className="bg-gray-50 rounded-xl p-3">
-                      <p className="text-xs text-gray-500 mb-1">Эхлэх огноо</p>
-                      <p className="text-sm font-semibold text-gray-700">{new Date(detail.start_date).toLocaleDateString("mn-MN")}</p>
-                    </div>
-                  )}
-                  {detail?.end_date && (
-                    <div className="bg-gray-50 rounded-xl p-3">
-                      <p className="text-xs text-gray-500 mb-1">Дуусах огноо</p>
-                      <p className="text-sm font-semibold text-gray-700">{new Date(detail.end_date).toLocaleDateString("mn-MN")}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Won banner */}
-              {isWon && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                  <p className="text-sm font-bold text-yellow-800 flex items-center gap-1.5"><FaAward className="w-4 h-4" /> Та энэ дуудлага худалдаанд ялсан байна!</p>
-                </div>
-              )}
-
-              {/* Buttons */}
-              <div className={`grid gap-3 ${isWon ? "grid-cols-2" : "grid-cols-1"}`}>
-                {isWon && (
-                  <button
-                    onClick={() => onGetProduct(entry)}
-                    className="flex items-center justify-center gap-2 w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl font-bold text-sm transition-colors"
-                  >
-                    <FaAward className="w-4 h-4" />
-                    Бараа авах
-                  </button>
-                )}
-                <Link
-                  href={`/auction/${entry.lotId}`}
-                  onClick={onClose}
-                  className="flex items-center justify-center gap-2 w-full bg-[#FF4405] hover:bg-[#E63D04] text-white py-3 rounded-xl font-bold text-sm transition-colors"
-                >
-                  Дэлгэрэнгүй үзэх
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </Link>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function GetProductModal({ entry, onClose }) {
-  const [data, setData]     = useState(null)
-  const [fetching, setFetching] = useState(true)
-  const [fetchErr, setFetchErr] = useState(null)
-
-  useEffect(() => {
-    if (!entry?.lotId) { setFetching(false); setFetchErr("Лотын ID олдсонгүй."); return }
-    const token = localStorage.getItem("access_token")
-    fetch(`/api/bid/won/${entry.lotId}`, {
-      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    })
-      .then(async r => {
-        const raw = await r.json()
-        if (!r.ok) {
-          throw new Error(raw?.detail ?? raw?.message ?? `Алдаа: ${r.status}`)
-        }
-        // keep raw — shape is { lot: {...}, seller: {...}, secret_value: "..." }
-        return raw
-      })
-      .then(d => setData(d))
-      .catch(e => setFetchErr(e?.message ?? "Алдаа гарлаа."))
-      .finally(() => setFetching(false))
-  }, [entry?.lotId])
-
-  const Row = ({ label, value }) => value ? (
-    <div className="flex justify-between items-start gap-4 py-2 border-b border-gray-100 last:border-0">
-      <span className="text-xs text-gray-500 flex-shrink-0">{label}</span>
-      <span className="text-xs font-semibold text-gray-800 text-right">{value}</span>
-    </div>
-  ) : null
-
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <FaAward className="w-5 h-5 text-yellow-500" />
-            <div>
-              <h2 className="text-base font-bold text-gray-900">Бараа авах мэдээлэл</h2>
-              <p className="text-xs text-gray-400 line-clamp-1">{entry.title}</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500 ml-3">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {fetching && (
-          <div className="flex items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-yellow-500" />
-          </div>
-        )}
-
-        {!fetching && fetchErr && (
-          <div className="p-5 text-sm text-red-600 bg-red-50 m-4 rounded-xl">{fetchErr}</div>
-        )}
-
-        {!fetching && !fetchErr && data && (() => {
-          // response shape: { data: { lot: {...}, seller: {...}, secret_value: "..." } }
-          const inner = data?.data ?? data
-          const lot = inner?.lot ?? inner
-          const seller = inner?.seller ?? lot?.seller
-          const secretValue = inner?.secret_value ?? inner?.secret_code
-          return (
-          <>
-            {/* Lot image */}
-            {Array.isArray(lot.images) && lot.images.length > 0 && (
-              <div className="relative w-full aspect-video bg-gray-100 overflow-hidden">
-                <Image
-                  src={getAssetUrl(typeof lot.images[0] === "string" ? lot.images[0] : lot.images[0]?.url ?? "")}
-                  alt={lot.name ?? entry.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
-
-            <div className="p-5 space-y-4">
-              {/* Winner banner */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center gap-3">
-                <FaAward className="w-8 h-8 text-yellow-500 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-bold text-yellow-800">Таньд баяр хүргэе!</p>
-                  <p className="text-xs text-yellow-700 mt-0.5">{lot.reference_no ?? entry.lotCode}</p>
-                </div>
-              </div>
-
-              {/* Secret code */}
-              {secretValue && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                  <p className="text-xs text-green-600 mb-1 font-medium">Бараа авах код</p>
-                  <p className="text-lg font-bold text-green-800 tracking-widest">{secretValue}</p>
-                </div>
-              )}
-    {/* Seller info */}
-              {seller && (
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Борлуулагчийн мэдээлэл</p>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
-                      <div>
-                        <p className="text-sm font-bold text-gray-800">
-                          {[seller.first_name, seller.last_name].filter(Boolean).join(" ") || seller.informal || seller.username}
-                        </p>
-                        {seller.informal && (
-                          <p className="text-xs text-gray-400">@{seller.informal}</p>
-                        )}
-                      </div>
-                    </div>
-                    <Row label="Имэйл"  value={seller.email} />
-                    <Row label="Утас"   value={seller.phone} />
-                    <Row label="Хот"    value={seller.city} />
-                    <Row label="Дүүрэг" value={seller.district} />
-                    <Row label="Хороо"  value={seller.quarter} />
-                    <Row label="Хаяг"   value={seller.address} />
-                  </div>
-                </div>
-              )}
-              {/* Lot info */}
-              <div className="space-y-1">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Барааны мэдээлэл</p>
-                <div className="bg-gray-50 rounded-xl divide-y divide-gray-100">
-                  <Row label="Нэр"              value={lot.name} />
-                  <Row label="Ангилал"          value={lot.category?.value} />
-                  <Row label="Тайлбар"          value={lot.description} />
-                  <Row label="Эхлэх үнэ"        value={lot.starting_price != null ? `${Number(lot.starting_price).toLocaleString()}₮` : null} />
-                  <Row label="Сүүлийн үнэ"      value={lot.current_bid    != null ? `${Number(lot.current_bid).toLocaleString()}₮`    : null} />
-                  <Row label="Эхлэх огноо"      value={lot.start_date ? new Date(lot.start_date).toLocaleDateString("mn-MN") : null} />
-                  <Row label="Дуусах огноо"     value={lot.end_date   ? new Date(lot.end_date).toLocaleDateString("mn-MN")   : null} />
-                  <Row label="Нийт оролцогч"    value={lot.participant_count != null ? String(lot.participant_count) : null} />
-                  <Row label="Нийт үнийн санал" value={lot.bid_count         != null ? String(lot.bid_count)         : null} />
-                  <Row label="Хот"              value={lot.city?.value} />
-                  <Row label="Дүүрэг"           value={lot.district?.value} />
-                  <Row label="Хороо"            value={lot.quarter?.value} />
-                  <Row label="Хаяг"             value={lot.address} />
-                </div>
-              </div>
-
-              {/* Attributes */}
-              {lot.attributes && typeof lot.attributes === "object" && Object.keys(lot.attributes).length > 0 && (
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Техникийн үзүүлэлт</p>
-                  <div className="bg-gray-50 rounded-xl divide-y divide-gray-100">
-                    {Object.entries(lot.attributes).map(([label, value]) => (
-                      <Row key={label} label={label} value={String(value)} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Reminder note */}
-              <div className="bg-blue-50 p-3 sm:p-4 rounded-xl border border-blue-200">
-                <p className="text-xs text-blue-800">
-                  <strong>Санамж:</strong> Бараагаа авахдаа дээрх нууц кодыг заавал үзүүлнэ үү.
-                  Энэ код нь таны барааг авах эрхийг баталгаажуулна.
-                </p>
-              </div>
-            </div>
-
-            <div className="px-5 pb-5">
-              <button
-                onClick={onClose}
-                className="w-full border border-gray-200 hover:bg-gray-50 text-gray-700 py-3 rounded-xl font-semibold text-sm transition-colors"
-              >
-                Хаах
-              </button>
-            </div>
-          </>
-          )
-        })()}
-      </div>
-    </div>
-  )
-}
-
 export default function MyAuctionsPage() {
   const { isLoggedIn, isLoading } = useUser()
   const [entries, setEntries]         = useState([])
   const [loading, setLoading]         = useState(true)
   const [error, setError]             = useState("")
-  const [selected, setSelected]       = useState(null)
   const [getProductEntry, setGetProductEntry] = useState(null)
   const [statusFilter, setStatusFilter] = useState("all")
 
@@ -425,8 +88,11 @@ export default function MyAuctionsPage() {
 
   return (
     <div className="p-3 xs-mobile:p-4 lg:p-6">
-      {selected && <DetailModal entry={selected} onClose={() => setSelected(null)} onGetProduct={(e) => { setSelected(null); setGetProductEntry(e) }} />}
-      {getProductEntry && <GetProductModal entry={getProductEntry} onClose={() => setGetProductEntry(null)} />}
+      <GetProductDialog
+        isOpen={!!getProductEntry}
+        onOpenChange={(open) => { if (!open) setGetProductEntry(null) }}
+        lotId={getProductEntry?.lotId}
+      />
 
       <section className="py-4 lg:py-6">
         <div className="max-w-full">
@@ -499,8 +165,6 @@ export default function MyAuctionsPage() {
                 return (
                   <div
                     key={entry.bidId}
-                    className={!isWon ? "cursor-pointer" : undefined}
-                    onClick={!isWon ? () => setSelected(entry) : undefined}
                   >
                     <Card className="overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 bg-white border border-gray-200 group h-full flex flex-col">
                       <CardContent className="p-4 flex flex-col flex-1">
@@ -526,28 +190,45 @@ export default function MyAuctionsPage() {
                               <span className="text-xs text-gray-500">{new Date(entry.createdAt).toLocaleDateString("mn-MN")}</span>
                             </div>
                           )}
+                          {entry.depositAmount && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs text-gray-500">Дэнчин</span>
+                              <span className="text-xs font-semibold text-gray-700">{Number(entry.depositAmount).toLocaleString()}₮</span>
+                            </div>
+                          )}
                         </div>
 
-                        {/* Won card action buttons */}
+                        {/* Action buttons */}
                         {isWon ? (
                           <div className="flex gap-2 mt-4">
                             <button
                               onClick={(e) => { e.stopPropagation(); setGetProductEntry(entry) }}
                               className="flex-1 flex items-center justify-center gap-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
                             >
+                              <FaAward className="w-3 h-3" />
                               Бараа авах
                             </button>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setSelected(entry) }}
+                            <Link
+                              href={`/auction/${entry.lotId}`}
                               className="flex-1 flex items-center justify-center gap-1 bg-[#FF4405] hover:bg-[#E63D04] text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
                             >
-                              Дэлгэрэнгүй үзэх →
-                            </button>
+                              Дэлгэрэнгүй үзэх
+                            </Link>
                           </div>
+                        ) : entry.bidStatus === "active" ? (
+                          <Link
+                            href={`/auction/${entry.lotId}`}
+                            className="flex items-center justify-center w-full mt-4 bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                          >
+                            Дэлгэрэнгүй үзэх
+                          </Link>
                         ) : (
-                          <p className="text-xs text-center text-gray-400 mt-3 group-hover:text-[#FF4405] transition-colors">
-                            Дэлгэрэнгүй үзэх →
-                          </p>
+                          <Link
+                            href={`/auction/${entry.lotId}`}
+                            className="flex items-center justify-center w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                          >
+                            Дэлгэрэнгүй үзэх
+                          </Link>
                         )}
                       </CardContent>
                     </Card>
