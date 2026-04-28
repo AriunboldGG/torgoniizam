@@ -79,11 +79,11 @@ export default function Header() {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-10">
+            <nav className="hidden md:flex items-center space-x-2 lg:space-x-4 xl:space-x-10">
               {/* Home Page */}
               <Link href="/">
                 <div 
-                  className={`px-6 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer font-tt-firs-neue-variable tracking-[2.4%] ${
+                  className={`px-3 lg:px-4 xl:px-6 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer font-tt-firs-neue-variable tracking-[2.4%] ${
                     isActivePage("/") 
                       ? "bg-[#FF4405] text-white" 
                       : "bg-white text-gray-700"
@@ -99,7 +99,7 @@ export default function Header() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className={`flex items-center space-x-2 transition-colors font-bold uppercase px-6 py-3 rounded-full font-tt-firs-neue-variable tracking-[2.4%] ${
+                  className={`flex items-center space-x-2 transition-colors font-bold uppercase px-3 lg:px-4 xl:px-6 py-2 xl:py-3 rounded-full font-tt-firs-neue-variable tracking-[2.4%] ${
                     isActivePage("/auctions/live-auctions") || isActivePage("/auctions/today") || isActivePage("/auctions/pending")
                       ? "bg-[#FF4405] text-white"
                       : "text-gray-900 hover:text-gray-700"
@@ -196,7 +196,7 @@ export default function Header() {
               {user && (
                 <Link href="/auctions/my-auctions">
                   <div 
-                    className={`px-5 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer font-tt-firs-neue-variable tracking-[2.4%] ${
+                    className={`px-3 lg:px-4 xl:px-5 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer font-tt-firs-neue-variable tracking-[2.4%] ${
                       isActivePage("/auctions/my-auctions") 
                         ? "bg-[#FF4405] text-white" 
                         : "bg-white text-gray-700"
@@ -210,7 +210,7 @@ export default function Header() {
               {/* About Page */}
               <Link href="/about">
                 <div 
-                  className={`px-5 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer font-tt-firs-neue-variable tracking-[2.4%] ${
+                  className={`px-3 lg:px-4 xl:px-5 py-2 rounded-full font-bold transition-colors uppercase cursor-pointer font-tt-firs-neue-variable tracking-[2.4%] ${
                     isActivePage("/about") 
                       ? "bg-[#FF4405] text-white" 
                       : "bg-white text-gray-700"
@@ -222,7 +222,7 @@ export default function Header() {
             </nav>
 
             {/* Desktop User Actions */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-2 xl:space-x-4">
               {/* Dark / Light mode toggle */}
               <ThemeToggle />
 
@@ -268,7 +268,7 @@ export default function Header() {
                   <Link href="/auth/signup">
                     <Button 
                       variant="outline"
-                      className="bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white px-6 py-3 rounded-lg transition-all duration-200 font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%]"
+                      className="bg-white text-[#FF4405] hover:bg-[#FF4405] hover:text-white px-3 lg:px-4 xl:px-6 py-2 xl:py-3 rounded-lg transition-all duration-200 font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%]"
                     >
                       <Image src="/svg/header/signIn.svg" alt="Plus" width={16} height={16} className="w-4 h-4 mr-2" />
                       <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">БҮРТГҮҮЛЭХ</span>
@@ -278,7 +278,7 @@ export default function Header() {
                   {/* Login */}
                   <Link href="/auth/login">
                     <Button 
-                      className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%]"
+                      className="bg-gray-900 hover:bg-gray-800 text-white px-3 lg:px-4 xl:px-6 py-2 xl:py-3 rounded-lg flex items-center space-x-2 transition-colors font-bold uppercase font-tt-firs-neue-variable tracking-[2.4%]"
                     >
                       <Image src="/svg/header/login.svg" alt="Arrow" width={16} height={16} className="w-4 h-4" />
                       <span className="text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">НЭВТРЭХ</span>

@@ -165,7 +165,7 @@ export default function About() {
               <div className="text-gray-600">Идэвхтэй хэрэглэгч</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-[#FF4405] mb-2">5,000+</div>
+              <div className="text-4xl font-bold text-[#FF4405] mb-2">+</div>
               <div className="text-gray-600">Амжилттай дуудлага</div>
             </div>
             <div className="text-center">
