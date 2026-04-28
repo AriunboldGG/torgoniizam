@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/scroll-to-top";
+import DifyChatbot from "@/components/ui/dify-chatbot";
 import { UserProvider } from "@/contexts/UserContext";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -73,6 +74,7 @@ export default function RootLayout({ children }) {
               </main>
               <Footer />
               <ScrollToTop />
+              <DifyChatbot />
             </WalletProvider>
           </UserProvider>
         </ThemeProvider>

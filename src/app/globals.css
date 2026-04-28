@@ -1,6 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=TT+Firs+Neue:wght@400;500;700;900&display=swap');
 
 @tailwind base;
+
+/* Dify chatbot bubble styling */
+:root {
+  --dify-chatbot-bubble-button-bottom: 5.5rem;
+  --dify-chatbot-bubble-button-right: 2rem;
+}
+#dify-chatbot-bubble-button {
+  background-color: #FF4405 !important;
+  box-shadow: 0 4px 14px rgba(255, 68, 5, 0.45) !important;
+}
+#dify-chatbot-bubble-window {
+  position: fixed !important;
+  width: 24rem !important;
+  height: 40rem !important;
+}
 @tailwind components;
 @tailwind utilities;
 
