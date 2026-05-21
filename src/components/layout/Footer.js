@@ -49,7 +49,7 @@ export default function Footer() {
               <span className="text-white text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">info@torgoniizam.mn</span>
             </a>
             
-            <a href="tel:77884040" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <a href="tel:99993966" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <Image 
                 src="/svg/phonelogo.svg" 
                 alt="Phone" 
@@ -57,7 +57,7 @@ export default function Footer() {
                 height={16}
                 className="w-4 h-4 sm:w-5 sm:h-5"
               />
-              <span className="text-white text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">7788-****</span>
+              <span className="text-white text-xs-mobile sm:text-sm-mobile md:text-sm lg:text-sm">99993966</span>
             </a>
           </div>
           
