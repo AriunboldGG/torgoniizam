@@ -604,7 +604,10 @@ export default function AuctionItemPage({ params }) {
                       || (auctionItem.endTime && new Date(auctionItem.endTime) < new Date())
                     return (
                   <Button
-                    className={`py-3 xs-mobile:py-4 rounded-xl transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase bg-[#FF4405] hover:bg-[#E63D04] text-white ${isEnded || !isLoggedIn || !hasUserPledged ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`py-3 xs-mobile:py-4 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isEnded || !isLoggedIn || !hasUserPledged
+                        ? 'rounded-full border border-[#FF4405]/50 bg-gradient-to-br from-[#FF6B35]/30 via-[#FF4405]/22 to-[#E63D04]/18 text-[#FF4405]/70 shadow-[0_6px_20px_rgba(255,68,5,0.18)] cursor-not-allowed opacity-85'
+                        : 'rounded-full bg-gradient-to-br from-[#FF6B35] via-[#FF4405] to-[#E63D04] text-white shadow-[0_10px_25px_rgba(255,68,5,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] animate-pulse [animation-duration:1.5s] hover:animate-none hover:shadow-[0_15px_35px_rgba(255,68,5,0.6)] hover:scale-[1.02]'
+                      }`}
                     disabled={isEnded || !isLoggedIn || !hasUserPledged}
                     onClick={() => !isEnded && setShowBidDialog(true)}
                   >
@@ -625,12 +628,12 @@ export default function AuctionItemPage({ params }) {
                   <Button
                     variant="outline"
                     className={`py-3 xs-mobile:py-4 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isEnded
-                        ? 'rounded-xl border-2 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                        ? 'rounded-full border border-[#FF4405]/50 bg-gradient-to-br from-[#FF6B35]/30 via-[#FF4405]/22 to-[#E63D04]/18 text-[#FF4405]/70 shadow-[0_6px_20px_rgba(255,68,5,0.18)] cursor-not-allowed opacity-85'
                         : !isLoggedIn
-                          ? 'rounded-xl border-2 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                          ? 'rounded-full border border-[#FF4405]/50 bg-gradient-to-br from-[#FF6B35]/30 via-[#FF4405]/22 to-[#E63D04]/18 text-[#FF4405]/70 shadow-[0_6px_20px_rgba(255,68,5,0.18)] cursor-not-allowed opacity-85'
                           : hasUserPledged
-                            ? 'rounded-xl border-2 bg-green-100 text-green-700 border-green-300 cursor-not-allowed opacity-80'
-                            : 'rounded-full border border-[#FF4405]/65 bg-gradient-to-br from-[#FF4405]/20 to-orange-200/10 text-[#FF4405] hover:from-[#FF4405]/30 shadow-[0_10px_25px_rgba(255,68,5,0.2),inset_0_1px_0_rgba(255,255,255,0.6)] animate-pulse [animation-duration:2s] hover:animate-none hover:scale-105 active:scale-95'
+                            ? 'rounded-full border border-green-600/65 bg-gradient-to-br from-green-600/20 to-green-200/10 text-green-700 shadow-[0_10px_25px_rgba(31,99,43,0.2),inset_0_1px_0_rgba(255,255,255,0.6)] animate-pulse [animation-duration:2s] cursor-not-allowed !opacity-100'
+                            : 'rounded-full bg-gradient-to-br from-[#FF6B35] via-[#FF4405] to-[#E63D04] text-white shadow-[0_10px_25px_rgba(255,68,5,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] animate-pulse [animation-duration:2s] hover:animate-none hover:scale-105'
                       }`}
                     disabled={isEnded || !isLoggedIn || hasUserPledged}
                     onClick={() => {
@@ -703,7 +706,8 @@ export default function AuctionItemPage({ params }) {
                 {isLoggedIn && !hasUserPledged && (
                   <div className="text-center">
                     <p className="text-gray-600 text-sm mb-2">
-                      Дэнчин: {auctionItem.startingPrice} × 10% = {(parseInt(auctionItem.startingPrice.replace(/[^\d]/g, '')) * 0.1).toLocaleString() + '₮'}
+                      <span>Дэнчин байршуулах үнэ: </span>
+                      <span className="font-bold text-blue-600">{Number(auctionItem.depositAmount).toLocaleString()}₮</span>
                     </p>
                     <p className="text-blue-600 text-xs">
                       Дэнчин байршуулсны дараа үнийн санал илгээх боломжтой болно
