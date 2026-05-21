@@ -22,7 +22,7 @@ export default function AuctionSteps() {
       id: 3,
       icon: "/svg/step3.svg",
       badge: "АЛХАМ 3",
-      title: "ХЭТЭВЧ ЦЭНЭГЛЭХ",
+      title: "ДЭНЧИН ЦЭНЭГЛЭХ",
       isActive: false
     },
     {

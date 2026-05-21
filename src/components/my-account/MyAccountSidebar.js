@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from "next/navigation"
 import { useUser } from "@/contexts/UserContext"
 import Image from "next/image"
+import { PiHandshakeLight } from "react-icons/pi"
 
 export function MyAccountSidebar() {
   const { user, logout } = useUser()
@@ -16,7 +17,7 @@ export function MyAccountSidebar() {
 
   const menuItems = [
     { title: "Хувийн мэдээлэл", url: "/my-account", icon: "/svg/my-info.svg" },
-    { title: "Хэтэвч", url: "/my-account/wallet", icon: "/svg/wallet.svg" },
+    { title: "Дэнчин", url: "/my-account/wallet", iconComponent: PiHandshakeLight },
     { title: "Дуудлага худалдаа", url: "/auctions/my-auctions", icon: "/svg/bid1.svg" },
     { title: "Тохиргоо", url: "/my-account/settings", icon: "/svg/settings.svg" },
     { title: "Системээс гарах", action: handleLogout, icon: "/svg/logout.svg" }
@@ -61,15 +62,19 @@ export function MyAccountSidebar() {
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    <Image 
-                      src={item.icon} 
-                      alt="" 
-                      width={18} 
-                      height={18} 
-                      className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${
-                        active ? "filter brightness-0 invert" : ""
-                      }`}
-                    />
+                    {item.iconComponent ? (
+                      <item.iconComponent className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${active ? "text-white" : "text-gray-700"}`} />
+                    ) : (
+                      <Image 
+                        src={item.icon} 
+                        alt="" 
+                        width={18} 
+                        height={18} 
+                        className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${
+                          active ? "filter brightness-0 invert" : ""
+                        }`}
+                      />
+                    )}
                     <span className="font-medium truncate">{item.title}</span>
                   </button>
                 ) : (
@@ -81,15 +86,19 @@ export function MyAccountSidebar() {
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    <Image 
-                      src={item.icon} 
-                      alt="" 
-                      width={18} 
-                      height={18} 
-                      className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${
-                        active ? "filter brightness-0 invert" : ""
-                      }`}
-                    />
+                    {item.iconComponent ? (
+                      <item.iconComponent className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${active ? "text-white" : "text-gray-700"}`} />
+                    ) : (
+                      <Image 
+                        src={item.icon} 
+                        alt="" 
+                        width={18} 
+                        height={18} 
+                        className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${
+                          active ? "filter brightness-0 invert" : ""
+                        }`}
+                      />
+                    )}
                     <span className="font-medium truncate">{item.title}</span>
                   </a>
                 )}

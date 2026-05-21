@@ -40,7 +40,7 @@ export default function PledgeDialog({
       
       // Check if user has sufficient balance
       if (walletBalance < pledgeAmount) {
-        setError(`Хэтэвчний үлдэгдэл хүрэлцэхгүй байна. Таны үлдэгдэл: ${walletBalance.toLocaleString()}₮, Шаардагдах дэнчин: ${pledgeAmount.toLocaleString()}₮`);
+        setError(`Дэнчингийн үлдэгдэл хүрэлцэхгүй байна. Таны үлдэгдэл: ${walletBalance.toLocaleString()}₮, Шаардагдах дэнчин: ${pledgeAmount.toLocaleString()}₮`);
         setIsProcessing(false);
         return;
       }
@@ -143,10 +143,10 @@ export default function PledgeDialog({
               </div>
             </div>
             <div className="text-sm">
-              Таны хэтэвчнээс дэнчингийн хэмжээгээр мөнгө хасч, дуудлага худалдаанд оролцох эрх олгоно.
+              Таны дэнчингээс байршуулах дэнчингийн хэмжээгээр мөнгө хасч, дуудлага худалдаанд оролцох эрх олгоно.
             </div>
             <div className="text-sm font-medium text-orange-600">
-              ⚠️ Дэнчин байршуулсны дараа, дуудлага худалдаанд хожоогүй тохиолдоно системийн шимтшэл 1% хасагдаж буцаагдахыг анхаарна уу.
+              ⚠️ Дэнчин байршуулсны дараа, дуудлага худалдаанд хожоогүй тохиолдоно системийн шимтгэл 1% хасагдаж буцаагдахыг анхаарна уу.
             </div>
           </div>
         </DialogHeader>

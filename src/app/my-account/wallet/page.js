@@ -216,7 +216,7 @@ export default function WalletPage() {
       return
     }
     if (amount > walletBalance) {
-      alert(`Хэтэвчний үлдэгдэл хүрэлцэхгүй байна. Таны үлдэгдэл: ${walletBalance.toLocaleString()}₮`)
+      alert(`Дэнчингийн үлдэгдэл хүрэлцэхгүй байна. Таны үлдэгдэл: ${walletBalance.toLocaleString()}₮`)
       return
     }
     setIsWithdrawLoading(true)
@@ -299,7 +299,7 @@ export default function WalletPage() {
             
             
             {/* Balance Title */}
-            <p className="text-base lg:text-lg mb-4">Хэтэвчний үлдэгдэл</p>
+            <p className="text-base lg:text-lg mb-4">Дэнчингийн үлдэгдэл</p>
             
             {/* Current Balance */}
             <div className="text-3xl lg:text-5xl font-bold mb-2">
@@ -328,7 +328,7 @@ export default function WalletPage() {
                  <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col p-3 xs-mobile:p-4 sm:p-6">
                    <DialogHeader className="flex-shrink-0">
                      <div className="flex items-center justify-between">
-                       <DialogTitle className="text-xl font-bold text-gray-900">ХЭТЭВЧ ЦЭНЭГЛЭХ</DialogTitle>
+                       <DialogTitle className="text-xl font-bold text-gray-900">ДЭНЧИН ЦЭНЭГЛЭХ</DialogTitle>
                        
                      </div>
                    </DialogHeader>
@@ -343,7 +343,7 @@ export default function WalletPage() {
                          <div>
                            <div className="font-bold text-red-700 text-sm mb-2">САНАМЖ</div>
                            <p className="text-red-600 text-sm leading-relaxed">
-                             Та гүйлгээний утга дээрх кодыг оруулан, доорх банкны данс руу мөнгөн дүнгээ шилжүүлснээр таны хэтэвч автоматаар цэнэглэгдэх болно.
+                             Та гүйлгээний утга дээрх кодыг оруулан, доорх банкны данс руу мөнгөн дүнгээ шилжүүлснээр таны дэнчин автоматаар цэнэглэгдэх болно.
                            </p>
                          </div>
                        </div>
@@ -445,7 +445,7 @@ export default function WalletPage() {
                    <div className="flex-1 overflow-y-auto grid gap-4 xs-mobile:gap-6 py-3 xs-mobile:py-4">
                      {/* Wallet Balance */}
                      <div className="bg-gray-50 rounded-lg p-3 xs-mobile:p-4">
-                       <Label className="text-sm font-medium text-gray-700 mb-2 block">Хэтэвчний үлдэгдэл</Label>
+                       <Label className="text-sm font-medium text-gray-700 mb-2 block">Дэнчингийн үлдэгдэл</Label>
                        <div className="text-3xl font-bold text-orange-500">{walletBalance.toLocaleString()}₮</div>
                      </div>
                      
@@ -507,7 +507,7 @@ export default function WalletPage() {
                          <div>
                            <div className="font-bold text-red-700 text-sm mb-2">САНАМЖ</div>
                            <p className="text-red-600 text-sm leading-relaxed">
-                             Хэтэвчнээс таталт хийхдээ 1000₮-өөс дээш дүнгээр таталт хийх ба тухайн дүнгээс гүйлгээний шимтгэл 300₮-ийг суутгах болно.
+                             Дэнчингээс таталт хийхдээ 1000₮-өөс дээш дүнгээр таталт хийх ба тухайн дүнгээс гүйлгээний шимтгэл 300₮-ийг суутгах болно.
                            </p>
                          </div>
                        </div>
@@ -686,7 +686,7 @@ export default function WalletPage() {
                 const date = transaction.created_at
                   ? new Date(transaction.created_at).toLocaleDateString("mn-MN")
                   : ""
-                const description = transaction.txn_type?.value ?? (isDebit ? "Таталт хийгдсэн" : "Хэтэвч цэнэглэлт хийгдсэн")
+                const description = transaction.txn_type?.value ?? (isDebit ? "Таталт хийгдсэн" : "Дэнчин цэнэглэлт хийгдсэн")
 
                 // Pick icon + colour by transaction type key
                 const iconConfig = (() => {

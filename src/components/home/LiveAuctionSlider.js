@@ -282,15 +282,17 @@ export default function LiveAuctionSlider() {
                     {/* Bid Button */}
                     <div className="flex justify-end">
                       <button 
-                        className="bg-[#FF4405] hover:bg-[#E63D04] w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200"
+                        onClick={(e) => { e.stopPropagation(); window.location.href = `/auction/${auction.id}`; }}
+                        className="bg-[#FF4405] hover:bg-[#E63D04] px-4 py-2 rounded-full flex items-center gap-2 transition-colors duration-200"
                       >
                         <Image 
                           src="/svg/bid.svg" 
                           alt="Bid" 
-                          width={18}
-                          height={18}
-                          className="w-[18px] h-[18px]"
+                          width={16}
+                          height={16}
+                          className="w-4 h-4"
                         />
+                        <span className="text-white font-bold text-sm font-tt-firs-neue-variable">Оролцох</span>
                       </button>
                     </div>
                   </div>

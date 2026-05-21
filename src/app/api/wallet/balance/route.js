@@ -37,7 +37,7 @@ export async function GET(request) {
   } catch (error) {
     console.error("Wallet balance proxy error:", error)
     return NextResponse.json(
-      { detail: "Хэтэвчний үлдэгдэл авахад алдаа гарлаа." },
+      { detail: "Дэнчингийн үлдэгдэл авахад алдаа гарлаа." },
       { status: 500 }
     )
   }
