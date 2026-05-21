@@ -624,13 +624,13 @@ export default function AuctionItemPage({ params }) {
                     return (
                   <Button
                     variant="outline"
-                    className={`py-3 xs-mobile:py-4 rounded-xl border-2 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isEnded
-                        ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                    className={`py-3 xs-mobile:py-4 transition-all duration-200 font-tt-firs-neue-variable font-bold text-xs xs-mobile:text-sm leading-5 xs-mobile:leading-6 tracking-[2.4%] uppercase ${isEnded
+                        ? 'rounded-xl border-2 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
                         : !isLoggedIn
-                          ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                          ? 'rounded-xl border-2 bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
                           : hasUserPledged
-                            ? 'bg-green-100 text-green-700 border-green-300 cursor-not-allowed opacity-80'
-                            : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-200'
+                            ? 'rounded-xl border-2 bg-green-100 text-green-700 border-green-300 cursor-not-allowed opacity-80'
+                            : 'rounded-full border border-[#FF4405]/65 bg-gradient-to-br from-[#FF4405]/20 to-orange-200/10 text-[#FF4405] hover:from-[#FF4405]/30 shadow-[0_10px_25px_rgba(255,68,5,0.2),inset_0_1px_0_rgba(255,255,255,0.6)] animate-pulse [animation-duration:2s] hover:animate-none hover:scale-105 active:scale-95'
                       }`}
                     disabled={isEnded || !isLoggedIn || hasUserPledged}
                     onClick={() => {
