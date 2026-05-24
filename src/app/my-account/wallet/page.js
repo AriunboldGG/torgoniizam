@@ -40,12 +40,14 @@ export default function WalletPage() {
   const [isRechargeDialogOpen, setIsRechargeDialogOpen] = useState(false)
   const [isLinkedAccountsOpen, setIsLinkedAccountsOpen] = useState(false)
   const [deletingAccountId, setDeletingAccountId] = useState(null)
+  const [settingDefaultId, setSettingDefaultId] = useState(null)
   const [selectedBank, setSelectedBank] = useState("")
   const [accountNumber, setAccountNumber] = useState("")
   const [selectedAccount, setSelectedAccount] = useState("")
   const [withdrawAmount, setWithdrawAmount] = useState("")
   const [isWithdrawLoading, setIsWithdrawLoading] = useState(false)
   const [isConnectLoading, setIsConnectLoading] = useState(false)
+  const [isDefault, setIsDefault] = useState(false)
   const [banks, setBanks] = useState([])
   const [connectedAccounts, setConnectedAccounts] = useState([])
   const [transactions, setTransactions] = useState([])
@@ -83,6 +85,7 @@ export default function WalletPage() {
               label: a.account_no,
               bank: a.bank?.value ?? a.bank?.name ?? a.bank_name ?? "",
               iban: a.iban ?? "",
+              is_default: a.is_default ?? false,
             }))
           )
         }
@@ -175,11 +178,12 @@ export default function WalletPage() {
       const response = await fetchWithAuth("/api/account/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bank: Number(selectedBank), account_no: accountNumber }),
+        body: JSON.stringify({ bank: Number(selectedBank), account_no: accountNumber, is_default: connectedAccounts.length === 0 ? true : isDefault }),
       })
       const data = await response.json()
       if (!response.ok) {
-        alert(data?.detail || "Данс холбоход алдаа гарлаа. Дахин оролдоно уу.")
+        console.error("Connect account error:", { status: response.status, data })
+        alert(data?.msg || "Данс холбоход алдаа гарлаа. Дахин оролдоно уу.")
         return
       }
       alert(data?.message ?? data?.detail ?? "Данс амжилттай холбогдлоо!")
@@ -188,11 +192,12 @@ export default function WalletPage() {
       const d = await res.json()
       const lst = d?.data ?? d
       if (Array.isArray(lst)) {
-        setConnectedAccounts(lst.map((a) => ({ value: String(a.id), label: a.account_no, bank: a.bank?.value ?? a.bank?.name ?? a.bank_name ?? "", iban: a.iban ?? "" })))
+        setConnectedAccounts(lst.map((a) => ({ value: String(a.id), label: a.account_no, bank: a.bank?.value ?? a.bank?.name ?? a.bank_name ?? "", iban: a.iban ?? "", is_default: a.is_default ?? false })))
       }
       setIsDialogOpen(false)
       setSelectedBank("")
       setAccountNumber("")
+      setIsDefault(false)
     } catch (error) {
       console.error("Connect account error:", error)
       alert("Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.")
@@ -242,6 +247,25 @@ export default function WalletPage() {
       alert("Серверт холбогдоход алдаа гарлаа. Дахин оролдоно уу.")
     } finally {
       setIsWithdrawLoading(false)
+    }
+  }
+
+  const handleSetDefault = async (accountId) => {
+    setSettingDefaultId(accountId)
+    try {
+      const response = await fetchWithAuth(`/api/account/default/${accountId}`)
+      const data = await response.json()
+      if (!response.ok) {
+        alert(data?.detail || data?.msg || "Үндсэн данс тохируулахад алдаа гарлаа.")
+        return
+      }
+      setConnectedAccounts((prev) =>
+        prev.map((a) => ({ ...a, is_default: a.value === String(accountId) }))
+      )
+    } catch {
+      alert("Серверт холбогдоход алдаа гарлаа.")
+    } finally {
+      setSettingDefaultId(null)
     }
   }
 
@@ -322,7 +346,7 @@ export default function WalletPage() {
                  <DialogTrigger asChild>
                    <button className="bg-gray-800 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-full font-medium hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
                      <TbDeviceDesktopUp className="text-xl lg:text-2xl" />
-                     <span>Цэнэглэх</span>
+                     <span>Дэнчин цэнэглэх</span>
                    </button>
                  </DialogTrigger>
                  <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col p-3 xs-mobile:p-4 sm:p-6">
@@ -578,6 +602,21 @@ export default function WalletPage() {
                         className="w-full"
                       />
                     </div>
+
+                    {connectedAccounts.length > 0 && (
+                      <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-lg p-3">
+                        <input
+                          id="is-default"
+                          type="checkbox"
+                          checked={isDefault}
+                          onChange={(e) => setIsDefault(e.target.checked)}
+                          className="w-4 h-4 accent-orange-500 cursor-pointer flex-shrink-0"
+                        />
+                        <label htmlFor="is-default" className="text-sm font-medium text-orange-800 cursor-pointer select-none">
+                          Үндсэн дансаар сонгох уу?
+                        </label>
+                      </div>
+                    )}
                   </div>
                   
                   <DialogFooter className="flex-shrink-0 flex gap-3 pt-4">
@@ -621,12 +660,27 @@ export default function WalletPage() {
                     ) : (
                       <div className="space-y-3">
                         {connectedAccounts.map((account, idx) => (
-                          <div key={account.value} className="border border-gray-200 rounded-xl p-3 xs-mobile:p-4 bg-gray-50">
+                          <div key={account.value} className={`rounded-xl p-3 xs-mobile:p-4 ${account.is_default ? "border-2 border-orange-400 bg-orange-50" : "border border-gray-200 bg-gray-50"}`}>
                             <div className="flex items-center gap-2 mb-3">
-                              <div className="bg-orange-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
-                                <MdOutlineAccountBalance className="text-orange-500 text-base" />
+                              <div className={`rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 ${account.is_default ? "bg-orange-400" : "bg-orange-100"}`}>
+                                <MdOutlineAccountBalance className={`text-base ${account.is_default ? "text-white" : "text-orange-500"}`} />
                               </div>
                               <span className="font-semibold text-gray-900 text-sm flex-1">{account.bank || "Банк"}</span>
+                              {account.is_default && (
+                                <span className="text-xs font-semibold bg-orange-400 text-white px-2 py-0.5 rounded-full">Үндсэн данс</span>
+                              )}
+                              {!account.is_default && (
+                                <button
+                                  onClick={() => handleSetDefault(account.value)}
+                                  disabled={settingDefaultId === account.value}
+                                  className="text-xs font-medium text-orange-600 border border-orange-300 bg-white hover:bg-orange-50 px-2 py-0.5 rounded-full transition-colors disabled:opacity-50"
+                                  title="Үндсэн данс болгох"
+                                >
+                                  {settingDefaultId === account.value
+                                    ? <span className="w-3 h-3 border-2 border-orange-400 border-t-transparent rounded-full animate-spin inline-block" />
+                                    : "Үндсэн болгох"}
+                                </button>
+                              )}
                               <button
                                 onClick={() => handleDeleteAccount(account.value)}
                                 disabled={deletingAccountId === account.value}
