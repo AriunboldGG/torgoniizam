@@ -27,7 +27,7 @@ export async function POST(request) {
   } catch (error) {
     console.error("Wallet topup proxy error:", error)
     return NextResponse.json(
-      { detail: "Дэнчин цэнэглэхэд алдаа гарлаа." },
+      { detail: "Дэнчин байршуулахад алдаа гарлаа." },
       { status: 500 }
     )
   }
